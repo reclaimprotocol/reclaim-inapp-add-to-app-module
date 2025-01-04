@@ -16,9 +16,9 @@ import Foundation
 final class PigeonError: Error {
   let code: String
   let message: String?
-  let details: Any?
+  let details: String?
 
-  init(code: String, message: String?, details: Any?) {
+  init(code: String, message: String?, details: String?) {
     self.code = code
     self.message = message
     self.details = details
@@ -177,7 +177,7 @@ struct ReclaimApiVerificationException {
 struct ReclaimApiVerificationResponse {
   var sessionId: String
   var didSubmitManualVerification: Bool
-  var proofs: [[String: dynamic]]
+  var proofs: [[String: Any]]
   var exception: ReclaimApiVerificationException? = nil
 
 
@@ -185,7 +185,7 @@ struct ReclaimApiVerificationResponse {
   static func fromList(_ pigeonVar_list: [Any?]) -> ReclaimApiVerificationResponse? {
     let sessionId = pigeonVar_list[0] as! String
     let didSubmitManualVerification = pigeonVar_list[1] as! Bool
-    let proofs = pigeonVar_list[2] as! [[String: dynamic]]
+    let proofs = pigeonVar_list[2] as! [[String: Any]]
     let exception: ReclaimApiVerificationException? = nilOrValue(pigeonVar_list[3])
 
     return ReclaimApiVerificationResponse(

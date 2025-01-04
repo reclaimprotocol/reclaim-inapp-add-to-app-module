@@ -1,0 +1,116 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "An unexpected error occurred" : {
+      "comment" : "Label for unknown error",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error occurred"
+          }
+        }
+      }
+    },
+    "Cancelled by user" : {
+      "comment" : "Message shown in alert when action is cancelled by user",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelled by user"
+          }
+        }
+      }
+    },
+    "Claim Creation" : {
+      "comment" : "Title for the alert dialog",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claim Creation"
+          }
+        }
+      }
+    },
+    "My Flutter Feature" : {
+
+    },
+    "OK" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "Provider Id" : {
+      "comment" : "Provider ID Text field label",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Provider Id"
+          }
+        }
+      }
+    },
+    "Reclaim SDK Example" : {
+      "comment" : "Application's title",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reclaim SDK Example"
+          }
+        }
+      }
+    },
+    "Result: %@" : {
+      "comment" : "Label for the result text",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Result: %@"
+          }
+        }
+      }
+    },
+    "Something went wrong" : {
+      "comment" : "Message shown in alert when action fails",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something went wrong"
+          }
+        }
+      }
+    },
+    "Start Claim" : {
+      "comment" : "Label for start claim button",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Claim"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

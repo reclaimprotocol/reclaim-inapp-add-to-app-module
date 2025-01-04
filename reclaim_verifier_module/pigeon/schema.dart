@@ -9,7 +9,7 @@ import 'package:pigeon/pigeon.dart';
   ),
   kotlinOut:
       '../plugins/android/src/main/kotlin/org/reclaimprotocol/plugins/reclaim_verifier_android/Schema.kt',
-  swiftOut: '../plugins/ios/Classes/Schema.swift',
+  swiftOut: '../plugins/ios/Sources/ReclaimInAppSdk/Schema.swift',
   copyrightHeader: 'pigeon/copyright.txt',
 ))
 class ReclaimApiVerificationRequest {
