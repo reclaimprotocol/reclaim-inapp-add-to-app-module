@@ -78,7 +78,7 @@ enum ReclaimApiVerificationExceptionType: Int {
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
-struct ReclaimApiVerificationRequest {
+public struct ReclaimApiVerificationRequest {
   var appId: String
   var providerId: String
   var secret: String
@@ -174,7 +174,7 @@ struct ReclaimApiVerificationException {
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
-struct ReclaimApiVerificationResponse {
+public struct ReclaimApiVerificationResponse {
   var sessionId: String
   var didSubmitManualVerification: Bool
   var proofs: [[String: Any]]
@@ -264,6 +264,7 @@ class SchemaPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
 /// Generated protocol from Pigeon that represents Flutter messages that can be called from Swift.
 protocol ReclaimModuleApiProtocol {
   func startVerification(request requestArg: ReclaimApiVerificationRequest, completion: @escaping (Result<ReclaimApiVerificationResponse, PigeonError>) -> Void)
+  func startVerificationFromUrl(url urlArg: String, completion: @escaping (Result<ReclaimApiVerificationResponse, PigeonError>) -> Void)
   func ping(completion: @escaping (Result<Bool, PigeonError>) -> Void)
 }
 class ReclaimModuleApi: ReclaimModuleApiProtocol {
@@ -280,6 +281,27 @@ class ReclaimModuleApi: ReclaimModuleApiProtocol {
     let channelName: String = "dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerification\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([requestArg] as [Any?]) { response in
+      guard let listResponse = response as? [Any?] else {
+        completion(.failure(createConnectionError(withChannelName: channelName)))
+        return
+      }
+      if listResponse.count > 1 {
+        let code: String = listResponse[0] as! String
+        let message: String? = nilOrValue(listResponse[1])
+        let details: String? = nilOrValue(listResponse[2])
+        completion(.failure(PigeonError(code: code, message: message, details: details)))
+      } else if listResponse[0] == nil {
+        completion(.failure(PigeonError(code: "null-error", message: "Flutter api returned null value for non-null return value.", details: "")))
+      } else {
+        let result = listResponse[0] as! ReclaimApiVerificationResponse
+        completion(.success(result))
+      }
+    }
+  }
+  func startVerificationFromUrl(url urlArg: String, completion: @escaping (Result<ReclaimApiVerificationResponse, PigeonError>) -> Void) {
+    let channelName: String = "dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromUrl\(messageChannelSuffix)"
+    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([urlArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
         completion(.failure(createConnectionError(withChannelName: channelName)))
         return

@@ -5,6 +5,8 @@ import 'package:reclaim_flutter_sdk/logging/logging.dart';
 import 'package:reclaim_flutter_sdk/reclaim_flutter_sdk.dart';
 import 'package:reclaim_verifier_module/src/pigeon/schema.pigeon.dart';
 
+import 'src/data/url_request.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -113,10 +115,12 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
           type: () {
             if (e is ReclaimException) {
               if (e is ReclaimVerificationDismissedException) {
-                return ReclaimApiVerificationExceptionType.verificationDismissed;
+                return ReclaimApiVerificationExceptionType
+                    .verificationDismissed;
               }
               if (e is ReclaimVerificationCancelledException) {
-                return ReclaimApiVerificationExceptionType.verificationCancelled;
+                return ReclaimApiVerificationExceptionType
+                    .verificationCancelled;
               }
               if (e is ReclaimSessionExpiredException) {
                 return ReclaimApiVerificationExceptionType.sessionExpired;
@@ -127,6 +131,26 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
         ),
       );
     }
+  }
+
+  @override
+  Future<ReclaimApiVerificationResponse> startVerificationFromUrl(String url) {
+    final request = ReclaimUrlRequest.fromUrl(url);
+    return startVerification(ReclaimApiVerificationRequest(
+      appId: request.applicationId,
+      providerId: request.providerId,
+      secret: request.signature,
+      signature: request.signature,
+      timestamp: request.timestamp,
+      context: request.context ?? '',
+      sessionId: request.sessionId ?? '',
+      parameters: request.parameters ?? const {},
+      acceptAiProviders: request.acceptAiProviders ?? false,
+      webhookUrl: request.callbackUrl,
+      debug: false,
+      hideLanding: false,
+      autoSubmit: false,
+    ));
   }
 
   Future<String> _onComputeProofExternally(String type, Uint8List bytes) async {

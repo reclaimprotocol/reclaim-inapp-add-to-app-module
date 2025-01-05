@@ -85,6 +85,10 @@ abstract class ReclaimModuleApi {
     ReclaimApiVerificationRequest request,
   );
   @async
+  ReclaimApiVerificationResponse startVerificationFromUrl(
+    String url,
+  );
+  @async
   bool ping();
 }
 

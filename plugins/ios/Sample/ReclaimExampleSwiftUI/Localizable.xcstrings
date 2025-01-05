@@ -3,7 +3,6 @@
   "strings" : {
     "An unexpected error occurred" : {
       "comment" : "Label for unknown error",
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13,9 +12,11 @@
         }
       }
     },
+    "Cancelled" : {
+
+    },
     "Cancelled by user" : {
       "comment" : "Message shown in alert when action is cancelled by user",
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27,7 +28,6 @@
     },
     "Claim Creation" : {
       "comment" : "Title for the alert dialog",
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -37,11 +37,7 @@
         }
       }
     },
-    "My Flutter Feature" : {
-
-    },
     "OK" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -53,7 +49,6 @@
     },
     "Provider Id" : {
       "comment" : "Provider ID Text field label",
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -65,7 +60,6 @@
     },
     "Reclaim SDK Example" : {
       "comment" : "Application's title",
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -89,7 +83,6 @@
     },
     "Something went wrong" : {
       "comment" : "Message shown in alert when action fails",
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -101,7 +94,6 @@
     },
     "Start Claim" : {
       "comment" : "Label for start claim button",
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

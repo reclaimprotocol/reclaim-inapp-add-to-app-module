@@ -1,2 +1,2 @@
 example_swiftui:
-	open ./Sample/ReclaimExampleSwiftUI/ReclaimExample.xcodeproj/
+	open ./Sample/ReclaimExampleSwiftUI/ReclaimExample.xcworkspace/
