@@ -15,9 +15,6 @@
 		795028A42CC24B3600359AEE /* BaseConfig.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 795028A32CC24B3600359AEE /* BaseConfig.xcconfig */; };
 		795028A52CC24B3600359AEE /* BaseConfig.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 795028A32CC24B3600359AEE /* BaseConfig.xcconfig */; };
 		795028A62CC24B3600359AEE /* BaseConfig.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 795028A32CC24B3600359AEE /* BaseConfig.xcconfig */; };
-		7957C19B2CC90E4E00DBB8C7 /* SampleReclaimAttestorProofRequest.json in Resources */ = {isa = PBXBuildFile; fileRef = 7957C19A2CC90E3900DBB8C7 /* SampleReclaimAttestorProofRequest.json */; };
-		7957C19C2CC90E4E00DBB8C7 /* SampleReclaimAttestorProofRequest.json in Resources */ = {isa = PBXBuildFile; fileRef = 7957C19A2CC90E3900DBB8C7 /* SampleReclaimAttestorProofRequest.json */; };
-		7957C19D2CC90E4E00DBB8C7 /* SampleReclaimAttestorProofRequest.json in Resources */ = {isa = PBXBuildFile; fileRef = 7957C19A2CC90E3900DBB8C7 /* SampleReclaimAttestorProofRequest.json */; };
 		796962D12D29F6BD00C8A707 /* flutter_secure_storage.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B6A3C72D29F03F00DAE854 /* flutter_secure_storage.xcframework */; };
 		796962D22D29F6BD00C8A707 /* flutter_secure_storage.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 79B6A3C72D29F03F00DAE854 /* flutter_secure_storage.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		796962D32D29F70000C8A707 /* cupertino_http.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B6A3C82D29F03F00DAE854 /* cupertino_http.xcframework */; };
@@ -115,7 +112,6 @@
 		794241382CC0597700E2F1D2 /* ReclaimExampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReclaimExampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7950289D2CC2367300359AEE /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		795028A32CC24B3600359AEE /* BaseConfig.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BaseConfig.xcconfig; sourceTree = "<group>"; };
-		7957C19A2CC90E3900DBB8C7 /* SampleReclaimAttestorProofRequest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SampleReclaimAttestorProofRequest.json; sourceTree = "<group>"; };
 		79B6A3C52D29F03F00DAE854 /* FlutterPluginRegistrant.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FlutterPluginRegistrant.xcframework; path = "ReclaimFrameworks/$(CONFIGURATION)/FlutterPluginRegistrant.xcframework"; sourceTree = "<group>"; };
 		79B6A3C62D29F03F00DAE854 /* permission_handler_apple.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = permission_handler_apple.xcframework; path = "ReclaimFrameworks/$(CONFIGURATION)/permission_handler_apple.xcframework"; sourceTree = "<group>"; };
 		79B6A3C72D29F03F00DAE854 /* flutter_secure_storage.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = flutter_secure_storage.xcframework; path = "ReclaimFrameworks/$(CONFIGURATION)/flutter_secure_storage.xcframework"; sourceTree = "<group>"; };
@@ -234,7 +230,6 @@
 		794241152CC0597600E2F1D2 = {
 			isa = PBXGroup;
 			children = (
-				7957C19A2CC90E3900DBB8C7 /* SampleReclaimAttestorProofRequest.json */,
 				795028A32CC24B3600359AEE /* BaseConfig.xcconfig */,
 				7950289D2CC2367300359AEE /* Localizable.xcstrings */,
 				794241202CC0597600E2F1D2 /* ReclaimExample */,
@@ -409,7 +404,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				7950289E2CC2367300359AEE /* Localizable.xcstrings in Resources */,
-				7957C19D2CC90E4E00DBB8C7 /* SampleReclaimAttestorProofRequest.json in Resources */,
 				795028A52CC24B3600359AEE /* BaseConfig.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -419,7 +413,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				7950289F2CC2367300359AEE /* Localizable.xcstrings in Resources */,
-				7957C19C2CC90E4E00DBB8C7 /* SampleReclaimAttestorProofRequest.json in Resources */,
 				795028A42CC24B3600359AEE /* BaseConfig.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -429,7 +422,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				795028A02CC2367300359AEE /* Localizable.xcstrings in Resources */,
-				7957C19B2CC90E4E00DBB8C7 /* SampleReclaimAttestorProofRequest.json in Resources */,
 				795028A62CC24B3600359AEE /* BaseConfig.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
