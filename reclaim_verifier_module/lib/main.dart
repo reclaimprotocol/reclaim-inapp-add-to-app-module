@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gnarkprover/gnarkprover.dart';
@@ -7,13 +9,32 @@ import 'package:reclaim_verifier_module/src/pigeon/schema.pigeon.dart';
 
 import 'src/data/url_request.dart';
 
+Future<Gnarkprover> _initializeGnarkProver() async {
+  final logger = logging.child('_initializeGnarkProver');
+  const maxRetries = 5;
+  for (var i = 1; i <= maxRetries; i++) {
+    try {
+      return await Gnarkprover.getInstance();
+    } catch (e, s) {
+      logger.info(
+        'Failed to initialize Gnark prover, retrying... ($i/$maxRetries)',
+        e,
+        s,
+      );
+    }
+  }
+  throw Exception('Failed to initialize Gnark prover');
+}
+
+late final Future<Gnarkprover> gnarkProverFuture;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Getting the Gnark prover instance to initialize in advance before usage because initialization can take time.
   // This can also be done in the `main` function.
   // Calling this more than once is safe.
-  Gnarkprover.getInstance();
+  gnarkProverFuture = _initializeGnarkProver();
 
   // Setting this to true will print logs from reclaim_flutter_sdk to the console.
   debugCanPrintLogs = kDebugMode;
@@ -70,7 +91,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
           providerId: request.providerId,
           context: request.context,
           parameters: request.parameters,
-          computeAttestorProof: _onComputeProofExternally,
+          computeAttestorProof: _onComputeAttestorProof,
           debug: request.debug,
           hideLanding: request.hideLanding,
           autoSubmit: request.autoSubmit,
@@ -85,7 +106,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
           secret: request.secret,
           context: request.context,
           parameters: request.parameters,
-          computeAttestorProof: _onComputeProofExternally,
+          computeAttestorProof: _onComputeAttestorProof,
           debug: request.debug,
           hideLanding: request.hideLanding,
           autoSubmit: request.autoSubmit,
@@ -100,7 +121,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
         sessionId: latestConsumerIdentity?.sessionId ?? request.sessionId,
         didSubmitManualVerification: proofs == null,
         proofs: [
-          if (proofs != null) proofs.toJson(),
+          if (proofs != null) json.decode(json.encode(proofs)),
         ],
         exception: null,
       );
@@ -153,9 +174,12 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
     ));
   }
 
-  Future<String> _onComputeProofExternally(String type, Uint8List bytes) async {
-    final gnarkProver = await Gnarkprover.getInstance();
-    return gnarkProver.computeWitnessProof(type, bytes);
+  Future<String> _onComputeAttestorProof(
+    String type,
+    List<dynamic> args,
+  ) async {
+    final gnarkProver = await gnarkProverFuture;
+    return gnarkProver.computeAttestorProof(type, args);
   }
 
   @override

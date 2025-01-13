@@ -4,7 +4,11 @@ import SwiftUI
 public extension ReclaimApiVerificationRequest {
     public init(appId: String? = nil, providerId: String, secret: String? = nil, signature: String, timestamp: String? = nil, context: String, sessionId: String, parameters: [String : String], debug: Bool, hideLanding: Bool, autoSubmit: Bool, acceptAiProviders: Bool, webhookUrl: String? = nil) {
         let sdkParam = Bundle.main.infoDictionary?["ReclaimInAppSDKParam"] as? [String : Any]
-        
+        if (appId == nil && sdkParam?["ReclaimAppId"] == nil) {
+            // app id not set
+        } else if (secret == nil  && sdkParam?["ReclaimAppSecret"] == nil) {
+            // secret not set
+        }
         self.appId = appId ?? sdkParam?["ReclaimAppId"] as! String
         self.secret = secret ?? sdkParam?["ReclaimAppSecret"] as! String
 
@@ -20,28 +24,6 @@ public extension ReclaimApiVerificationRequest {
         self.acceptAiProviders = acceptAiProviders
         self.webhookUrl = webhookUrl
     }
-    
-//    public init(fromPlist providerId: String, signature: String, timestamp: String? = nil, context: String, sessionId: String, parameters: [String : String], debug: Bool, hideLanding: Bool, autoSubmit: Bool, acceptAiProviders: Bool, webhookUrl: String? = nil) throws {
-//        if  let data = Bundle.main.infoDictionary?["ReclaimInAppSDKParam"] as? [String : Any] {
-//            let appId = data["ReclaimAppId"] as! String
-//            let appSecret = data["ReclaimAppSecret"] as! String
-//            self.appId = appId
-//            self.providerId = providerId
-//            self.secret = appSecret
-//            self.signature = signature
-//            self.timestamp = timestamp
-//            self.context = context
-//            self.sessionId = sessionId
-//            self.parameters = parameters
-//            self.debug = debug
-//            self.hideLanding = hideLanding
-//            self.autoSubmit = autoSubmit
-//            self.acceptAiProviders = acceptAiProviders
-//            self.webhookUrl = webhookUrl
-//        } else {
-//            throw ReclaimVerificationError.failed(reason:"Failed to create ReclaimVerification.Request. Make sure you have Reclaim SDK's required parameters in your app's Info.plist file.")
-//        }
-//    }
 }
 
 /// ReclaimVerification is the main entry point for the Reclaim SDK verification flow.

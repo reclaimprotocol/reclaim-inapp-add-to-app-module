@@ -177,7 +177,7 @@ struct ReclaimApiVerificationException {
 public struct ReclaimApiVerificationResponse {
   var sessionId: String
   var didSubmitManualVerification: Bool
-  var proofs: [[String: Any]]
+  var proofs: [[String: Any?]]
   var exception: ReclaimApiVerificationException? = nil
 
 
@@ -185,7 +185,7 @@ public struct ReclaimApiVerificationResponse {
   static func fromList(_ pigeonVar_list: [Any?]) -> ReclaimApiVerificationResponse? {
     let sessionId = pigeonVar_list[0] as! String
     let didSubmitManualVerification = pigeonVar_list[1] as! Bool
-    let proofs = pigeonVar_list[2] as! [[String: Any]]
+    let proofs = pigeonVar_list[2] as! [[String: Any?]]
     let exception: ReclaimApiVerificationException? = nilOrValue(pigeonVar_list[3])
 
     return ReclaimApiVerificationResponse(
