@@ -8,7 +8,7 @@ import 'package:pigeon/pigeon.dart';
     package: 'org.reclaimprotocol.plugins.reclaim_verifier_android',
   ),
   kotlinOut:
-      '../plugins/android/src/main/kotlin/org/reclaimprotocol/plugins/reclaim_verifier_android/Schema.kt',
+      '../plugins/android/app/src/main/java/org/reclaimprotocol/reclaim_inapp_sdk/Schema.kt',
   swiftOut: '../plugins/ios/Sources/ReclaimInAppSdk/Schema.swift',
   copyrightHeader: 'pigeon/copyright.txt',
 ))

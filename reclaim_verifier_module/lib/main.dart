@@ -121,7 +121,8 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
         sessionId: latestConsumerIdentity?.sessionId ?? request.sessionId,
         didSubmitManualVerification: proofs == null,
         proofs: [
-          if (proofs != null) json.decode(json.encode(proofs)),
+          if (proofs != null)
+            for (final proof in proofs) json.decode(json.encode(proof)),
         ],
         exception: null,
       );

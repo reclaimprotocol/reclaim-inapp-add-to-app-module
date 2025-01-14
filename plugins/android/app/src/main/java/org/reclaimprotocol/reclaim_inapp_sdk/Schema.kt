@@ -146,7 +146,7 @@ data class ReclaimApiVerificationException (
 data class ReclaimApiVerificationResponse (
   val sessionId: String,
   val didSubmitManualVerification: Boolean,
-  val proofs: List<Map<String, dynamic>>,
+  val proofs: List<Map<String, Any>>,
   val exception: ReclaimApiVerificationException? = null
 )
  {
@@ -154,7 +154,7 @@ data class ReclaimApiVerificationResponse (
     fun fromList(pigeonVar_list: List<Any?>): ReclaimApiVerificationResponse {
       val sessionId = pigeonVar_list[0] as String
       val didSubmitManualVerification = pigeonVar_list[1] as Boolean
-      val proofs = pigeonVar_list[2] as List<Map<String, dynamic>>
+      val proofs = pigeonVar_list[2] as List<Map<String, Any>>
       val exception = pigeonVar_list[3] as ReclaimApiVerificationException?
       return ReclaimApiVerificationResponse(sessionId, didSubmitManualVerification, proofs, exception)
     }
