@@ -3,7 +3,7 @@ import 'package:pigeon/pigeon.dart';
 @ConfigurePigeon(PigeonOptions(
   input: 'pigeon/schema.dart',
   dartOut: 'lib/src/pigeon/schema.pigeon.dart',
-  // dartTestOut: 'test/pigeon/schema_test.g.dart',
+  dartTestOut: 'test/pigeon/schema_test.g.dart',
   kotlinOptions: KotlinOptions(
     package: 'org.reclaimprotocol.plugins.reclaim_verifier_android',
   ),
