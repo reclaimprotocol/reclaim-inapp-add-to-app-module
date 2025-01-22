@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		249E4711579929293A91455A /* Pods_ReclaimExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE593C2C445CF806CD1BA096 /* Pods_ReclaimExample.framework */; };
+		790041212D41076C00C82932 /* objective_c.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 790041202D41076C00C82932 /* objective_c.xcframework */; };
+		790041222D41076C00C82932 /* objective_c.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 790041202D41076C00C82932 /* objective_c.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		79249E802D29DF7800D48F07 /* ReclaimInAppSdk in Frameworks */ = {isa = PBXBuildFile; productRef = 79249E7F2D29DF7800D48F07 /* ReclaimInAppSdk */; };
 		7950289E2CC2367300359AEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7950289D2CC2367300359AEE /* Localizable.xcstrings */; };
 		7950289F2CC2367300359AEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7950289D2CC2367300359AEE /* Localizable.xcstrings */; };
@@ -79,6 +81,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				79A13DA52D29F18E00254B82 /* Flutter.xcframework in Embed Frameworks */,
+				790041222D41076C00C82932 /* objective_c.xcframework in Embed Frameworks */,
 				796962D42D29F70000C8A707 /* cupertino_http.xcframework in Embed Frameworks */,
 				796962EE2D29F80400C8A707 /* OrderedSet.xcframework in Embed Frameworks */,
 				796962E42D29F7DE00C8A707 /* package_info_plus.xcframework in Embed Frameworks */,
@@ -106,6 +109,7 @@
 		268A948ADC2976931DC73E4A /* Pods-ReclaimExample-ReclaimExampleUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReclaimExample-ReclaimExampleUITests.release.xcconfig"; path = "Target Support Files/Pods-ReclaimExample-ReclaimExampleUITests/Pods-ReclaimExample-ReclaimExampleUITests.release.xcconfig"; sourceTree = "<group>"; };
 		583F4D381E7CB6FBF213FEBF /* Pods-ReclaimExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReclaimExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-ReclaimExampleTests/Pods-ReclaimExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
 		7205279DC9775E0046970885 /* Pods-ReclaimExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReclaimExample.debug.xcconfig"; path = "Target Support Files/Pods-ReclaimExample/Pods-ReclaimExample.debug.xcconfig"; sourceTree = "<group>"; };
+		790041202D41076C00C82932 /* objective_c.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = objective_c.xcframework; path = ReclaimFrameworks/Release/objective_c.xcframework; sourceTree = "<group>"; };
 		79382313A4FFB042E10B2204 /* Pods-ReclaimExample-ReclaimExampleUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReclaimExample-ReclaimExampleUITests.debug.xcconfig"; path = "Target Support Files/Pods-ReclaimExample-ReclaimExampleUITests/Pods-ReclaimExample-ReclaimExampleUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		7942411E2CC0597600E2F1D2 /* ReclaimExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ReclaimExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7942412E2CC0597700E2F1D2 /* ReclaimExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReclaimExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -182,6 +186,7 @@
 				796962E52D29F7E200C8A707 /* permission_handler_apple.xcframework in Frameworks */,
 				796962DD2D29F77F00C8A707 /* url_launcher_ios.xcframework in Frameworks */,
 				79A13DA42D29F18E00254B82 /* Flutter.xcframework in Frameworks */,
+				790041212D41076C00C82932 /* objective_c.xcframework in Frameworks */,
 				796962E72D29F7E600C8A707 /* share_plus.xcframework in Frameworks */,
 				796962E12D29F7C100C8A707 /* fluttertoast.xcframework in Frameworks */,
 				796962E32D29F7DE00C8A707 /* package_info_plus.xcframework in Frameworks */,
@@ -254,6 +259,7 @@
 		794382F42D29EDEB00E018A3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				790041202D41076C00C82932 /* objective_c.xcframework */,
 				79B6A3CD2D29F03F00DAE854 /* App.xcframework */,
 				79B6A3C82D29F03F00DAE854 /* cupertino_http.xcframework */,
 				79B6A3CC2D29F03F00DAE854 /* device_info_plus.xcframework */,

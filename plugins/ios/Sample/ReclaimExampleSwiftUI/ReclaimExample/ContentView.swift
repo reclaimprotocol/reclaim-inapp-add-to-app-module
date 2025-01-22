@@ -50,7 +50,7 @@ struct ContentView: View {
     func startClaimCreation() async {
         do {
             let request = ReclaimVerification.Request.params(
-                .init(providerId: providerId, signature: "", context: "", sessionId: "", parameters: [String: String](), debug: false, hideLanding: true, autoSubmit: false, acceptAiProviders: true)
+                try .init(providerId: providerId)
             )
             switch (request) {
             case .params(let request):

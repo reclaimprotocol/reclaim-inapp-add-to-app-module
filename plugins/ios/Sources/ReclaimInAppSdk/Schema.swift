@@ -82,15 +82,14 @@ public struct ReclaimApiVerificationRequest {
   var appId: String
   var providerId: String
   var secret: String
-  var signature: String
+  var signature: String = ""
   var timestamp: String? = nil
   var context: String
-  var sessionId: String
+  var sessionId: String = ""
   var parameters: [String: String]
-  var debug: Bool
-  var hideLanding: Bool
-  var autoSubmit: Bool
-  var acceptAiProviders: Bool
+  var hideLanding: Bool = true
+  var autoSubmit: Bool = false
+  var acceptAiProviders: Bool = false
   var webhookUrl: String? = nil
 
 
@@ -104,11 +103,10 @@ public struct ReclaimApiVerificationRequest {
     let context = pigeonVar_list[5] as! String
     let sessionId = pigeonVar_list[6] as! String
     let parameters = pigeonVar_list[7] as! [String: String]
-    let debug = pigeonVar_list[8] as! Bool
-    let hideLanding = pigeonVar_list[9] as! Bool
-    let autoSubmit = pigeonVar_list[10] as! Bool
-    let acceptAiProviders = pigeonVar_list[11] as! Bool
-    let webhookUrl: String? = nilOrValue(pigeonVar_list[12])
+    let hideLanding = pigeonVar_list[8] as! Bool
+    let autoSubmit = pigeonVar_list[9] as! Bool
+    let acceptAiProviders = pigeonVar_list[10] as! Bool
+    let webhookUrl: String? = nilOrValue(pigeonVar_list[11])
 
     return ReclaimApiVerificationRequest(
       appId: appId,
@@ -119,7 +117,6 @@ public struct ReclaimApiVerificationRequest {
       context: context,
       sessionId: sessionId,
       parameters: parameters,
-      debug: debug,
       hideLanding: hideLanding,
       autoSubmit: autoSubmit,
       acceptAiProviders: acceptAiProviders,
@@ -136,7 +133,6 @@ public struct ReclaimApiVerificationRequest {
       context,
       sessionId,
       parameters,
-      debug,
       hideLanding,
       autoSubmit,
       acceptAiProviders,

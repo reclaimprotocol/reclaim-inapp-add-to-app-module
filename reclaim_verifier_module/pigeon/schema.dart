@@ -21,7 +21,6 @@ class ReclaimApiVerificationRequest {
   final String context;
   final String sessionId;
   final Map<String, String> parameters;
-  final bool debug;
   final bool hideLanding;
   final bool autoSubmit;
   final bool acceptAiProviders;
@@ -36,7 +35,6 @@ class ReclaimApiVerificationRequest {
     required this.context,
     required this.sessionId,
     required this.parameters,
-    required this.debug,
     required this.hideLanding,
     required this.autoSubmit,
     required this.acceptAiProviders,

@@ -92,7 +92,6 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
           context: request.context,
           parameters: request.parameters,
           computeAttestorProof: _onComputeAttestorProof,
-          debug: request.debug,
           hideLanding: request.hideLanding,
           autoSubmit: request.autoSubmit,
           acceptAiProviders: request.acceptAiProviders,
@@ -107,7 +106,6 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
           context: request.context,
           parameters: request.parameters,
           computeAttestorProof: _onComputeAttestorProof,
-          debug: request.debug,
           hideLanding: request.hideLanding,
           autoSubmit: request.autoSubmit,
           acceptAiProviders: request.acceptAiProviders,
@@ -169,7 +167,6 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
       parameters: request.parameters ?? const {},
       acceptAiProviders: request.acceptAiProviders ?? false,
       webhookUrl: request.callbackUrl,
-      debug: false,
       hideLanding: false,
       autoSubmit: false,
     ));

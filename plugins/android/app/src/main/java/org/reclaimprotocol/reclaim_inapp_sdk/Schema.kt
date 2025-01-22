@@ -74,7 +74,6 @@ data class ReclaimApiVerificationRequest (
   val context: String,
   val sessionId: String,
   val parameters: Map<String, String>,
-  val debug: Boolean,
   val hideLanding: Boolean,
   val autoSubmit: Boolean,
   val acceptAiProviders: Boolean,
@@ -91,12 +90,11 @@ data class ReclaimApiVerificationRequest (
       val context = pigeonVar_list[5] as String
       val sessionId = pigeonVar_list[6] as String
       val parameters = pigeonVar_list[7] as Map<String, String>
-      val debug = pigeonVar_list[8] as Boolean
-      val hideLanding = pigeonVar_list[9] as Boolean
-      val autoSubmit = pigeonVar_list[10] as Boolean
-      val acceptAiProviders = pigeonVar_list[11] as Boolean
-      val webhookUrl = pigeonVar_list[12] as String?
-      return ReclaimApiVerificationRequest(appId, providerId, secret, signature, timestamp, context, sessionId, parameters, debug, hideLanding, autoSubmit, acceptAiProviders, webhookUrl)
+      val hideLanding = pigeonVar_list[8] as Boolean
+      val autoSubmit = pigeonVar_list[9] as Boolean
+      val acceptAiProviders = pigeonVar_list[10] as Boolean
+      val webhookUrl = pigeonVar_list[11] as String?
+      return ReclaimApiVerificationRequest(appId, providerId, secret, signature, timestamp, context, sessionId, parameters, hideLanding, autoSubmit, acceptAiProviders, webhookUrl)
     }
   }
   fun toList(): List<Any?> {
@@ -109,7 +107,6 @@ data class ReclaimApiVerificationRequest (
       context,
       sessionId,
       parameters,
-      debug,
       hideLanding,
       autoSubmit,
       acceptAiProviders,
@@ -146,7 +143,7 @@ data class ReclaimApiVerificationException (
 data class ReclaimApiVerificationResponse (
   val sessionId: String,
   val didSubmitManualVerification: Boolean,
-  val proofs: List<Map<String, Any?>>,
+  val proofs: List<Map<String, dynamic>>,
   val exception: ReclaimApiVerificationException? = null
 )
  {
@@ -154,7 +151,7 @@ data class ReclaimApiVerificationResponse (
     fun fromList(pigeonVar_list: List<Any?>): ReclaimApiVerificationResponse {
       val sessionId = pigeonVar_list[0] as String
       val didSubmitManualVerification = pigeonVar_list[1] as Boolean
-      val proofs = pigeonVar_list[2] as List<Map<String, Any?>>
+      val proofs = pigeonVar_list[2] as List<Map<String, dynamic>>
       val exception = pigeonVar_list[3] as ReclaimApiVerificationException?
       return ReclaimApiVerificationResponse(sessionId, didSubmitManualVerification, proofs, exception)
     }

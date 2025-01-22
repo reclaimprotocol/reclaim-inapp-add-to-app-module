@@ -44,7 +44,6 @@ class ReclaimApiVerificationRequest {
     required this.context,
     required this.sessionId,
     required this.parameters,
-    required this.debug,
     required this.hideLanding,
     required this.autoSubmit,
     required this.acceptAiProviders,
@@ -67,8 +66,6 @@ class ReclaimApiVerificationRequest {
 
   Map<String, String> parameters;
 
-  bool debug;
-
   bool hideLanding;
 
   bool autoSubmit;
@@ -87,7 +84,6 @@ class ReclaimApiVerificationRequest {
       context,
       sessionId,
       parameters,
-      debug,
       hideLanding,
       autoSubmit,
       acceptAiProviders,
@@ -106,11 +102,10 @@ class ReclaimApiVerificationRequest {
       context: result[5]! as String,
       sessionId: result[6]! as String,
       parameters: (result[7] as Map<Object?, Object?>?)!.cast<String, String>(),
-      debug: result[8]! as bool,
-      hideLanding: result[9]! as bool,
-      autoSubmit: result[10]! as bool,
-      acceptAiProviders: result[11]! as bool,
-      webhookUrl: result[12] as String?,
+      hideLanding: result[8]! as bool,
+      autoSubmit: result[9]! as bool,
+      acceptAiProviders: result[10]! as bool,
+      webhookUrl: result[11] as String?,
     );
   }
 }

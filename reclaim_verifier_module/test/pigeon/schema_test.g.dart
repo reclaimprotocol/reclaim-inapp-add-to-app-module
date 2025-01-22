@@ -12,7 +12,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:reclaim_verifier_module/src/pigeon/schema.pigeon.dart';
 
 
-// ignore: unused_element
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
