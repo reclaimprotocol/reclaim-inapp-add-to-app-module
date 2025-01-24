@@ -1,18 +1,46 @@
 import Foundation
 import SwiftUI
 
-/// The session that sdk will use for a verification attempt. If nil, sdk will generate a new session information internally.
+/// Represents session information for a verification attempt.
+/// This struct contains the necessary data to identify and validate a verification session.
 public struct ReclaimSessionInformation {
+    /// ISO 8601 formatted timestamp when the session was created
     let timestamp: String
+    
+    /// Unique identifier for the verification session
     let sessionId: String
+    
+    /// Cryptographic signature to validate the session
     let signature: String
 }
 
+/// Request parameters for initiating a Reclaim verification process.
 public extension ReclaimApiVerificationRequest {
-    /// Create a Reclaim Verification Request with appId and secret. This is used to start a reclaim verification process.
+    /// Creates a Reclaim Verification Request with explicit app credentials.
     ///
-    /// See also:
-    ///  - [ReclaimVerification() initializer]: Another initializer where [appId] and [secret] is retreived from Info.plist file.
+    /// Use this initializer when you want to provide the app credentials programmatically
+    /// rather than through Info.plist.
+    ///
+    /// Example:
+    /// ```swift
+    /// let request = ReclaimApiVerificationRequest(
+    ///     appId: "your-app-id",
+    ///     secret: "your-secret",
+    ///     providerId: "some-provider-id"
+    /// )
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - appId: Your Reclaim application ID. If not provided, SDK will look for ReclaimInAppSDKParam.ReclaimAppId in Info.plist
+    ///   - secret: Your Reclaim application secret. If not provided, SDK will look for ReclaimInAppSDKParam.ReclaimAppSecret in Info.plist
+    ///   - providerId: The identifier for the Reclaim data provider to use in verification
+    ///   - session: Optional session information. If nil, SDK generates new session details
+    ///   - context: Additional data to associate with the verification attempt
+    ///   - parameters: Key-value pairs for prefilling claim creation variables
+    ///   - hideLanding: When false, shows an introductory page with claims to be proven
+    ///   - autoSubmit: If true, automatically submits proof after generation
+    ///   - acceptAiProviders: Whether to accept AI-powered data providers
+    ///   - webhookUrl: Optional URL to receive verification status updates
     public init(
         /// If not provided, sdk will look for an appId from ReclaimInAppSDKParam.ReclaimAppId in Info.plist
         appId: String,
@@ -47,21 +75,42 @@ public extension ReclaimApiVerificationRequest {
         self.webhookUrl = webhookUrl
     }
 
-    /// Create a Reclaim Verification Request where appId and secret is retreived from Info.plist file. This is used to start a reclaim verification process.
+    /// Creates a Reclaim Verification Request using app credentials from Info.plist.
     ///
-    /// AppId and Secret can be provided like this in the Info.plist file:
-    /// ```plist
-    ///     <key>ReclaimInAppSDKParam</key>
-    ///     <dict>
-    ///         <key>ReclaimAppId</key>
-    ///         <string>$(RECLAIM_APP_ID)</string>
-    ///         <key>ReclaimAppSecret</key>
-    ///         <string>$(RECLAIM_APP_SECRET)</string>
-    ///     </dict>
+    /// This initializer retrieves the app credentials from your Info.plist file.
+    /// You must configure your Info.plist with the following structure:
+    ///
+    /// ```xml
+    /// <key>ReclaimInAppSDKParam</key>
+    /// <dict>
+    ///     <key>ReclaimAppId</key>
+    ///     <string>$(RECLAIM_APP_ID)</string>
+    ///     <key>ReclaimAppSecret</key>
+    ///     <string>$(RECLAIM_APP_SECRET)</string>
+    /// </dict>
     /// ```
     ///
-    /// See also:
-    ///  - [ReclaimVerification(appId:secret:) initializer]: Another initializer where [appId] and [secret] is can be provided in the initializer.
+    /// Example usage:
+    /// ```swift
+    /// do {
+    ///     let request = try ReclaimApiVerificationRequest(
+    ///         providerId: "some-provider-id"
+    ///     )
+    /// } catch {
+    ///     print("Failed to create request: \(error)")
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - providerId: The identifier for the Reclaim data provider to use in verification
+    ///   - session: Optional session information. If nil, SDK generates new session details
+    ///   - context: Additional data to associate with the verification attempt
+    ///   - parameters: Key-value pairs for prefilling claim creation variables
+    ///   - hideLanding: When false, shows an introductory page with claims to be proven
+    ///   - autoSubmit: If true, automatically submits proof after generation
+    ///   - acceptAiProviders: Whether to accept AI-powered data providers
+    ///   - webhookUrl: Optional URL to receive verification status updates
+    /// - Throws: ReclaimVerificationError if required credentials are missing from Info.plist
     public init(
         /// The Reclaim data provider Id that should be used in the Reclaim Verification Process.
         providerId: String,
@@ -98,53 +147,54 @@ public extension ReclaimApiVerificationRequest {
     }
 }
 
-/// ReclaimVerification is the main entry point for the Reclaim SDK verification flow.
-/// It provides functionality to initiate and manage the verification process.
+/// The main entry point for the Reclaim SDK verification flow.
+/// This class provides functionality to initiate and manage the verification process
+/// for proving claims about user data through various providers.
 public class ReclaimVerification {
     private init() {}
     
+    /// Configuration structure for storing Reclaim app credentials
     private struct ReclaimClientConfiguration: Decodable {
         public let ReclaimAppId, ReclaimAppSecret: String
     }
     
-    /// Request object containing all necessary parameters to start a verification process
+    /// Represents different ways to initiate a verification request
     public enum Request {
+        /// Start verification using explicit parameters
         case params(_ request: ReclaimApiVerificationRequest)
+        /// Start verification using a pre-configured URL
         case url(_ url: String)
     }
     
-    /// Represents the proof obtained after successful verification
+    /// Contains the proof and response data after successful verification
     public struct ClaimCreationProof {
-        /// The response containing the verification result
+        /// The API response containing verification results and proof details
         public let response: ReclaimApiVerificationResponse
         // Add any other relevant properties here
     }
     
-    /// Starts the verification process by presenting a full-screen verification interface
-    /// - Parameter request: The verification request containing all necessary parameters
-    /// - Returns: A ClaimCreationProof object containing the verification result
-    /// - Throws: ReclaimVerificationError if the verification fails or is cancelled
+    /// Initiates the verification process by presenting a full-screen interface.
     ///
-    /// This method performs the following steps:
-    /// 1. Sets up logging and consumer identity for the verification session
-    /// 2. Creates and initializes the verification UI and view model
-    /// 3. Presents a full-screen modal interface for the verification process
-    /// 4. Returns the verification proof when the process completes successfully
-    ///
-    /// The verification flow is handled asynchronously and the method will only return once
-    /// the verification is complete or an error occurs. The UI is automatically dismissed
-    /// when the process finishes.
+    /// This method handles the entire verification flow, including:
+    /// - Presenting the user interface for verification
+    /// - Managing the verification session
+    /// - Processing the verification result
+    /// - Returning the proof upon successful completion
     ///
     /// Example usage:
     /// ```swift
     /// do {
-    ///     let request = try ReclaimVerification.Request(providerId: "some-provider-id")
-    ///     let proof = try await ReclaimVerification.startVerification(request)
-    ///     // Handle successful verification
+    ///     let request = try ReclaimApiVerificationRequest(providerId: "gmail")
+    ///     let proof = try await ReclaimVerification.startVerification(.params(request))
+    ///     print("Verification successful: \(proof.response)")
     /// } catch {
-    ///     // Handle verification error
+    ///     print("Verification failed: \(error)")
     /// }
     /// ```
+    ///
+    /// - Parameter request: The verification request configuration
+    /// - Returns: A ClaimCreationProof containing the verification result
+    /// - Throws: ReclaimVerificationError if verification fails or is cancelled
     @MainActor
     public static func startVerification(_ request: Request) async throws -> ClaimCreationProof {
         // Initialize logger for debugging and tracking
@@ -189,12 +239,18 @@ public class ReclaimVerification {
     }
 }
 
-/// Errors that can occur during the verification process
+/// Errors that can occur during the Reclaim verification process
 public enum ReclaimVerificationError: Error {
-    /// The user cancelled the verification process
+    /// User explicitly cancelled the verification process
     case cancelled
+    
+    /// Verification UI was dismissed without completion
     case dismissed
+    
+    /// The verification session has expired
     case sessionExpired
-    /// The verification failed with the specified reason
+    
+    /// Verification failed with a specific reason
+    /// - Parameter reason: Description of why the verification failed
     case failed(reason: String)
 }

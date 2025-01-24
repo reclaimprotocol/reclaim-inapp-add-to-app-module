@@ -6,7 +6,7 @@ This SDK allows you to integrate Reclaim's in-app verification process into your
 
 - An iOS device running iOS 13 or later
 - A Reclaim account and API key
-- A Reclaim verification URL
+- A Reclaim verification URL or atleast these credentials: app id, app secret, and provider id
 
 ## Example
 
