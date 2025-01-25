@@ -757,7 +757,7 @@ packages:
     source: hosted
     version: "3.0.2"
   path:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: path
       sha256: "087ce49c3f0dc39180befefc60fdb4acd8f8620e5682fe2476afd0b3688bb4af"
@@ -938,7 +938,7 @@ packages:
       path: "/Users/mushaheedsyed/Projects/reclaimprotocol.org/flutter_packages/reclaim_flutter_sdk"
       relative: false
     source: path
-    version: "0.3.0"
+    version: "1.0.0"
   rxdart:
     dependency: transitive
     description:
