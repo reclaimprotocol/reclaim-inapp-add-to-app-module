@@ -8,6 +8,7 @@ import 'package:reclaim_flutter_sdk/reclaim_flutter_sdk.dart';
 import 'package:reclaim_verifier_module/src/pigeon/schema.pigeon.dart';
 
 import 'src/data/url_request.dart';
+import 'src/widgets/scroll_configuration.dart';
 
 Future<Gnarkprover> _initializeGnarkProver() async {
   final logger = logging.child('_initializeGnarkProver');
@@ -41,7 +42,9 @@ void main() async {
 
   initializeReclaimLogging();
 
-  runApp(const MaterialApp(
+  runApp(MaterialApp(
+    scrollBehavior: const ReclaimModuleScrollBehaviour(),
+    debugShowCheckedModeBanner: false,
     home: ReclaimModuleApp(),
   ));
 }
