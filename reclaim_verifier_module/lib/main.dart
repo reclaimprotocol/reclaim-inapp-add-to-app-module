@@ -43,7 +43,6 @@ void main() async {
   initializeReclaimLogging();
 
   runApp(MaterialApp(
-    scrollBehavior: const ReclaimModuleScrollBehaviour(),
     debugShowCheckedModeBanner: false,
     home: ReclaimModuleApp(),
   ));
