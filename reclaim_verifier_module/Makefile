@@ -1,5 +1,5 @@
 android:
-	flutter build aar
+	flutter build aar --dart-define-from-file=./env.json
 clean:
 	flutter clean
 ios:

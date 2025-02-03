@@ -184,7 +184,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false,
+      canPop: true,
       child: Scaffold(
         appBar: AppBar(),
         body: const Padding(
