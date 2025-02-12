@@ -1,43 +1,22 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:gnarkprover/gnarkprover.dart';
-import 'package:reclaim_flutter_sdk/logging/logging.dart';
+import 'package:reclaim_gnark_zkoperator/reclaim_gnark_zkoperator.dart';
 import 'package:reclaim_flutter_sdk/reclaim_flutter_sdk.dart';
 import 'package:reclaim_verifier_module/src/pigeon/schema.pigeon.dart';
 
 import 'src/data/url_request.dart';
 
-Future<Gnarkprover> _initializeGnarkProver() async {
-  final logger = logging.child('_initializeGnarkProver');
-  const maxRetries = 5;
-  for (var i = 1; i <= maxRetries; i++) {
-    try {
-      return await Gnarkprover.getInstance();
-    } catch (e, s) {
-      logger.info(
-        'Failed to initialize Gnark prover, retrying... ($i/$maxRetries)',
-        e,
-        s,
-      );
-    }
-  }
-  throw Exception('Failed to initialize Gnark prover');
-}
-
-late final Future<Gnarkprover> gnarkProverFuture;
+final gnarkProverFuture = ReclaimZkOperator.getInstance();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Getting the Gnark prover instance to initialize in advance before usage because initialization can take time.
-  // This can also be done in the `main` function.
-  // Calling this more than once is safe.
-  gnarkProverFuture = _initializeGnarkProver();
-
-  // Setting this to true will print logs from reclaim_flutter_sdk to the console.
-  debugCanPrintLogs = kDebugMode;
+  Attestor.instance.useAttestor((client) async {
+    // don't wait to make this [client] available in the pool
+    client.ensureReady();
+    return;
+  });
 
   initializeReclaimLogging();
 
@@ -81,12 +60,15 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
       final ReclaimVerification reclaimVerification;
       final usePreGeneratedSession = request.signature.isNotEmpty &&
           request.timestamp != null &&
+          request.timestamp!.isNotEmpty &&
           request.sessionId.isNotEmpty;
       if (usePreGeneratedSession) {
-        reclaimVerification = ReclaimVerification.withSignature(
-          signature: request.signature,
-          timestamp: request.timestamp,
-          sessionId: request.sessionId,
+        reclaimVerification = ReclaimVerification.withSession(
+          sessionInformation: ReclaimSessionInformation(
+            signature: request.signature,
+            timestamp: request.timestamp ?? '',
+            sessionId: request.sessionId,
+          ),
           buildContext: context,
           appId: request.appId,
           providerId: request.providerId,
@@ -117,7 +99,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
       final proofs = await reclaimVerification.startVerification();
 
       return ReclaimApiVerificationResponse(
-        sessionId: latestConsumerIdentity?.sessionId ?? request.sessionId,
+        sessionId: SessionIdentity.latest?.sessionId ?? request.sessionId,
         didSubmitManualVerification: proofs == null,
         proofs: [
           if (proofs != null)
@@ -127,7 +109,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
       );
     } catch (e, s) {
       return ReclaimApiVerificationResponse(
-        sessionId: latestConsumerIdentity?.sessionId ?? request.sessionId,
+        sessionId: SessionIdentity.latest?.sessionId ?? request.sessionId,
         didSubmitManualVerification: false,
         proofs: const [],
         exception: ReclaimApiVerificationException(
@@ -186,11 +168,14 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
     return PopScope(
       canPop: true,
       child: Scaffold(
-        appBar: AppBar(),
         body: const Padding(
           padding: EdgeInsets.all(16.0),
           child: Center(
-            child: CircularProgressIndicator(),
+            child: LinearProgressIndicator(
+              borderRadius: BorderRadius.all(
+                Radius.circular(20),
+              ),
+            ),
           ),
         ),
       ),

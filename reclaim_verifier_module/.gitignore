@@ -49,3 +49,5 @@ app.*.symbols
 app.*.map.json
 
 pubspec_overrides.yaml
+
+dist/
