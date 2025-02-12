@@ -1,9 +1,18 @@
+VERSION := $(shell grep '^version:' pubspec.yaml | sed -e 's/version: //')
+DIST_ANDROID := ./dist/android/$(VERSION)
+DIST_IOS := ./dist/ios/$(VERSION)
+# DELETE .DS_Store file from all release
+
 android:
 	flutter clean
 	flutter pub get
 	flutter build aar --dart-define-from-file=./env.json
-	mv build/host/outputs/repo ./dist/android
+	rm -rf $(DIST_ANDROID)
+	mkdir -p $(DIST_ANDROID)
+	mv build/host/outputs/repo/ $(DIST_ANDROID)/repo
 clean:
+	rm -rf $(DIST_ANDROID)
+	rm -rf $(DIST_IOS)
 	flutter clean
 ios:
 	flutter clean
@@ -16,8 +25,9 @@ ios:
 	dart run scripts/prepare_ios.dart
 	@# cd build/ios && tar -Jcvf ReclaimXCFrameworks.tar.xz ReclaimXCFrameworks # SLOW
 	cd build/ios && tar -zcvf ReclaimXCFrameworks.tar.gz ReclaimXCFrameworks # FAST
-	mkdir -p ./dist/ios;
-	mv build/ios/ReclaimXCFrameworks.tar.gz ./dist/ios/ReclaimXCFrameworks.tar.gz
+	rm -rf $(DIST_IOS)
+	mkdir -p $(DIST_IOS)
+	mv build/ios/ReclaimXCFrameworks.tar.gz $(DIST_IOS)
 gen_schema:
 	dart run pigeon --input pigeon/schema.dart
 gen_dart:
