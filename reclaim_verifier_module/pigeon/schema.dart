@@ -2,14 +2,15 @@ import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(PigeonOptions(
   input: 'pigeon/schema.dart',
-  dartOut: 'lib/src/pigeon/schema.pigeon.dart',
-  dartTestOut: 'test/pigeon/schema_test.g.dart',
+  dartOut: 'lib/src/pigeon/messages.pigeon.dart',
+  // dartTestOut: 'test/pigeon/messages_test.g.dart',
   kotlinOptions: KotlinOptions(
-    package: 'org.reclaimprotocol.plugins.reclaim_verifier_android',
+    package: 'org.reclaimprotocol.inapp_sdk',
   ),
-  kotlinOut:
-      '../plugins/android/app/src/main/java/org/reclaimprotocol/reclaim_inapp_sdk/Schema.kt',
-  swiftOut: '../plugins/ios/Sources/ReclaimInAppSdk/Schema.swift',
+  kotlinOut: 'generated/android/src/main/java/org/reclaimprotocol/inapp_sdk/Messages.kt',
+  swiftOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.swift',
+  objcHeaderOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.h',
+  objcSourceOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.m',
   copyrightHeader: 'pigeon/copyright.txt',
 ))
 class ReclaimApiVerificationRequest {
@@ -76,6 +77,79 @@ class ReclaimApiVerificationResponse {
   });
 }
 
+class ClientProviderInformationOverride {
+  final String? providerInformationUrl;
+  final String? providerInformationJsonString;
+
+  const ClientProviderInformationOverride({
+    this.providerInformationUrl,
+    this.providerInformationJsonString,
+  });
+}
+
+class ClientFeatureOverrides {
+  final bool? cookiePersist;
+  final bool? singleReclaimRequest;
+  final int? idleTimeThresholdForManualVerificationTrigger;
+  final int? sessionTimeoutForManualVerificationTrigger;
+  final String? attestorBrowserRpcUrl;
+  final bool? isResponseRedactionRegexEscapingEnabled;
+  final bool? isAIFlowEnabled;
+
+  const ClientFeatureOverrides({
+    this.cookiePersist,
+    // false
+    this.singleReclaimRequest,
+    // 2
+    this.idleTimeThresholdForManualVerificationTrigger,
+    // 180
+    this.sessionTimeoutForManualVerificationTrigger,
+    // https://attestor.reclaimprotocol.org/browser-rpc
+    this.attestorBrowserRpcUrl,
+    // false
+    this.isResponseRedactionRegexEscapingEnabled,
+    // false
+    this.isAIFlowEnabled,
+  });
+}
+
+class ClientLogConsumerOverride {
+  // true
+  final bool enableLogHandler;
+  // true
+  final bool canSdkCollectTelemetry;
+  // false
+  final bool? canSdkPrintLogs;
+
+  const ClientLogConsumerOverride({
+    this.enableLogHandler = true,
+    this.canSdkCollectTelemetry = true,
+    this.canSdkPrintLogs = false,
+  });
+}
+
+class ClientReclaimSessionManagementOverride {
+  // true
+  final bool enableSdkSessionManagement;
+
+  const ClientReclaimSessionManagementOverride({
+    this.enableSdkSessionManagement = true,
+  });
+}
+
+class ClientReclaimAppInfoOverride {
+  final String appName;
+  final String appImageUrl;
+  // false
+  final bool isRecurring;
+
+  const ClientReclaimAppInfoOverride({
+    required this.appName,
+    required this.appImageUrl,
+    required this.isRecurring,
+  });
+}
+
 @FlutterApi()
 abstract class ReclaimModuleApi {
   @async
@@ -87,11 +161,43 @@ abstract class ReclaimModuleApi {
     String url,
   );
   @async
+  void setOverrides(
+    ClientProviderInformationOverride? provider,
+    ClientFeatureOverrides? feature,
+    ClientLogConsumerOverride? logConsumer,
+    ClientReclaimSessionManagementOverride? sessionManagement,
+    ClientReclaimAppInfoOverride? appInfo,
+  );
+  @async
   bool ping();
+}
+
+enum ReclaimSessionStatus {
+  USER_STARTED_VERIFICATION,
+  USER_INIT_VERIFICATION,
+  PROOF_GENERATION_STARTED,
+  PROOF_GENERATION_RETRY,
+  PROOF_GENERATION_SUCCESS,
+  PROOF_GENERATION_FAILED,
+  PROOF_SUBMITTED,
+  PROOF_SUBMISSION_FAILED,
+  PROOF_MANUAL_VERIFICATION_SUBMITTED,
 }
 
 @HostApi()
 abstract class ReclaimApi {
   @async
   bool ping();
+  @async
+  void onLogs(String logJsonString);
+  @async
+  bool createSession(String appId, String providerId, String sessionId);
+  @async
+  bool updateSession(String sessionId, ReclaimSessionStatus status);
+  void logSession(
+    String appId,
+    String providerId,
+    String sessionId,
+    String logType,
+  );
 }

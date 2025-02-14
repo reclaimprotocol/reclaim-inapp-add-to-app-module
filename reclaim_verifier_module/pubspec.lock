@@ -918,7 +918,7 @@ packages:
       path: "/Users/mushaheedsyed/Projects/reclaimprotocol.org/flutter_packages/reclaim_flutter_sdk"
       relative: false
     source: path
-    version: "1.0.0"
+    version: "0.1.2"
   reclaim_gnark_zkoperator:
     dependency: "direct main"
     description:
