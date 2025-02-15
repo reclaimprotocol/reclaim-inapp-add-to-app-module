@@ -24,24 +24,27 @@ void main() {
   Directory(iosReleaseBuildPath).renameSync(
     iosOutputBuildPath,
   );
-  final fsEntities = Directory(iosOutputBuildPath).listSync();
 
-  var count = 1;
-  for (final entity in fsEntities) {
-    final entityPath = entity.absolute.path;
-    if (entityPath.contains('FlutterPluginRegistrant.xcframework')) {
-      entity.renameSync(path.canonicalize(path.join(
-        entityPath,
-        '..',
-        'PluginRegistrant.xcframework',
-      )));
-    } else {
-      entity.renameSync(path.canonicalize(path.join(
-        entityPath,
-        '..',
-        '${count.toString().padLeft(2, '0')}${path.extension(entityPath)}',
-      )));
-      count++;
-    }
-  }
+  // // Cocoapods does not support xcframeworks to have a different name than the framework name mentioned in the Info.plist file.
+  // // They are not smart enough.
+  // final fsEntities = Directory(iosOutputBuildPath).listSync();
+
+  // var count = 1;
+  // for (final entity in fsEntities) {
+  //   final entityPath = entity.absolute.path;
+  //   if (entityPath.contains('FlutterPluginRegistrant.xcframework')) {
+  //     entity.renameSync(path.canonicalize(path.join(
+  //       entityPath,
+  //       '..',
+  //       'PluginRegistrant.xcframework',
+  //     )));
+  //   } else {
+  //     entity.renameSync(path.canonicalize(path.join(
+  //       entityPath,
+  //       '..',
+  //       '${count.toString().padLeft(2, '0')}${path.extension(entityPath)}',
+  //     )));
+  //     count++;
+  //   }
+  // }
 }
