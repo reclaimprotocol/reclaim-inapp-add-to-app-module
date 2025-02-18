@@ -18,7 +18,8 @@ description: A Flutter Add-to-app Module for the Reclaim InApp Verifier SDK
 version: 0.1.2
 
 environment:
-  sdk: ^3.5.4
+  sdk: '>=3.7.0 <4.0.0'
+  flutter: '>=3.29.0'
 
 dependencies:
   flutter:
