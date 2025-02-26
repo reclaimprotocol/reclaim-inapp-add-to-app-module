@@ -1,18 +1,19 @@
 import 'package:pigeon/pigeon.dart';
 
-@ConfigurePigeon(PigeonOptions(
-  input: 'pigeon/schema.dart',
-  dartOut: 'lib/src/pigeon/messages.pigeon.dart',
-  // dartTestOut: 'test/pigeon/messages_test.g.dart',
-  kotlinOptions: KotlinOptions(
-    package: 'org.reclaimprotocol.inapp_sdk',
+@ConfigurePigeon(
+  PigeonOptions(
+    input: 'pigeon/schema.dart',
+    dartOut: 'lib/src/pigeon/messages.pigeon.dart',
+    // dartTestOut: 'test/pigeon/messages_test.g.dart',
+    kotlinOptions: KotlinOptions(package: 'org.reclaimprotocol.inapp_sdk'),
+    kotlinOut:
+        'generated/android/src/main/java/org/reclaimprotocol/inapp_sdk/Messages.kt',
+    swiftOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.swift',
+    objcHeaderOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.h',
+    objcSourceOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.m',
+    copyrightHeader: 'pigeon/copyright.txt',
   ),
-  kotlinOut: 'generated/android/src/main/java/org/reclaimprotocol/inapp_sdk/Messages.kt',
-  swiftOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.swift',
-  objcHeaderOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.h',
-  objcSourceOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.m',
-  copyrightHeader: 'pigeon/copyright.txt',
-))
+)
 class ReclaimApiVerificationRequest {
   final String appId;
   final String providerId;
@@ -22,7 +23,6 @@ class ReclaimApiVerificationRequest {
   final String context;
   final String sessionId;
   final Map<String, String> parameters;
-  final bool hideLanding;
   final bool autoSubmit;
   final bool acceptAiProviders;
   final String? webhookUrl;
@@ -36,7 +36,6 @@ class ReclaimApiVerificationRequest {
     required this.context,
     required this.sessionId,
     required this.parameters,
-    required this.hideLanding,
     required this.autoSubmit,
     required this.acceptAiProviders,
     required this.webhookUrl,
@@ -80,10 +79,12 @@ class ReclaimApiVerificationResponse {
 class ClientProviderInformationOverride {
   final String? providerInformationUrl;
   final String? providerInformationJsonString;
+  final bool canFetchProviderInformationFromHost;
 
   const ClientProviderInformationOverride({
     this.providerInformationUrl,
     this.providerInformationJsonString,
+    this.canFetchProviderInformationFromHost = false,
   });
 }
 
@@ -150,28 +151,6 @@ class ClientReclaimAppInfoOverride {
   });
 }
 
-@FlutterApi()
-abstract class ReclaimModuleApi {
-  @async
-  ReclaimApiVerificationResponse startVerification(
-    ReclaimApiVerificationRequest request,
-  );
-  @async
-  ReclaimApiVerificationResponse startVerificationFromUrl(
-    String url,
-  );
-  @async
-  void setOverrides(
-    ClientProviderInformationOverride? provider,
-    ClientFeatureOverrides? feature,
-    ClientLogConsumerOverride? logConsumer,
-    ClientReclaimSessionManagementOverride? sessionManagement,
-    ClientReclaimAppInfoOverride? appInfo,
-  );
-  @async
-  bool ping();
-}
-
 enum ReclaimSessionStatus {
   USER_STARTED_VERIFICATION,
   USER_INIT_VERIFICATION,
@@ -184,6 +163,47 @@ enum ReclaimSessionStatus {
   PROOF_MANUAL_VERIFICATION_SUBMITTED,
 }
 
+/// Identification information of a session.
+class ReclaimSessionIdentityUpdate {
+  /// The application id.
+  final String appId;
+
+  /// The provider id.
+  final String providerId;
+
+  /// The session id.
+  final String sessionId;
+
+  const ReclaimSessionIdentityUpdate({
+    required this.appId,
+    required this.providerId,
+    required this.sessionId,
+  });
+}
+
+@FlutterApi()
+abstract class ReclaimModuleApi {
+  @async
+  ReclaimApiVerificationResponse startVerification(
+    ReclaimApiVerificationRequest request,
+  );
+  @async
+  ReclaimApiVerificationResponse startVerificationFromUrl(String url);
+  @async
+  void setOverrides(
+    ClientProviderInformationOverride? provider,
+    ClientFeatureOverrides? feature,
+    ClientLogConsumerOverride? logConsumer,
+    ClientReclaimSessionManagementOverride? sessionManagement,
+    ClientReclaimAppInfoOverride? appInfo,
+    String? capabilityAccessToken,
+  );
+  @async
+  void clearAllOverrides();
+  @async
+  bool ping();
+}
+
 @HostApi()
 abstract class ReclaimApi {
   @async
@@ -191,13 +211,31 @@ abstract class ReclaimApi {
   @async
   void onLogs(String logJsonString);
   @async
-  bool createSession(String appId, String providerId, String sessionId);
+  bool createSession({
+    required String appId,
+    required String providerId,
+    required String sessionId,
+  });
   @async
-  bool updateSession(String sessionId, ReclaimSessionStatus status);
-  void logSession(
-    String appId,
-    String providerId,
-    String sessionId,
-    String logType,
-  );
+  bool updateSession({
+    required String sessionId,
+    required ReclaimSessionStatus status,
+  });
+  @async
+  void logSession({
+    required String appId,
+    required String providerId,
+    required String sessionId,
+    required String logType,
+  });
+  @async
+  void onSessionIdentityUpdate(ReclaimSessionIdentityUpdate? update);
+  @async
+  Map<String, dynamic> fetchProviderInformation({
+    required String appId,
+    required String providerId,
+    required String sessionId,
+    required String signature,
+    required String timestamp,
+  });
 }

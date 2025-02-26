@@ -42,8 +42,9 @@ class ReclaimUrlRequest {
     String decodedTemplate = Uri.decodeComponent(encodedTemplate);
     Map<String, dynamic> jsonObject =
         json.decode(decodedTemplate) as Map<String, dynamic>;
-    final ReclaimUrlRequest decodedRequest =
-        ReclaimUrlRequest.fromJson(jsonObject);
+    final ReclaimUrlRequest decodedRequest = ReclaimUrlRequest.fromJson(
+      jsonObject,
+    );
     return decodedRequest;
   }
 

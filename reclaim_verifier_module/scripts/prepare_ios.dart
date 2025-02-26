@@ -17,13 +17,11 @@ void main() {
     'ios-arm64_x86_64-simulator',
   );
   Directory(iosSimulatorAppFrameworkRelease).deleteSync(recursive: true);
-  Directory(iosSimulatorAppFrameworkDebug).renameSync(
-    iosSimulatorAppFrameworkRelease,
-  );
+  Directory(
+    iosSimulatorAppFrameworkDebug,
+  ).renameSync(iosSimulatorAppFrameworkRelease);
   final iosOutputBuildPath = path.join(buildPath, 'ReclaimXCFrameworks');
-  Directory(iosReleaseBuildPath).renameSync(
-    iosOutputBuildPath,
-  );
+  Directory(iosReleaseBuildPath).renameSync(iosOutputBuildPath);
 
   // // Cocoapods does not support xcframeworks to have a different name than the framework name mentioned in the Info.plist file.
   // // They are not smart enough.

@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:reclaim_flutter_sdk/logging/data/log.dart';
 import 'package:reclaim_flutter_sdk/logging/logging.dart';
+import 'package:reclaim_flutter_sdk/services/capability/capability.dart';
 import 'package:reclaim_gnark_zkoperator/reclaim_gnark_zkoperator.dart';
 // ignore: implementation_imports
 import 'package:reclaim_gnark_zkoperator/src/download/download.dart'
@@ -11,6 +13,10 @@ import 'package:reclaim_flutter_sdk/reclaim_flutter_sdk.dart';
 import 'package:reclaim_verifier_module/src/pigeon/messages.pigeon.dart';
 
 import 'src/data/url_request.dart';
+
+const CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY = String.fromEnvironment(
+  'org.reclaimprotocol.inapp_sdk.CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY',
+);
 
 final logger = Logger('reclaim_flutter_sdk.reclaim_verifier_module');
 
@@ -53,10 +59,9 @@ void main() async {
 
   initializeReclaimLogging();
 
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: ReclaimModuleApp(),
-  ));
+  runApp(
+    MaterialApp(debugShowCheckedModeBanner: false, home: ReclaimModuleApp()),
+  );
 }
 
 class ReclaimModuleApp extends StatefulWidget {
@@ -75,14 +80,34 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
     return true;
   }
 
+  late StreamSubscription<SessionIdentity?> _sessionIdentityUpdateListener;
+
   @override
   void initState() {
     super.initState();
     ReclaimModuleApi.setUp(this);
+    _sessionIdentityUpdateListener = SessionIdentity.onChanged.listen(
+      _onSessionIdentityUpdate,
+    );
+  }
+
+  void _onSessionIdentityUpdate(SessionIdentity? identity) {
+    if (identity == null) {
+      hostApi.onSessionIdentityUpdate(null);
+    } else {
+      hostApi.onSessionIdentityUpdate(
+        ReclaimSessionIdentityUpdate(
+          appId: identity.appId,
+          providerId: identity.providerId,
+          sessionId: identity.sessionId,
+        ),
+      );
+    }
   }
 
   @override
   void dispose() {
+    _sessionIdentityUpdateListener.cancel();
     ReclaimModuleApi.setUp(null);
     super.dispose();
   }
@@ -93,7 +118,8 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
   ) async {
     try {
       final ReclaimVerification reclaimVerification;
-      final usePreGeneratedSession = request.signature.isNotEmpty &&
+      final usePreGeneratedSession =
+          request.signature.isNotEmpty &&
           request.timestamp != null &&
           request.timestamp!.isNotEmpty &&
           request.sessionId.isNotEmpty;
@@ -110,7 +136,6 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
           context: request.context,
           parameters: request.parameters,
           computeAttestorProof: _onComputeAttestorProof,
-          hideLanding: request.hideLanding,
           autoSubmit: request.autoSubmit,
           acceptAiProviders: request.acceptAiProviders,
           webhookUrl: request.webhookUrl,
@@ -124,7 +149,6 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
           context: request.context,
           parameters: request.parameters,
           computeAttestorProof: _onComputeAttestorProof,
-          hideLanding: request.hideLanding,
           autoSubmit: request.autoSubmit,
           acceptAiProviders: request.acceptAiProviders,
           webhookUrl: request.webhookUrl,
@@ -174,20 +198,36 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
   @override
   Future<ReclaimApiVerificationResponse> startVerificationFromUrl(String url) {
     final request = ReclaimUrlRequest.fromUrl(url);
-    return startVerification(ReclaimApiVerificationRequest(
-      appId: request.applicationId,
-      providerId: request.providerId,
-      secret: request.signature,
-      signature: request.signature,
-      timestamp: request.timestamp,
-      context: request.context ?? '',
-      sessionId: request.sessionId ?? '',
-      parameters: request.parameters ?? const {},
-      acceptAiProviders: request.acceptAiProviders ?? false,
-      webhookUrl: request.callbackUrl,
-      hideLanding: false,
-      autoSubmit: false,
-    ));
+    return startVerification(
+      ReclaimApiVerificationRequest(
+        appId: request.applicationId,
+        providerId: request.providerId,
+        secret: request.signature,
+        signature: request.signature,
+        timestamp: request.timestamp,
+        context: request.context ?? '',
+        sessionId: request.sessionId ?? '',
+        parameters: request.parameters ?? const {},
+        acceptAiProviders: request.acceptAiProviders ?? false,
+        webhookUrl: request.callbackUrl,
+        autoSubmit: false,
+      ),
+    );
+  }
+
+  @override
+  Future<void> clearAllOverrides() async {
+    ReclaimOverride.clearAll();
+  }
+
+  Future<bool> canUseCapability(String capabilityName) async {
+    final capabilityAccessVerifier = CapabilityAccessVerifier();
+
+    if (await capabilityAccessVerifier.canUse(capabilityName)) {
+      return true;
+    }
+
+    throw ReclaimException('Unauthorized use of capability: $capabilityName');
   }
 
   @override
@@ -197,8 +237,28 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
     ClientLogConsumerOverride? logConsumer,
     ClientReclaimSessionManagementOverride? sessionManagement,
     ClientReclaimAppInfoOverride? appInfo,
+    String? capabilityAccessToken,
   ) async {
-    ReclaimOverride.clearAll();
+    if (capabilityAccessToken != null) {
+      try {
+        ReclaimOverride.set(
+          CapabilityAccessToken.import(
+            capabilityAccessToken,
+            CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY,
+          ),
+        );
+      } on InvalidCapabilityAccessToken catch (e, s) {
+        logger.severe('Failed to set capability access token', e, s);
+        throw ReclaimException(e.message);
+      }
+    }
+
+    if (feature?.attestorBrowserRpcUrl != null ||
+        provider != null ||
+        logConsumer?.canSdkCollectTelemetry == false ||
+        sessionManagement?.enableSdkSessionManagement == true) {
+      await canUseCapability('overrides_v1');
+    }
 
     ReclaimOverride.setAll([
       if (feature != null)
@@ -228,6 +288,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
               if (provider.providerInformationUrl != null) {
                 final response = await downloadWithHttp(
                   provider.providerInformationUrl!,
+                  cacheDirName: 'inapp_sdk_provider_information',
                 );
 
                 if (response == null) {
@@ -241,13 +302,17 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
                 providerInformation = json.decode(
                   provider.providerInformationJsonString!,
                 );
+              } else if (provider.canFetchProviderInformationFromHost) {
+                providerInformation = await hostApi.fetchProviderInformation(
+                  appId: appId,
+                  providerId: providerId,
+                  sessionId: sessionId,
+                  signature: signature,
+                  timestamp: timestamp,
+                );
               }
             } catch (e, s) {
-              logger.severe(
-                'Failed to fetch provider information',
-                e,
-                s,
-              );
+              logger.severe('Failed to fetch provider information', e, s);
               if (e is ReclaimException) {
                 rethrow;
               }
@@ -259,14 +324,8 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
             try {
               return HttpProvider.fromJson(providerInformation);
             } catch (e, s) {
-              logger.severe(
-                'Failed to parse provider information',
-                e,
-                s,
-              );
-              throw ReclaimException(
-                'Failed to parse provider information',
-              );
+              logger.severe('Failed to parse provider information', e, s);
+              throw ReclaimException('Failed to parse provider information');
             }
           },
         ),
@@ -274,12 +333,15 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
         LogConsumerOverride(
           // Setting this to true will print logs from reclaim_flutter_sdk to the console.
           canPrintLogs: logConsumer.canSdkPrintLogs ?? reclaimCanPrintDebugLogs,
-          onRecord: logConsumer.enableLogHandler
-              ? (record, identity) {
-                  _sendLogsToHost(record, identity);
-                  return logConsumer.canSdkCollectTelemetry;
-                }
-              : (!logConsumer.canSdkCollectTelemetry ? (_, __) => false : null),
+          onRecord:
+              logConsumer.enableLogHandler
+                  ? (record, identity) {
+                    _sendLogsToHost(record, identity);
+                    return logConsumer.canSdkCollectTelemetry;
+                  }
+                  : (!logConsumer.canSdkCollectTelemetry
+                      ? (_, __) => false
+                      : null),
         ),
       // A handler has been provided. We'll not let SDK manage sessions in this case.
       // Disabling [enableSdkSessionManagement] lets the host manage sessions.
@@ -291,12 +353,16 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
             required providerId,
             required sessionId,
           }) async {
-            return hostApi.createSession(appId, providerId, sessionId);
+            return hostApi.createSession(
+              appId: appId,
+              providerId: providerId,
+              sessionId: sessionId,
+            );
           },
           updateSession: (sessionId, status) async {
             return hostApi.updateSession(
-              sessionId,
-              ReclaimSessionStatusExtension.fromSessionStatus(status),
+              sessionId: sessionId,
+              status: ReclaimSessionStatusExtension.fromSessionStatus(status),
             );
           },
           logRecord: ({
@@ -305,7 +371,12 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
             required providerId,
             required sessionId,
           }) {
-            hostApi.logSession(appId, providerId, sessionId, logType);
+            hostApi.logSession(
+              appId: appId,
+              providerId: providerId,
+              sessionId: sessionId,
+              logType: logType,
+            );
           },
         ),
       if (appInfo != null)
@@ -321,12 +392,9 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
     final entry = LogEntry.fromRecord(
       record,
       identity,
-      fallbackSessionIdentity: SessionIdentity.latest ??
-          SessionIdentity(
-            appId: '',
-            providerId: '',
-            sessionId: '',
-          ),
+      fallbackSessionIdentity:
+          SessionIdentity.latest ??
+          SessionIdentity(appId: '', providerId: '', sessionId: ''),
     );
     hostApi.onLogs(json.encode(entry.toJson()));
   }
@@ -348,9 +416,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
           padding: EdgeInsets.all(16.0),
           child: Center(
             child: LinearProgressIndicator(
-              borderRadius: BorderRadius.all(
-                Radius.circular(20),
-              ),
+              borderRadius: BorderRadius.all(Radius.circular(20)),
             ),
           ),
         ),
