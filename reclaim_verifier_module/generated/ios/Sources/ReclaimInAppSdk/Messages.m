@@ -772,7 +772,7 @@ void SetUpReclaimApiWithSuffix(id<FlutterBinaryMessenger> binaryMessenger, NSObj
         NSString *arg_sessionId = GetNullableObjectAtIndex(args, 2);
         NSString *arg_signature = GetNullableObjectAtIndex(args, 3);
         NSString *arg_timestamp = GetNullableObjectAtIndex(args, 4);
-        [api fetchProviderInformationAppId:arg_appId providerId:arg_providerId sessionId:arg_sessionId signature:arg_signature timestamp:arg_timestamp completion:^(NSDictionary<NSString *, dynamic *> *_Nullable output, FlutterError *_Nullable error) {
+        [api fetchProviderInformationAppId:arg_appId providerId:arg_providerId sessionId:arg_sessionId signature:arg_signature timestamp:arg_timestamp completion:^(NSString *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];

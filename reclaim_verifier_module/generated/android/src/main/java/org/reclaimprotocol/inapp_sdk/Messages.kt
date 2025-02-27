@@ -561,7 +561,7 @@ interface ReclaimApi {
   fun updateSession(sessionId: String, status: ReclaimSessionStatus, callback: (Result<Boolean>) -> Unit)
   fun logSession(appId: String, providerId: String, sessionId: String, logType: String, callback: (Result<Unit>) -> Unit)
   fun onSessionIdentityUpdate(update: ReclaimSessionIdentityUpdate?, callback: (Result<Unit>) -> Unit)
-  fun fetchProviderInformation(appId: String, providerId: String, sessionId: String, signature: String, timestamp: String, callback: (Result<Map<String, Any?>>) -> Unit)
+  fun fetchProviderInformation(appId: String, providerId: String, sessionId: String, signature: String, timestamp: String, callback: (Result<String>) -> Unit)
 
   companion object {
     /** The codec used by ReclaimApi. */
@@ -703,7 +703,7 @@ interface ReclaimApi {
             val sessionIdArg = args[2] as String
             val signatureArg = args[3] as String
             val timestampArg = args[4] as String
-            api.fetchProviderInformation(appIdArg, providerIdArg, sessionIdArg, signatureArg, timestampArg) { result: Result<Map<String, Any?>> ->
+            api.fetchProviderInformation(appIdArg, providerIdArg, sessionIdArg, signatureArg, timestampArg) { result: Result<String> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))

@@ -231,7 +231,7 @@ abstract class ReclaimApi {
   @async
   void onSessionIdentityUpdate(ReclaimSessionIdentityUpdate? update);
   @async
-  Map<String, dynamic> fetchProviderInformation({
+  String fetchProviderInformation({
     required String appId,
     required String providerId,
     required String sessionId,

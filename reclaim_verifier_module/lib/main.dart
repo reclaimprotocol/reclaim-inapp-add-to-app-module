@@ -303,13 +303,15 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
                   provider.providerInformationJsonString!,
                 );
               } else if (provider.canFetchProviderInformationFromHost) {
-                providerInformation = await hostApi.fetchProviderInformation(
-                  appId: appId,
-                  providerId: providerId,
-                  sessionId: sessionId,
-                  signature: signature,
-                  timestamp: timestamp,
-                );
+                final String rawProviderInformation = await hostApi
+                    .fetchProviderInformation(
+                      appId: appId,
+                      providerId: providerId,
+                      sessionId: sessionId,
+                      signature: signature,
+                      timestamp: timestamp,
+                    );
+                providerInformation = json.decode(rawProviderInformation);
               }
             } catch (e, s) {
               logger.severe('Failed to fetch provider information', e, s);
@@ -325,7 +327,9 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp>
               return HttpProvider.fromJson(providerInformation);
             } catch (e, s) {
               logger.severe('Failed to parse provider information', e, s);
-              throw ReclaimException('Failed to parse provider information');
+              throw ReclaimException(
+                'Failed to parse provider information: ${e.toString()}',
+              );
             }
           },
         ),

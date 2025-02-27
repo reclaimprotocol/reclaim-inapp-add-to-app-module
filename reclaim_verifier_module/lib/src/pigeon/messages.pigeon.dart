@@ -850,7 +850,7 @@ class ReclaimApi {
     }
   }
 
-  Future<Map<String, dynamic>> fetchProviderInformation({
+  Future<String> fetchProviderInformation({
     required String appId,
     required String providerId,
     required String sessionId,
@@ -884,8 +884,7 @@ class ReclaimApi {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (pigeonVar_replyList[0] as Map<Object?, Object?>?)!
-          .cast<String, dynamic>();
+      return (pigeonVar_replyList[0] as String?)!;
     }
   }
 }
