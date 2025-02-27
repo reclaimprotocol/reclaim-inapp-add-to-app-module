@@ -34,3 +34,6 @@ gen_schema:
 	dart run pigeon --input pigeon/schema.dart
 gen_dart:
 	dart run build_runner watch --delete-conflicting-outputs
+ios_local_repo:
+	# For local testing of remote iOS framework distribution
+	python3 -m http.server -d ./dist/
