@@ -1,3 +1,7 @@
+## 0.3.0
+
+* Add setter for ReclaimVerificationOptions with attestorAuthenticationRequest which can be used in ReclaimVerification.
+
 ## 0.2.1
 
 * [BREAKING] Add mandatory azp validation from capability access token

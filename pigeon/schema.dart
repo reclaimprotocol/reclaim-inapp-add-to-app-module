@@ -6,8 +6,7 @@ import 'package:pigeon/pigeon.dart';
     dartOut: 'lib/src/pigeon/messages.pigeon.dart',
     // dartTestOut: 'test/pigeon/messages_test.g.dart',
     kotlinOptions: KotlinOptions(package: 'org.reclaimprotocol.inapp_sdk'),
-    kotlinOut:
-        'generated/android/src/main/java/org/reclaimprotocol/inapp_sdk/Messages.kt',
+    kotlinOut: 'generated/android/src/main/java/org/reclaimprotocol/inapp_sdk/Messages.kt',
     swiftOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.swift',
     objcHeaderOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.h',
     objcSourceOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.m',
@@ -42,24 +41,14 @@ class ReclaimApiVerificationRequest {
   });
 }
 
-enum ReclaimApiVerificationExceptionType {
-  unknown,
-  sessionExpired,
-  verificationDismissed,
-  verificationFailed,
-  verificationCancelled,
-}
+enum ReclaimApiVerificationExceptionType { unknown, sessionExpired, verificationDismissed, verificationFailed, verificationCancelled }
 
 class ReclaimApiVerificationException {
   final String message;
   final String stackTraceAsString;
   final ReclaimApiVerificationExceptionType type;
 
-  const ReclaimApiVerificationException({
-    required this.message,
-    required this.stackTraceAsString,
-    required this.type,
-  });
+  const ReclaimApiVerificationException({required this.message, required this.stackTraceAsString, required this.type});
 }
 
 class ReclaimApiVerificationResponse {
@@ -122,20 +111,14 @@ class ClientLogConsumerOverride {
   // false
   final bool? canSdkPrintLogs;
 
-  const ClientLogConsumerOverride({
-    this.enableLogHandler = true,
-    this.canSdkCollectTelemetry = true,
-    this.canSdkPrintLogs = false,
-  });
+  const ClientLogConsumerOverride({this.enableLogHandler = true, this.canSdkCollectTelemetry = true, this.canSdkPrintLogs = false});
 }
 
 class ClientReclaimSessionManagementOverride {
   // true
   final bool enableSdkSessionManagement;
 
-  const ClientReclaimSessionManagementOverride({
-    this.enableSdkSessionManagement = true,
-  });
+  const ClientReclaimSessionManagementOverride({this.enableSdkSessionManagement = true});
 }
 
 class ClientReclaimAppInfoOverride {
@@ -144,11 +127,7 @@ class ClientReclaimAppInfoOverride {
   // false
   final bool isRecurring;
 
-  const ClientReclaimAppInfoOverride({
-    required this.appName,
-    required this.appImageUrl,
-    required this.isRecurring,
-  });
+  const ClientReclaimAppInfoOverride({required this.appName, required this.appImageUrl, required this.isRecurring});
 }
 
 enum ReclaimSessionStatus {
@@ -174,19 +153,30 @@ class ReclaimSessionIdentityUpdate {
   /// The session id.
   final String sessionId;
 
-  const ReclaimSessionIdentityUpdate({
-    required this.appId,
-    required this.providerId,
-    required this.sessionId,
+  const ReclaimSessionIdentityUpdate({required this.appId, required this.providerId, required this.sessionId});
+}
+
+class ReclaimApiVerificationOptions {
+  /// Whether to delete cookies before user journey starts in the client web view.
+  /// Defaults to true.
+  final bool canDeleteCookiesBeforeVerificationStarts;
+
+  /// Whether module can use a callback to host that returns an authentication request when a Reclaim HTTP provider is provided.
+  /// Defaults to false.
+  /// {@macro CreateClaimOptions.attestorAuthenticationRequest}
+  final bool canUseAttestorAuthenticationRequest;
+
+  const ReclaimApiVerificationOptions({
+    this.canDeleteCookiesBeforeVerificationStarts = true,
+    this.canUseAttestorAuthenticationRequest = false,
   });
 }
 
+/// Apis implemented by the Reclaim module for use by the host.
 @FlutterApi()
 abstract class ReclaimModuleApi {
   @async
-  ReclaimApiVerificationResponse startVerification(
-    ReclaimApiVerificationRequest request,
-  );
+  ReclaimApiVerificationResponse startVerification(ReclaimApiVerificationRequest request);
   @async
   ReclaimApiVerificationResponse startVerificationFromUrl(String url);
   @async
@@ -201,33 +191,22 @@ abstract class ReclaimModuleApi {
   @async
   void clearAllOverrides();
   @async
+  void setVerificationOptions(ReclaimApiVerificationOptions? options);
+  @async
   bool ping();
 }
 
+/// Apis implemented by the host using the Reclaim module.
 @HostApi()
-abstract class ReclaimApi {
-  @async
-  bool ping();
+abstract class ReclaimHostOverridesApi {
   @async
   void onLogs(String logJsonString);
   @async
-  bool createSession({
-    required String appId,
-    required String providerId,
-    required String sessionId,
-  });
+  bool createSession({required String appId, required String providerId, required String sessionId});
   @async
-  bool updateSession({
-    required String sessionId,
-    required ReclaimSessionStatus status,
-  });
+  bool updateSession({required String sessionId, required ReclaimSessionStatus status});
   @async
-  void logSession({
-    required String appId,
-    required String providerId,
-    required String sessionId,
-    required String logType,
-  });
+  void logSession({required String appId, required String providerId, required String sessionId, required String logType});
   @async
   void onSessionIdentityUpdate(ReclaimSessionIdentityUpdate? update);
   @async
@@ -238,4 +217,10 @@ abstract class ReclaimApi {
     required String signature,
     required String timestamp,
   });
+}
+
+@HostApi()
+abstract class ReclaimHostVerificationApi {
+  @async
+  String fetchAttestorAuthenticationRequest(Map<dynamic, dynamic> reclaimHttpProvider);
 }
