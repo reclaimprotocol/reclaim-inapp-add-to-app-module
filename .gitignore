@@ -51,3 +51,4 @@ app.*.map.json
 pubspec_overrides.yaml
 
 dist/
+.env.secret

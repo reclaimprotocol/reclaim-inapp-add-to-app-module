@@ -122,14 +122,12 @@ typedef NS_ENUM(NSUInteger, ReclaimSessionStatus) {
     idleTimeThresholdForManualVerificationTrigger:(nullable NSNumber *)idleTimeThresholdForManualVerificationTrigger
     sessionTimeoutForManualVerificationTrigger:(nullable NSNumber *)sessionTimeoutForManualVerificationTrigger
     attestorBrowserRpcUrl:(nullable NSString *)attestorBrowserRpcUrl
-    isResponseRedactionRegexEscapingEnabled:(nullable NSNumber *)isResponseRedactionRegexEscapingEnabled
     isAIFlowEnabled:(nullable NSNumber *)isAIFlowEnabled;
 @property(nonatomic, strong, nullable) NSNumber * cookiePersist;
 @property(nonatomic, strong, nullable) NSNumber * singleReclaimRequest;
 @property(nonatomic, strong, nullable) NSNumber * idleTimeThresholdForManualVerificationTrigger;
 @property(nonatomic, strong, nullable) NSNumber * sessionTimeoutForManualVerificationTrigger;
 @property(nonatomic, copy, nullable) NSString * attestorBrowserRpcUrl;
-@property(nonatomic, strong, nullable) NSNumber * isResponseRedactionRegexEscapingEnabled;
 @property(nonatomic, strong, nullable) NSNumber * isAIFlowEnabled;
 @end
 

@@ -243,7 +243,6 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
           idleTimeThresholdForManualVerificationTrigger: feature.idleTimeThresholdForManualVerificationTrigger,
           sessionTimeoutForManualVerificationTrigger: feature.sessionTimeoutForManualVerificationTrigger,
           attestorBrowserRpcUrl: feature.attestorBrowserRpcUrl,
-          isResponseRedactionRegexEscapingEnabled: feature.isResponseRedactionRegexEscapingEnabled ?? false,
           isAIFlowEnabled: feature.isAIFlowEnabled ?? false,
         ),
       if (provider != null)
@@ -342,11 +341,20 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
     }
   }
 
-  Future<Map<dynamic, dynamic>> _requestAttestorAuthenticationRequestFromHost(HttpProvider provider) async {
+  Future<AttestorAuthenticationRequest> _requestAttestorAuthenticationRequestFromHost(HttpProvider provider) async {
     // Encode to a JSON string and decode to a Map<dynamic, dynamic> to avoid type errors. This causes all nested objects's toJson to be called.
     final Map<dynamic, dynamic> providerMap = json.decode(json.encode(provider));
     final result = await hostVerificationApi.fetchAttestorAuthenticationRequest(providerMap);
-    return json.decode(result) as Map<dynamic, dynamic>;
+    try {
+      final map = json.decode(result);
+      if (map is! Map) {
+        throw ReclaimException('Invalid attestor authentication request');
+      }
+      return AttestorAuthenticationRequest.fromJson(map as Map<String, dynamic>);
+    } catch (e, s) {
+      logger.severe('Failed to parse attestor authentication request', e, s);
+      throw ReclaimException('Failed to parse attestor authentication request: ${e.toString()}');
+    }
   }
 
   void _sendLogsToHost(LogRecord record, SessionIdentity? identity) {

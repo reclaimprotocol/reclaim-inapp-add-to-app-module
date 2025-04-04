@@ -271,7 +271,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     idleTimeThresholdForManualVerificationTrigger:(nullable NSNumber *)idleTimeThresholdForManualVerificationTrigger
     sessionTimeoutForManualVerificationTrigger:(nullable NSNumber *)sessionTimeoutForManualVerificationTrigger
     attestorBrowserRpcUrl:(nullable NSString *)attestorBrowserRpcUrl
-    isResponseRedactionRegexEscapingEnabled:(nullable NSNumber *)isResponseRedactionRegexEscapingEnabled
     isAIFlowEnabled:(nullable NSNumber *)isAIFlowEnabled {
   ClientFeatureOverrides* pigeonResult = [[ClientFeatureOverrides alloc] init];
   pigeonResult.cookiePersist = cookiePersist;
@@ -279,7 +278,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.idleTimeThresholdForManualVerificationTrigger = idleTimeThresholdForManualVerificationTrigger;
   pigeonResult.sessionTimeoutForManualVerificationTrigger = sessionTimeoutForManualVerificationTrigger;
   pigeonResult.attestorBrowserRpcUrl = attestorBrowserRpcUrl;
-  pigeonResult.isResponseRedactionRegexEscapingEnabled = isResponseRedactionRegexEscapingEnabled;
   pigeonResult.isAIFlowEnabled = isAIFlowEnabled;
   return pigeonResult;
 }
@@ -290,8 +288,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.idleTimeThresholdForManualVerificationTrigger = GetNullableObjectAtIndex(list, 2);
   pigeonResult.sessionTimeoutForManualVerificationTrigger = GetNullableObjectAtIndex(list, 3);
   pigeonResult.attestorBrowserRpcUrl = GetNullableObjectAtIndex(list, 4);
-  pigeonResult.isResponseRedactionRegexEscapingEnabled = GetNullableObjectAtIndex(list, 5);
-  pigeonResult.isAIFlowEnabled = GetNullableObjectAtIndex(list, 6);
+  pigeonResult.isAIFlowEnabled = GetNullableObjectAtIndex(list, 5);
   return pigeonResult;
 }
 + (nullable ClientFeatureOverrides *)nullableFromList:(NSArray<id> *)list {
@@ -304,7 +301,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     self.idleTimeThresholdForManualVerificationTrigger ?: [NSNull null],
     self.sessionTimeoutForManualVerificationTrigger ?: [NSNull null],
     self.attestorBrowserRpcUrl ?: [NSNull null],
-    self.isResponseRedactionRegexEscapingEnabled ?: [NSNull null],
     self.isAIFlowEnabled ?: [NSNull null],
   ];
 }

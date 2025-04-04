@@ -83,7 +83,6 @@ class ClientFeatureOverrides {
   final int? idleTimeThresholdForManualVerificationTrigger;
   final int? sessionTimeoutForManualVerificationTrigger;
   final String? attestorBrowserRpcUrl;
-  final bool? isResponseRedactionRegexEscapingEnabled;
   final bool? isAIFlowEnabled;
 
   const ClientFeatureOverrides({
@@ -96,8 +95,6 @@ class ClientFeatureOverrides {
     this.sessionTimeoutForManualVerificationTrigger,
     // https://attestor.reclaimprotocol.org/browser-rpc
     this.attestorBrowserRpcUrl,
-    // false
-    this.isResponseRedactionRegexEscapingEnabled,
     // false
     this.isAIFlowEnabled,
   });
