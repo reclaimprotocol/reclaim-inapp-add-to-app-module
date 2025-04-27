@@ -41,7 +41,13 @@ class ReclaimApiVerificationRequest {
   });
 }
 
-enum ReclaimApiVerificationExceptionType { unknown, sessionExpired, verificationDismissed, verificationFailed, verificationCancelled }
+enum ReclaimApiVerificationExceptionType {
+  unknown,
+  sessionExpired,
+  verificationDismissed,
+  verificationFailed,
+  verificationCancelled,
+}
 
 class ReclaimApiVerificationException {
   final String message;
@@ -108,7 +114,11 @@ class ClientLogConsumerOverride {
   // false
   final bool? canSdkPrintLogs;
 
-  const ClientLogConsumerOverride({this.enableLogHandler = true, this.canSdkCollectTelemetry = true, this.canSdkPrintLogs = false});
+  const ClientLogConsumerOverride({
+    this.enableLogHandler = true,
+    this.canSdkCollectTelemetry = true,
+    this.canSdkPrintLogs = false,
+  });
 }
 
 class ClientReclaimSessionManagementOverride {
@@ -153,6 +163,13 @@ class ReclaimSessionIdentityUpdate {
   const ReclaimSessionIdentityUpdate({required this.appId, required this.providerId, required this.sessionId});
 }
 
+enum ClaimCreationTypeApi {
+  standalone(),
+  onMeChain();
+
+  const ClaimCreationTypeApi();
+}
+
 class ReclaimApiVerificationOptions {
   /// Whether to delete cookies before user journey starts in the client web view.
   /// Defaults to true.
@@ -163,9 +180,12 @@ class ReclaimApiVerificationOptions {
   /// {@macro CreateClaimOptions.attestorAuthenticationRequest}
   final bool canUseAttestorAuthenticationRequest;
 
+  final ClaimCreationTypeApi claimCreationType;
+
   const ReclaimApiVerificationOptions({
     this.canDeleteCookiesBeforeVerificationStarts = true,
     this.canUseAttestorAuthenticationRequest = false,
+    this.claimCreationType = ClaimCreationTypeApi.standalone,
   });
 }
 
@@ -199,11 +219,22 @@ abstract class ReclaimHostOverridesApi {
   @async
   void onLogs(String logJsonString);
   @async
-  bool createSession({required String appId, required String providerId, required String sessionId});
+  String createSession({
+    required String appId,
+    required String providerId,
+    required String timestamp,
+    required String signature,
+  });
   @async
   bool updateSession({required String sessionId, required ReclaimSessionStatus status});
   @async
-  void logSession({required String appId, required String providerId, required String sessionId, required String logType});
+  void logSession({
+    required String appId,
+    required String providerId,
+    required String sessionId,
+    required String logType,
+    Map<String, dynamic>? metadata,
+  });
   @async
   void onSessionIdentityUpdate(ReclaimSessionIdentityUpdate? update);
   @async

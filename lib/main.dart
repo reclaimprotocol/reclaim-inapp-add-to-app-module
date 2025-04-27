@@ -4,14 +4,16 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:reclaim_flutter_sdk/logging/data/log.dart';
 import 'package:reclaim_flutter_sdk/logging/logging.dart';
+import 'package:reclaim_flutter_sdk/reclaim_flutter_sdk.dart';
 import 'package:reclaim_flutter_sdk/services/capability/capability.dart';
+import 'package:reclaim_flutter_sdk/types/claim_creation_type.dart';
+import 'package:reclaim_flutter_sdk/widgets/reclaim_theme_provider.dart';
 import 'package:reclaim_gnark_zkoperator/reclaim_gnark_zkoperator.dart';
 // ignore: implementation_imports
 import 'package:reclaim_gnark_zkoperator/src/download/download.dart' show downloadWithHttp;
-import 'package:reclaim_flutter_sdk/reclaim_flutter_sdk.dart';
-import 'package:reclaim_verifier_module/src/pigeon/messages.pigeon.dart';
 
 import 'src/data/url_request.dart';
+import 'src/pigeon/messages.pigeon.dart';
 
 const CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY = String.fromEnvironment(
   'org.reclaimprotocol.inapp_sdk.CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY',
@@ -37,6 +39,15 @@ extension ReclaimSessionStatusExtension on ReclaimSessionStatus {
   }
 }
 
+extension ClaimCreationTypeExtension on ClaimCreationTypeApi {
+  ClaimCreationType get toClaimCreationType {
+    return switch (this) {
+      ClaimCreationTypeApi.standalone => ClaimCreationType.standalone,
+      ClaimCreationTypeApi.onMeChain => ClaimCreationType.onMeChain,
+    };
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -50,7 +61,7 @@ void main() async {
 
   initializeReclaimLogging();
 
-  runApp(MaterialApp(debugShowCheckedModeBanner: false, home: ReclaimModuleApp()));
+  runApp(MaterialApp(debugShowCheckedModeBanner: false, home: ReclaimThemeProvider(child: ReclaimModuleApp())));
 }
 
 class ReclaimModuleApp extends StatefulWidget {
@@ -83,7 +94,11 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
       hostOverridesApi.onSessionIdentityUpdate(null);
     } else {
       hostOverridesApi.onSessionIdentityUpdate(
-        ReclaimSessionIdentityUpdate(appId: identity.appId, providerId: identity.providerId, sessionId: identity.sessionId),
+        ReclaimSessionIdentityUpdate(
+          appId: identity.appId,
+          providerId: identity.providerId,
+          sessionId: identity.sessionId,
+        ),
       );
     }
   }
@@ -102,7 +117,10 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
     try {
       final ReclaimVerification reclaimVerification;
       final usePreGeneratedSession =
-          request.signature.isNotEmpty && request.timestamp != null && request.timestamp!.isNotEmpty && request.sessionId.isNotEmpty;
+          request.signature.isNotEmpty &&
+          request.timestamp != null &&
+          request.timestamp!.isNotEmpty &&
+          request.sessionId.isNotEmpty;
       if (usePreGeneratedSession) {
         reclaimVerification = ReclaimVerification.withSession(
           sessionInformation: ReclaimSessionInformation(
@@ -119,6 +137,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
           autoSubmit: request.autoSubmit,
           acceptAiProviders: request.acceptAiProviders,
           webhookUrl: request.webhookUrl,
+          claimCreationType: _claimCreationType,
           verificationOptions: _reclaimVerificationOptions,
         );
       } else {
@@ -133,6 +152,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
           autoSubmit: request.autoSubmit,
           acceptAiProviders: request.acceptAiProviders,
           webhookUrl: request.webhookUrl,
+          claimCreationType: _claimCreationType,
           verificationOptions: _reclaimVerificationOptions,
         );
       }
@@ -164,7 +184,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
               if (e is ReclaimVerificationCancelledException) {
                 return ReclaimApiVerificationExceptionType.verificationCancelled;
               }
-              if (e is ReclaimSessionExpiredException) {
+              if (e is ReclaimExpiredSessionException) {
                 return ReclaimApiVerificationExceptionType.sessionExpired;
               }
             }
@@ -221,7 +241,9 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
   ) async {
     if (capabilityAccessToken != null) {
       try {
-        ReclaimOverride.set(CapabilityAccessToken.import(capabilityAccessToken, CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY));
+        ReclaimOverride.set(
+          CapabilityAccessToken.import(capabilityAccessToken, CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY),
+        );
       } on CapabilityAccessTokenException catch (e, s) {
         logger.severe('Failed to set capability access token', e, s);
         throw ReclaimException(e.message);
@@ -257,10 +279,15 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
             Map<String, dynamic> providerInformation = {};
             try {
               if (provider.providerInformationUrl != null) {
-                final response = await downloadWithHttp(provider.providerInformationUrl!, cacheDirName: 'inapp_sdk_provider_information');
+                final response = await downloadWithHttp(
+                  provider.providerInformationUrl!,
+                  cacheDirName: 'inapp_sdk_provider_information',
+                );
 
                 if (response == null) {
-                  throw ReclaimException('Failed to fetch provider information from ${provider.providerInformationUrl}');
+                  throw ReclaimException(
+                    'Failed to fetch provider information from ${provider.providerInformationUrl}',
+                  );
                 }
 
                 providerInformation = json.decode(utf8.decode(response));
@@ -308,19 +335,41 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
       // Disabling [enableSdkSessionManagement] lets the host manage sessions.
       if (sessionManagement != null && !sessionManagement.enableSdkSessionManagement)
         ReclaimSessionOverride.session(
-          createSession: ({required appId, required providerId, required sessionId}) async {
-            return hostOverridesApi.createSession(appId: appId, providerId: providerId, sessionId: sessionId);
+          createSession: ({
+            required String appId,
+            required String providerId,
+            required String timestamp,
+            required String signature,
+          }) async {
+            return hostOverridesApi.createSession(
+              appId: appId,
+              providerId: providerId,
+              timestamp: timestamp,
+              signature: signature,
+            );
           },
           updateSession: (sessionId, status) async {
-            return hostOverridesApi.updateSession(sessionId: sessionId, status: ReclaimSessionStatusExtension.fromSessionStatus(status));
+            return hostOverridesApi.updateSession(
+              sessionId: sessionId,
+              status: ReclaimSessionStatusExtension.fromSessionStatus(status),
+            );
           },
-          logRecord: ({required appId, required logType, required providerId, required sessionId}) {
+          logRecord: ({
+            required appId,
+            required logType,
+            required providerId,
+            required sessionId,
+            Map<String, dynamic>? metadata,
+          }) {
             hostOverridesApi.logSession(appId: appId, providerId: providerId, sessionId: sessionId, logType: logType);
           },
         ),
-      if (appInfo != null) AppInfo(appName: appInfo.appName, appImage: appInfo.appImageUrl, isRecurring: appInfo.isRecurring),
+      if (appInfo != null)
+        AppInfo(appName: appInfo.appName, appImage: appInfo.appImageUrl, isRecurring: appInfo.isRecurring),
     ]);
   }
+
+  ClaimCreationType _claimCreationType = ClaimCreationType.standalone;
 
   @override
   Future<void> setVerificationOptions(ReclaimApiVerificationOptions? options) async {
@@ -333,10 +382,13 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
         'reason': 'Setting verification options',
         'canDeleteCookiesBeforeVerificationStarts': options.canDeleteCookiesBeforeVerificationStarts,
         'canUseAttestorAuthenticationRequest': options.canUseAttestorAuthenticationRequest,
+        'claimCreationType': options.claimCreationType,
       });
+      _claimCreationType = options.claimCreationType.toClaimCreationType;
       _reclaimVerificationOptions = ReclaimVerificationOptions(
         preventCookieDeletion: !options.canDeleteCookiesBeforeVerificationStarts,
-        attestorAuthenticationRequest: options.canUseAttestorAuthenticationRequest ? _requestAttestorAuthenticationRequestFromHost : null,
+        attestorAuthenticationRequest:
+            options.canUseAttestorAuthenticationRequest ? _requestAttestorAuthenticationRequestFromHost : null,
       );
     }
   }
@@ -366,19 +418,30 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
     hostOverridesApi.onLogs(json.encode(entry));
   }
 
-  Future<String> _onComputeAttestorProof(String type, List<dynamic> args) async {
+  Future<String> _onComputeAttestorProof(
+    String type,
+    List<dynamic> args,
+    OnZKComputePerformanceReportCallback onPerformanceReport,
+  ) async {
     final gnarkProver = await gnarkProverFuture;
-    return gnarkProver.computeAttestorProof(type, args);
+    return gnarkProver.computeAttestorProof(
+      type,
+      args,
+      onPerformanceReport: (algorithm, report) {
+        onPerformanceReport(ZKComputePerformanceReport(algorithmName: algorithm?.name ?? '', report: report));
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuerySizeWidth = MediaQuery.sizeOf(context).width;
     return PopScope(
       canPop: true,
       child: Scaffold(
-        body: const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Center(child: LinearProgressIndicator(borderRadius: BorderRadius.all(Radius.circular(20)))),
+        body: Padding(
+          padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0 + (mediaQuerySizeWidth * 0.2)),
+          child: const Center(child: LinearProgressIndicator(borderRadius: BorderRadius.all(Radius.circular(20)))),
         ),
       ),
     );
