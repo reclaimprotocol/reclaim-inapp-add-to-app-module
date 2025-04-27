@@ -11,6 +11,8 @@ cd reclaim-inapp-android-sdk;
 echo $VERSION > Sources/ReclaimInAppSdk/Resources/ReclaimInAppSdk.version;
 
 sed -i '' "s/RECLAIM_SDK_VERSION=\".*\"/RECLAIM_SDK_VERSION=\"$VERSION\"/" ./Scripts/download_frameworks.sh;
+sed -i '' "s/s.version           = '.*'/s.version           = '$VERSION'/" ./Devel/podspec.prod;
+sed -i '' "s/s.version           = '.*'/s.version           = '$VERSION'/" ./ReclaimInAppSdk.podspec;
 
 ./Scripts/prepare.sh
 
