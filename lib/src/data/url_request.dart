@@ -6,19 +6,6 @@ part 'url_request.g.dart';
 
 @JsonSerializable()
 class ReclaimUrlRequest {
-  final String providerId;
-  final String applicationId;
-  final String signature;
-  final String timestamp;
-  final String callbackUrl;
-  final String? context;
-  final String? sessionId;
-  final String? redirectUrl;
-  final String? verificationType;
-  final bool? acceptAiProviders;
-  final bool? jsonProofResponse;
-  final Map<String, String>? parameters;
-
   const ReclaimUrlRequest({
     required this.providerId,
     required this.applicationId,
@@ -43,6 +30,18 @@ class ReclaimUrlRequest {
     final ReclaimUrlRequest decodedRequest = ReclaimUrlRequest.fromJson(jsonObject);
     return decodedRequest;
   }
+  final String providerId;
+  final String applicationId;
+  final String signature;
+  final String timestamp;
+  final String callbackUrl;
+  final String? context;
+  final String? sessionId;
+  final String? redirectUrl;
+  final String? verificationType;
+  final bool? acceptAiProviders;
+  final bool? jsonProofResponse;
+  final Map<String, String>? parameters;
 
   Map<String, dynamic> toJson() => _$ReclaimUrlRequestToJson(this);
 }

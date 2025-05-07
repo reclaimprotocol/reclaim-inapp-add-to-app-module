@@ -14,18 +14,6 @@ import 'package:pigeon/pigeon.dart';
   ),
 )
 class ReclaimApiVerificationRequest {
-  final String appId;
-  final String providerId;
-  final String secret;
-  final String signature;
-  final String? timestamp;
-  final String context;
-  final String sessionId;
-  final Map<String, String> parameters;
-  final bool autoSubmit;
-  final bool acceptAiProviders;
-  final String? webhookUrl;
-
   const ReclaimApiVerificationRequest({
     required this.appId,
     required this.providerId,
@@ -35,10 +23,19 @@ class ReclaimApiVerificationRequest {
     required this.context,
     required this.sessionId,
     required this.parameters,
-    required this.autoSubmit,
     required this.acceptAiProviders,
     required this.webhookUrl,
   });
+  final String appId;
+  final String providerId;
+  final String secret;
+  final String signature;
+  final String? timestamp;
+  final String context;
+  final String sessionId;
+  final Map<String, String> parameters;
+  final bool acceptAiProviders;
+  final String? webhookUrl;
 }
 
 enum ReclaimApiVerificationExceptionType {
@@ -50,47 +47,37 @@ enum ReclaimApiVerificationExceptionType {
 }
 
 class ReclaimApiVerificationException {
+  const ReclaimApiVerificationException({required this.message, required this.stackTraceAsString, required this.type});
   final String message;
   final String stackTraceAsString;
   final ReclaimApiVerificationExceptionType type;
-
-  const ReclaimApiVerificationException({required this.message, required this.stackTraceAsString, required this.type});
 }
 
 class ReclaimApiVerificationResponse {
-  final String sessionId;
-  final bool didSubmitManualVerification;
-  final List<Map<String, dynamic>> proofs;
-  final ReclaimApiVerificationException? exception;
-
   const ReclaimApiVerificationResponse({
     required this.sessionId,
     required this.didSubmitManualVerification,
     required this.proofs,
     required this.exception,
   });
+  final String sessionId;
+  final bool didSubmitManualVerification;
+  final List<Map<String, dynamic>> proofs;
+  final ReclaimApiVerificationException? exception;
 }
 
 class ClientProviderInformationOverride {
-  final String? providerInformationUrl;
-  final String? providerInformationJsonString;
-  final bool canFetchProviderInformationFromHost;
-
   const ClientProviderInformationOverride({
     this.providerInformationUrl,
     this.providerInformationJsonString,
     this.canFetchProviderInformationFromHost = false,
   });
+  final String? providerInformationUrl;
+  final String? providerInformationJsonString;
+  final bool canFetchProviderInformationFromHost;
 }
 
 class ClientFeatureOverrides {
-  final bool? cookiePersist;
-  final bool? singleReclaimRequest;
-  final int? idleTimeThresholdForManualVerificationTrigger;
-  final int? sessionTimeoutForManualVerificationTrigger;
-  final String? attestorBrowserRpcUrl;
-  final bool? isAIFlowEnabled;
-
   const ClientFeatureOverrides({
     this.cookiePersist,
     // false
@@ -104,37 +91,40 @@ class ClientFeatureOverrides {
     // false
     this.isAIFlowEnabled,
   });
+  final bool? cookiePersist;
+  final bool? singleReclaimRequest;
+  final int? idleTimeThresholdForManualVerificationTrigger;
+  final int? sessionTimeoutForManualVerificationTrigger;
+  final String? attestorBrowserRpcUrl;
+  final bool? isAIFlowEnabled;
 }
 
 class ClientLogConsumerOverride {
+  const ClientLogConsumerOverride({
+    this.enableLogHandler = true,
+    this.canSdkCollectTelemetry = true,
+    this.canSdkPrintLogs = false,
+  });
   // true
   final bool enableLogHandler;
   // true
   final bool canSdkCollectTelemetry;
   // false
   final bool? canSdkPrintLogs;
-
-  const ClientLogConsumerOverride({
-    this.enableLogHandler = true,
-    this.canSdkCollectTelemetry = true,
-    this.canSdkPrintLogs = false,
-  });
 }
 
 class ClientReclaimSessionManagementOverride {
+  const ClientReclaimSessionManagementOverride({this.enableSdkSessionManagement = true});
   // true
   final bool enableSdkSessionManagement;
-
-  const ClientReclaimSessionManagementOverride({this.enableSdkSessionManagement = true});
 }
 
 class ClientReclaimAppInfoOverride {
+  const ClientReclaimAppInfoOverride({required this.appName, required this.appImageUrl, required this.isRecurring});
   final String appName;
   final String appImageUrl;
   // false
   final bool isRecurring;
-
-  const ClientReclaimAppInfoOverride({required this.appName, required this.appImageUrl, required this.isRecurring});
 }
 
 enum ReclaimSessionStatus {
@@ -151,6 +141,8 @@ enum ReclaimSessionStatus {
 
 /// Identification information of a session.
 class ReclaimSessionIdentityUpdate {
+  const ReclaimSessionIdentityUpdate({required this.appId, required this.providerId, required this.sessionId});
+
   /// The application id.
   final String appId;
 
@@ -159,18 +151,19 @@ class ReclaimSessionIdentityUpdate {
 
   /// The session id.
   final String sessionId;
-
-  const ReclaimSessionIdentityUpdate({required this.appId, required this.providerId, required this.sessionId});
 }
 
-enum ClaimCreationTypeApi {
-  standalone(),
-  onMeChain();
-
-  const ClaimCreationTypeApi();
-}
+enum ClaimCreationTypeApi { standalone, meChain }
 
 class ReclaimApiVerificationOptions {
+  const ReclaimApiVerificationOptions({
+    this.canDeleteCookiesBeforeVerificationStarts = true,
+    this.canUseAttestorAuthenticationRequest = false,
+    this.claimCreationType = ClaimCreationTypeApi.standalone,
+    this.canAutoSubmit = true,
+    this.isCloseButtonVisible = true,
+  });
+
   /// Whether to delete cookies before user journey starts in the client web view.
   /// Defaults to true.
   final bool canDeleteCookiesBeforeVerificationStarts;
@@ -182,11 +175,13 @@ class ReclaimApiVerificationOptions {
 
   final ClaimCreationTypeApi claimCreationType;
 
-  const ReclaimApiVerificationOptions({
-    this.canDeleteCookiesBeforeVerificationStarts = true,
-    this.canUseAttestorAuthenticationRequest = false,
-    this.claimCreationType = ClaimCreationTypeApi.standalone,
-  });
+  /// Whether module can auto submit the claim.
+  /// Defaults to true.
+  final bool canAutoSubmit;
+
+  /// Whether the close button is visible.
+  /// Defaults to true.
+  final bool isCloseButtonVisible;
 }
 
 /// Apis implemented by the Reclaim module for use by the host.

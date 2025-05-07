@@ -131,7 +131,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     context:(NSString *)context
     sessionId:(NSString *)sessionId
     parameters:(NSDictionary<NSString *, NSString *> *)parameters
-    autoSubmit:(BOOL )autoSubmit
     acceptAiProviders:(BOOL )acceptAiProviders
     webhookUrl:(nullable NSString *)webhookUrl {
   ReclaimApiVerificationRequest* pigeonResult = [[ReclaimApiVerificationRequest alloc] init];
@@ -143,7 +142,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.context = context;
   pigeonResult.sessionId = sessionId;
   pigeonResult.parameters = parameters;
-  pigeonResult.autoSubmit = autoSubmit;
   pigeonResult.acceptAiProviders = acceptAiProviders;
   pigeonResult.webhookUrl = webhookUrl;
   return pigeonResult;
@@ -158,9 +156,8 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.context = GetNullableObjectAtIndex(list, 5);
   pigeonResult.sessionId = GetNullableObjectAtIndex(list, 6);
   pigeonResult.parameters = GetNullableObjectAtIndex(list, 7);
-  pigeonResult.autoSubmit = [GetNullableObjectAtIndex(list, 8) boolValue];
-  pigeonResult.acceptAiProviders = [GetNullableObjectAtIndex(list, 9) boolValue];
-  pigeonResult.webhookUrl = GetNullableObjectAtIndex(list, 10);
+  pigeonResult.acceptAiProviders = [GetNullableObjectAtIndex(list, 8) boolValue];
+  pigeonResult.webhookUrl = GetNullableObjectAtIndex(list, 9);
   return pigeonResult;
 }
 + (nullable ReclaimApiVerificationRequest *)nullableFromList:(NSArray<id> *)list {
@@ -176,7 +173,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     self.context ?: [NSNull null],
     self.sessionId ?: [NSNull null],
     self.parameters ?: [NSNull null],
-    @(self.autoSubmit),
     @(self.acceptAiProviders),
     self.webhookUrl ?: [NSNull null],
   ];
@@ -427,11 +423,15 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
 @implementation ReclaimApiVerificationOptions
 + (instancetype)makeWithCanDeleteCookiesBeforeVerificationStarts:(BOOL )canDeleteCookiesBeforeVerificationStarts
     canUseAttestorAuthenticationRequest:(BOOL )canUseAttestorAuthenticationRequest
-    claimCreationType:(ClaimCreationTypeApi)claimCreationType {
+    claimCreationType:(ClaimCreationTypeApi)claimCreationType
+    canAutoSubmit:(BOOL )canAutoSubmit
+    isCloseButtonVisible:(BOOL )isCloseButtonVisible {
   ReclaimApiVerificationOptions* pigeonResult = [[ReclaimApiVerificationOptions alloc] init];
   pigeonResult.canDeleteCookiesBeforeVerificationStarts = canDeleteCookiesBeforeVerificationStarts;
   pigeonResult.canUseAttestorAuthenticationRequest = canUseAttestorAuthenticationRequest;
   pigeonResult.claimCreationType = claimCreationType;
+  pigeonResult.canAutoSubmit = canAutoSubmit;
+  pigeonResult.isCloseButtonVisible = isCloseButtonVisible;
   return pigeonResult;
 }
 + (ReclaimApiVerificationOptions *)fromList:(NSArray<id> *)list {
@@ -440,6 +440,8 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.canUseAttestorAuthenticationRequest = [GetNullableObjectAtIndex(list, 1) boolValue];
   ClaimCreationTypeApiBox *boxedClaimCreationTypeApi = GetNullableObjectAtIndex(list, 2);
   pigeonResult.claimCreationType = boxedClaimCreationTypeApi.value;
+  pigeonResult.canAutoSubmit = [GetNullableObjectAtIndex(list, 3) boolValue];
+  pigeonResult.isCloseButtonVisible = [GetNullableObjectAtIndex(list, 4) boolValue];
   return pigeonResult;
 }
 + (nullable ReclaimApiVerificationOptions *)nullableFromList:(NSArray<id> *)list {
@@ -450,6 +452,8 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     @(self.canDeleteCookiesBeforeVerificationStarts),
     @(self.canUseAttestorAuthenticationRequest),
     [[ClaimCreationTypeApiBox alloc] initWithValue:self.claimCreationType],
+    @(self.canAutoSubmit),
+    @(self.isCloseButtonVisible),
   ];
 }
 @end
