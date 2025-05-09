@@ -25,20 +25,20 @@ List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty
   }
   return <Object?>[error.code, error.message, error.details];
 }
+
 bool _deepEquals(Object? a, Object? b) {
   if (a is List && b is List) {
-    return a.length == b.length &&
-        a.indexed
-        .every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
+    return a.length == b.length && a.indexed.every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
   }
   if (a is Map && b is Map) {
-    return a.length == b.length && a.entries.every((MapEntry<Object?, Object?> entry) =>
-        (b as Map<Object?, Object?>).containsKey(entry.key) &&
-        _deepEquals(entry.value, b[entry.key]));
+    return a.length == b.length &&
+        a.entries.every(
+          (MapEntry<Object?, Object?> entry) =>
+              (b as Map<Object?, Object?>).containsKey(entry.key) && _deepEquals(entry.value, b[entry.key]),
+        );
   }
   return a == b;
 }
-
 
 enum ReclaimApiVerificationExceptionType {
   unknown,
@@ -60,10 +60,7 @@ enum ReclaimSessionStatus {
   PROOF_MANUAL_VERIFICATION_SUBMITTED,
 }
 
-enum ClaimCreationTypeApi {
-  standalone,
-  onMeChain,
-}
+enum ClaimCreationTypeApi { standalone, meChain }
 
 class ReclaimApiVerificationRequest {
   ReclaimApiVerificationRequest({
@@ -75,7 +72,6 @@ class ReclaimApiVerificationRequest {
     required this.context,
     required this.sessionId,
     required this.parameters,
-    required this.autoSubmit,
     required this.acceptAiProviders,
     this.webhookUrl,
   });
@@ -96,8 +92,6 @@ class ReclaimApiVerificationRequest {
 
   Map<String, String> parameters;
 
-  bool autoSubmit;
-
   bool acceptAiProviders;
 
   String? webhookUrl;
@@ -112,14 +106,14 @@ class ReclaimApiVerificationRequest {
       context,
       sessionId,
       parameters,
-      autoSubmit,
       acceptAiProviders,
       webhookUrl,
     ];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ReclaimApiVerificationRequest decode(Object result) {
     result as List<Object?>;
@@ -132,9 +126,8 @@ class ReclaimApiVerificationRequest {
       context: result[5]! as String,
       sessionId: result[6]! as String,
       parameters: (result[7] as Map<Object?, Object?>?)!.cast<String, String>(),
-      autoSubmit: result[8]! as bool,
-      acceptAiProviders: result[9]! as bool,
-      webhookUrl: result[10] as String?,
+      acceptAiProviders: result[8]! as bool,
+      webhookUrl: result[9] as String?,
     );
   }
 
@@ -152,16 +145,11 @@ class ReclaimApiVerificationRequest {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList())
-;
+  int get hashCode => Object.hashAll(_toList());
 }
 
 class ReclaimApiVerificationException {
-  ReclaimApiVerificationException({
-    required this.message,
-    required this.stackTraceAsString,
-    required this.type,
-  });
+  ReclaimApiVerificationException({required this.message, required this.stackTraceAsString, required this.type});
 
   String message;
 
@@ -170,15 +158,12 @@ class ReclaimApiVerificationException {
   ReclaimApiVerificationExceptionType type;
 
   List<Object?> _toList() {
-    return <Object?>[
-      message,
-      stackTraceAsString,
-      type,
-    ];
+    return <Object?>[message, stackTraceAsString, type];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ReclaimApiVerificationException decode(Object result) {
     result as List<Object?>;
@@ -203,8 +188,7 @@ class ReclaimApiVerificationException {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList())
-;
+  int get hashCode => Object.hashAll(_toList());
 }
 
 class ReclaimApiVerificationResponse {
@@ -224,16 +208,12 @@ class ReclaimApiVerificationResponse {
   ReclaimApiVerificationException? exception;
 
   List<Object?> _toList() {
-    return <Object?>[
-      sessionId,
-      didSubmitManualVerification,
-      proofs,
-      exception,
-    ];
+    return <Object?>[sessionId, didSubmitManualVerification, proofs, exception];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ReclaimApiVerificationResponse decode(Object result) {
     result as List<Object?>;
@@ -259,8 +239,7 @@ class ReclaimApiVerificationResponse {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList())
-;
+  int get hashCode => Object.hashAll(_toList());
 }
 
 class ClientProviderInformationOverride {
@@ -277,15 +256,12 @@ class ClientProviderInformationOverride {
   bool canFetchProviderInformationFromHost;
 
   List<Object?> _toList() {
-    return <Object?>[
-      providerInformationUrl,
-      providerInformationJsonString,
-      canFetchProviderInformationFromHost,
-    ];
+    return <Object?>[providerInformationUrl, providerInformationJsonString, canFetchProviderInformationFromHost];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ClientProviderInformationOverride decode(Object result) {
     result as List<Object?>;
@@ -310,8 +286,7 @@ class ClientProviderInformationOverride {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList())
-;
+  int get hashCode => Object.hashAll(_toList());
 }
 
 class ClientFeatureOverrides {
@@ -348,7 +323,8 @@ class ClientFeatureOverrides {
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ClientFeatureOverrides decode(Object result) {
     result as List<Object?>;
@@ -376,8 +352,7 @@ class ClientFeatureOverrides {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList())
-;
+  int get hashCode => Object.hashAll(_toList());
 }
 
 class ClientLogConsumerOverride {
@@ -394,15 +369,12 @@ class ClientLogConsumerOverride {
   bool? canSdkPrintLogs;
 
   List<Object?> _toList() {
-    return <Object?>[
-      enableLogHandler,
-      canSdkCollectTelemetry,
-      canSdkPrintLogs,
-    ];
+    return <Object?>[enableLogHandler, canSdkCollectTelemetry, canSdkPrintLogs];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ClientLogConsumerOverride decode(Object result) {
     result as List<Object?>;
@@ -427,31 +399,25 @@ class ClientLogConsumerOverride {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList())
-;
+  int get hashCode => Object.hashAll(_toList());
 }
 
 class ClientReclaimSessionManagementOverride {
-  ClientReclaimSessionManagementOverride({
-    required this.enableSdkSessionManagement,
-  });
+  ClientReclaimSessionManagementOverride({required this.enableSdkSessionManagement});
 
   bool enableSdkSessionManagement;
 
   List<Object?> _toList() {
-    return <Object?>[
-      enableSdkSessionManagement,
-    ];
+    return <Object?>[enableSdkSessionManagement];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ClientReclaimSessionManagementOverride decode(Object result) {
     result as List<Object?>;
-    return ClientReclaimSessionManagementOverride(
-      enableSdkSessionManagement: result[0]! as bool,
-    );
+    return ClientReclaimSessionManagementOverride(enableSdkSessionManagement: result[0]! as bool);
   }
 
   @override
@@ -468,16 +434,11 @@ class ClientReclaimSessionManagementOverride {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList())
-;
+  int get hashCode => Object.hashAll(_toList());
 }
 
 class ClientReclaimAppInfoOverride {
-  ClientReclaimAppInfoOverride({
-    required this.appName,
-    required this.appImageUrl,
-    required this.isRecurring,
-  });
+  ClientReclaimAppInfoOverride({required this.appName, required this.appImageUrl, required this.isRecurring});
 
   String appName;
 
@@ -486,15 +447,12 @@ class ClientReclaimAppInfoOverride {
   bool isRecurring;
 
   List<Object?> _toList() {
-    return <Object?>[
-      appName,
-      appImageUrl,
-      isRecurring,
-    ];
+    return <Object?>[appName, appImageUrl, isRecurring];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ClientReclaimAppInfoOverride decode(Object result) {
     result as List<Object?>;
@@ -519,17 +477,12 @@ class ClientReclaimAppInfoOverride {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList())
-;
+  int get hashCode => Object.hashAll(_toList());
 }
 
 /// Identification information of a session.
 class ReclaimSessionIdentityUpdate {
-  ReclaimSessionIdentityUpdate({
-    required this.appId,
-    required this.providerId,
-    required this.sessionId,
-  });
+  ReclaimSessionIdentityUpdate({required this.appId, required this.providerId, required this.sessionId});
 
   /// The application id.
   String appId;
@@ -541,15 +494,12 @@ class ReclaimSessionIdentityUpdate {
   String sessionId;
 
   List<Object?> _toList() {
-    return <Object?>[
-      appId,
-      providerId,
-      sessionId,
-    ];
+    return <Object?>[appId, providerId, sessionId];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ReclaimSessionIdentityUpdate decode(Object result) {
     result as List<Object?>;
@@ -574,8 +524,7 @@ class ReclaimSessionIdentityUpdate {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList())
-;
+  int get hashCode => Object.hashAll(_toList());
 }
 
 class ReclaimApiVerificationOptions {
@@ -583,6 +532,8 @@ class ReclaimApiVerificationOptions {
     required this.canDeleteCookiesBeforeVerificationStarts,
     required this.canUseAttestorAuthenticationRequest,
     required this.claimCreationType,
+    required this.canAutoSubmit,
+    required this.isCloseButtonVisible,
   });
 
   /// Whether to delete cookies before user journey starts in the client web view.
@@ -596,16 +547,27 @@ class ReclaimApiVerificationOptions {
 
   ClaimCreationTypeApi claimCreationType;
 
+  /// Whether module can auto submit the claim.
+  /// Defaults to true.
+  bool canAutoSubmit;
+
+  /// Whether the close button is visible.
+  /// Defaults to true.
+  bool isCloseButtonVisible;
+
   List<Object?> _toList() {
     return <Object?>[
       canDeleteCookiesBeforeVerificationStarts,
       canUseAttestorAuthenticationRequest,
       claimCreationType,
+      canAutoSubmit,
+      isCloseButtonVisible,
     ];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ReclaimApiVerificationOptions decode(Object result) {
     result as List<Object?>;
@@ -613,6 +575,8 @@ class ReclaimApiVerificationOptions {
       canDeleteCookiesBeforeVerificationStarts: result[0]! as bool,
       canUseAttestorAuthenticationRequest: result[1]! as bool,
       claimCreationType: result[2]! as ClaimCreationTypeApi,
+      canAutoSubmit: result[3]! as bool,
+      isCloseButtonVisible: result[4]! as bool,
     );
   }
 
@@ -630,10 +594,8 @@ class ReclaimApiVerificationOptions {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => Object.hashAll(_toList())
-;
+  int get hashCode => Object.hashAll(_toList());
 }
-
 
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
@@ -642,43 +604,43 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    }    else if (value is ReclaimApiVerificationExceptionType) {
+    } else if (value is ReclaimApiVerificationExceptionType) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    }    else if (value is ReclaimSessionStatus) {
+    } else if (value is ReclaimSessionStatus) {
       buffer.putUint8(130);
       writeValue(buffer, value.index);
-    }    else if (value is ClaimCreationTypeApi) {
+    } else if (value is ClaimCreationTypeApi) {
       buffer.putUint8(131);
       writeValue(buffer, value.index);
-    }    else if (value is ReclaimApiVerificationRequest) {
+    } else if (value is ReclaimApiVerificationRequest) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    }    else if (value is ReclaimApiVerificationException) {
+    } else if (value is ReclaimApiVerificationException) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    }    else if (value is ReclaimApiVerificationResponse) {
+    } else if (value is ReclaimApiVerificationResponse) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
-    }    else if (value is ClientProviderInformationOverride) {
+    } else if (value is ClientProviderInformationOverride) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    }    else if (value is ClientFeatureOverrides) {
+    } else if (value is ClientFeatureOverrides) {
       buffer.putUint8(136);
       writeValue(buffer, value.encode());
-    }    else if (value is ClientLogConsumerOverride) {
+    } else if (value is ClientLogConsumerOverride) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    }    else if (value is ClientReclaimSessionManagementOverride) {
+    } else if (value is ClientReclaimSessionManagementOverride) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
-    }    else if (value is ClientReclaimAppInfoOverride) {
+    } else if (value is ClientReclaimAppInfoOverride) {
       buffer.putUint8(139);
       writeValue(buffer, value.encode());
-    }    else if (value is ReclaimSessionIdentityUpdate) {
+    } else if (value is ReclaimSessionIdentityUpdate) {
       buffer.putUint8(140);
       writeValue(buffer, value.encode());
-    }    else if (value is ReclaimApiVerificationOptions) {
+    } else if (value is ReclaimApiVerificationOptions) {
       buffer.putUint8(141);
       writeValue(buffer, value.encode());
     } else {
@@ -689,34 +651,34 @@ class _PigeonCodec extends StandardMessageCodec {
   @override
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
-      case 129: 
+      case 129:
         final int? value = readValue(buffer) as int?;
         return value == null ? null : ReclaimApiVerificationExceptionType.values[value];
-      case 130: 
+      case 130:
         final int? value = readValue(buffer) as int?;
         return value == null ? null : ReclaimSessionStatus.values[value];
-      case 131: 
+      case 131:
         final int? value = readValue(buffer) as int?;
         return value == null ? null : ClaimCreationTypeApi.values[value];
-      case 132: 
+      case 132:
         return ReclaimApiVerificationRequest.decode(readValue(buffer)!);
-      case 133: 
+      case 133:
         return ReclaimApiVerificationException.decode(readValue(buffer)!);
-      case 134: 
+      case 134:
         return ReclaimApiVerificationResponse.decode(readValue(buffer)!);
-      case 135: 
+      case 135:
         return ClientProviderInformationOverride.decode(readValue(buffer)!);
-      case 136: 
+      case 136:
         return ClientFeatureOverrides.decode(readValue(buffer)!);
-      case 137: 
+      case 137:
         return ClientLogConsumerOverride.decode(readValue(buffer)!);
-      case 138: 
+      case 138:
         return ClientReclaimSessionManagementOverride.decode(readValue(buffer)!);
-      case 139: 
+      case 139:
         return ClientReclaimAppInfoOverride.decode(readValue(buffer)!);
-      case 140: 
+      case 140:
         return ReclaimSessionIdentityUpdate.decode(readValue(buffer)!);
-      case 141: 
+      case 141:
         return ReclaimApiVerificationOptions.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -732,7 +694,14 @@ abstract class ReclaimModuleApi {
 
   Future<ReclaimApiVerificationResponse> startVerificationFromUrl(String url);
 
-  Future<void> setOverrides(ClientProviderInformationOverride? provider, ClientFeatureOverrides? feature, ClientLogConsumerOverride? logConsumer, ClientReclaimSessionManagementOverride? sessionManagement, ClientReclaimAppInfoOverride? appInfo, String? capabilityAccessToken);
+  Future<void> setOverrides(
+    ClientProviderInformationOverride? provider,
+    ClientFeatureOverrides? feature,
+    ClientLogConsumerOverride? logConsumer,
+    ClientReclaimSessionManagementOverride? sessionManagement,
+    ClientReclaimAppInfoOverride? appInfo,
+    String? capabilityAccessToken,
+  );
 
   Future<void> clearAllOverrides();
 
@@ -740,28 +709,34 @@ abstract class ReclaimModuleApi {
 
   Future<bool> ping();
 
-  static void setUp(ReclaimModuleApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
+  static void setUp(ReclaimModuleApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
       final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerification$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerification$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-          'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerification was null.');
+          assert(
+            message != null,
+            'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerification was null.',
+          );
           final List<Object?> args = (message as List<Object?>?)!;
           final ReclaimApiVerificationRequest? arg_request = (args[0] as ReclaimApiVerificationRequest?);
-          assert(arg_request != null,
-              'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerification was null, expected non-null ReclaimApiVerificationRequest.');
+          assert(
+            arg_request != null,
+            'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerification was null, expected non-null ReclaimApiVerificationRequest.',
+          );
           try {
             final ReclaimApiVerificationResponse output = await api.startVerification(arg_request!);
             return wrapResponse(result: output);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
+          } catch (e) {
             return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
@@ -769,24 +744,30 @@ abstract class ReclaimModuleApi {
     }
     {
       final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromUrl$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromUrl$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-          'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromUrl was null.');
+          assert(
+            message != null,
+            'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromUrl was null.',
+          );
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_url = (args[0] as String?);
-          assert(arg_url != null,
-              'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromUrl was null, expected non-null String.');
+          assert(
+            arg_url != null,
+            'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromUrl was null, expected non-null String.',
+          );
           try {
             final ReclaimApiVerificationResponse output = await api.startVerificationFromUrl(arg_url!);
             return wrapResponse(result: output);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
+          } catch (e) {
             return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
@@ -794,27 +775,39 @@ abstract class ReclaimModuleApi {
     }
     {
       final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setOverrides$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setOverrides$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-          'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setOverrides was null.');
+          assert(
+            message != null,
+            'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setOverrides was null.',
+          );
           final List<Object?> args = (message as List<Object?>?)!;
           final ClientProviderInformationOverride? arg_provider = (args[0] as ClientProviderInformationOverride?);
           final ClientFeatureOverrides? arg_feature = (args[1] as ClientFeatureOverrides?);
           final ClientLogConsumerOverride? arg_logConsumer = (args[2] as ClientLogConsumerOverride?);
-          final ClientReclaimSessionManagementOverride? arg_sessionManagement = (args[3] as ClientReclaimSessionManagementOverride?);
+          final ClientReclaimSessionManagementOverride? arg_sessionManagement =
+              (args[3] as ClientReclaimSessionManagementOverride?);
           final ClientReclaimAppInfoOverride? arg_appInfo = (args[4] as ClientReclaimAppInfoOverride?);
           final String? arg_capabilityAccessToken = (args[5] as String?);
           try {
-            await api.setOverrides(arg_provider, arg_feature, arg_logConsumer, arg_sessionManagement, arg_appInfo, arg_capabilityAccessToken);
+            await api.setOverrides(
+              arg_provider,
+              arg_feature,
+              arg_logConsumer,
+              arg_sessionManagement,
+              arg_appInfo,
+              arg_capabilityAccessToken,
+            );
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
+          } catch (e) {
             return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
@@ -822,8 +815,10 @@ abstract class ReclaimModuleApi {
     }
     {
       final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.clearAllOverrides$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.clearAllOverrides$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -833,7 +828,7 @@ abstract class ReclaimModuleApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
+          } catch (e) {
             return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
@@ -841,14 +836,18 @@ abstract class ReclaimModuleApi {
     }
     {
       final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setVerificationOptions$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setVerificationOptions$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-          'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setVerificationOptions was null.');
+          assert(
+            message != null,
+            'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setVerificationOptions was null.',
+          );
           final List<Object?> args = (message as List<Object?>?)!;
           final ReclaimApiVerificationOptions? arg_options = (args[0] as ReclaimApiVerificationOptions?);
           try {
@@ -856,7 +855,7 @@ abstract class ReclaimModuleApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
+          } catch (e) {
             return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
@@ -864,8 +863,10 @@ abstract class ReclaimModuleApi {
     }
     {
       final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.ping$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.ping$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -875,7 +876,7 @@ abstract class ReclaimModuleApi {
             return wrapResponse(result: output);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
+          } catch (e) {
             return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
@@ -890,8 +891,8 @@ class ReclaimHostOverridesApi {
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
   ReclaimHostOverridesApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
-      : pigeonVar_binaryMessenger = binaryMessenger,
-        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+    : pigeonVar_binaryMessenger = binaryMessenger,
+      pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -899,15 +900,15 @@ class ReclaimHostOverridesApi {
   final String pigeonVar_messageChannelSuffix;
 
   Future<void> onLogs(String logJsonString) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.onLogs$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.onLogs$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[logJsonString]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -921,16 +922,26 @@ class ReclaimHostOverridesApi {
     }
   }
 
-  Future<String> createSession({required String appId, required String providerId, required String timestamp, required String signature, }) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.createSession$pigeonVar_messageChannelSuffix';
+  Future<String> createSession({
+    required String appId,
+    required String providerId,
+    required String timestamp,
+    required String signature,
+  }) async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.createSession$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[appId, providerId, timestamp, signature]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[
+      appId,
+      providerId,
+      timestamp,
+      signature,
+    ]);
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -950,15 +961,15 @@ class ReclaimHostOverridesApi {
   }
 
   Future<bool> updateSession({required String sessionId, required ReclaimSessionStatus status}) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.updateSession$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.updateSession$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[sessionId, status]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -977,16 +988,28 @@ class ReclaimHostOverridesApi {
     }
   }
 
-  Future<void> logSession({required String appId, required String providerId, required String sessionId, required String logType, Map<String, dynamic>? metadata, }) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.logSession$pigeonVar_messageChannelSuffix';
+  Future<void> logSession({
+    required String appId,
+    required String providerId,
+    required String sessionId,
+    required String logType,
+    Map<String, dynamic>? metadata,
+  }) async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.logSession$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[appId, providerId, sessionId, logType, metadata]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[
+      appId,
+      providerId,
+      sessionId,
+      logType,
+      metadata,
+    ]);
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -1001,15 +1024,15 @@ class ReclaimHostOverridesApi {
   }
 
   Future<void> onSessionIdentityUpdate(ReclaimSessionIdentityUpdate? update) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.onSessionIdentityUpdate$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.onSessionIdentityUpdate$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[update]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -1023,16 +1046,28 @@ class ReclaimHostOverridesApi {
     }
   }
 
-  Future<String> fetchProviderInformation({required String appId, required String providerId, required String sessionId, required String signature, required String timestamp, }) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.fetchProviderInformation$pigeonVar_messageChannelSuffix';
+  Future<String> fetchProviderInformation({
+    required String appId,
+    required String providerId,
+    required String sessionId,
+    required String signature,
+    required String timestamp,
+  }) async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.fetchProviderInformation$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[appId, providerId, sessionId, signature, timestamp]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[
+      appId,
+      providerId,
+      sessionId,
+      signature,
+      timestamp,
+    ]);
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -1057,8 +1092,8 @@ class ReclaimHostVerificationApi {
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
   ReclaimHostVerificationApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
-      : pigeonVar_binaryMessenger = binaryMessenger,
-        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+    : pigeonVar_binaryMessenger = binaryMessenger,
+      pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -1066,15 +1101,15 @@ class ReclaimHostVerificationApi {
   final String pigeonVar_messageChannelSuffix;
 
   Future<String> fetchAttestorAuthenticationRequest(Map<dynamic, dynamic> reclaimHttpProvider) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostVerificationApi.fetchAttestorAuthenticationRequest$pigeonVar_messageChannelSuffix';
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostVerificationApi.fetchAttestorAuthenticationRequest$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[reclaimHttpProvider]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {

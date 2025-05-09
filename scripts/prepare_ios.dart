@@ -6,7 +6,11 @@ void main() {
   final buildPath = path.join(currentPath, 'build', 'ios');
   final iosSimulatorAppFrameworkDebug = path.join(buildPath, 'Debug', 'App.xcframework', 'ios-arm64_x86_64-simulator');
   final iosReleaseBuildPath = path.join(buildPath, 'Release');
-  final iosSimulatorAppFrameworkRelease = path.join(iosReleaseBuildPath, 'App.xcframework', 'ios-arm64_x86_64-simulator');
+  final iosSimulatorAppFrameworkRelease = path.join(
+    iosReleaseBuildPath,
+    'App.xcframework',
+    'ios-arm64_x86_64-simulator',
+  );
   Directory(iosSimulatorAppFrameworkRelease).deleteSync(recursive: true);
   Directory(iosSimulatorAppFrameworkDebug).renameSync(iosSimulatorAppFrameworkRelease);
   final iosOutputBuildPath = path.join(buildPath, 'ReclaimXCFrameworks');

@@ -30,7 +30,7 @@ extension ReclaimSessionStatusExtension on ReclaimSessionStatus {
       SessionStatus.PROOF_GENERATION_SUCCESS => ReclaimSessionStatus.PROOF_GENERATION_SUCCESS,
       SessionStatus.PROOF_SUBMITTED => ReclaimSessionStatus.PROOF_SUBMITTED,
       SessionStatus.PROOF_SUBMISSION_FAILED => ReclaimSessionStatus.PROOF_SUBMISSION_FAILED,
-      SessionStatus.PROOF_MANUAL_VERIFICATION_SUBMITTED => ReclaimSessionStatus.PROOF_MANUAL_VERIFICATION_SUBMITTED,
+      SessionStatus.PROOF_MANUAL_VERIFICATION_SUBMITED => ReclaimSessionStatus.PROOF_MANUAL_VERIFICATION_SUBMITTED,
       SessionStatus.USER_INIT_VERIFICATION => ReclaimSessionStatus.USER_INIT_VERIFICATION,
       SessionStatus.USER_STARTED_VERIFICATION => ReclaimSessionStatus.USER_STARTED_VERIFICATION,
       SessionStatus.PROOF_GENERATION_STARTED => ReclaimSessionStatus.PROOF_GENERATION_STARTED,
@@ -43,7 +43,7 @@ extension ClaimCreationTypeExtension on ClaimCreationTypeApi {
   ClaimCreationType get toClaimCreationType {
     return switch (this) {
       ClaimCreationTypeApi.standalone => ClaimCreationType.standalone,
-      ClaimCreationTypeApi.onMeChain => ClaimCreationType.onMeChain,
+      ClaimCreationTypeApi.meChain => ClaimCreationType.meChain,
     };
   }
 }
@@ -134,10 +134,11 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
           context: request.context,
           parameters: request.parameters,
           computeAttestorProof: _onComputeAttestorProof,
-          autoSubmit: request.autoSubmit,
           acceptAiProviders: request.acceptAiProviders,
           webhookUrl: request.webhookUrl,
           claimCreationType: _claimCreationType,
+          autoSubmit: canAutoSubmit,
+          hideCloseButton: !isCloseButtonVisible,
           verificationOptions: _reclaimVerificationOptions,
         );
       } else {
@@ -149,10 +150,11 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
           context: request.context,
           parameters: request.parameters,
           computeAttestorProof: _onComputeAttestorProof,
-          autoSubmit: request.autoSubmit,
           acceptAiProviders: request.acceptAiProviders,
           webhookUrl: request.webhookUrl,
           claimCreationType: _claimCreationType,
+          autoSubmit: canAutoSubmit,
+          hideCloseButton: !isCloseButtonVisible,
           verificationOptions: _reclaimVerificationOptions,
         );
       }
@@ -210,7 +212,6 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
         parameters: request.parameters ?? const {},
         acceptAiProviders: request.acceptAiProviders ?? false,
         webhookUrl: request.callbackUrl,
-        autoSubmit: false,
       ),
     );
   }
@@ -252,6 +253,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
 
     if (feature?.attestorBrowserRpcUrl != null ||
         provider != null ||
+        logConsumer?.canSdkPrintLogs == true ||
         logConsumer?.canSdkCollectTelemetry == false ||
         sessionManagement?.enableSdkSessionManagement == true) {
       await canUseCapability('overrides_v1');
@@ -322,7 +324,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
       if (logConsumer != null)
         LogConsumerOverride(
           // Setting this to true will print logs from reclaim_flutter_sdk to the console.
-          canPrintLogs: logConsumer.canSdkPrintLogs ?? reclaimCanPrintDebugLogs,
+          canPrintLogs: logConsumer.canSdkPrintLogs == true,
           onRecord:
               logConsumer.enableLogHandler
                   ? (record, identity) {
@@ -348,12 +350,14 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
               signature: signature,
             );
           },
-          updateSession: (sessionId, status) async {
+          // metadata is not sent to host
+          updateSession: (sessionId, status, metadata) async {
             return hostOverridesApi.updateSession(
               sessionId: sessionId,
               status: ReclaimSessionStatusExtension.fromSessionStatus(status),
             );
           },
+          // metadata is not sent to host
           logRecord: ({
             required appId,
             required logType,
@@ -370,6 +374,8 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
   }
 
   ClaimCreationType _claimCreationType = ClaimCreationType.standalone;
+  bool canAutoSubmit = true;
+  bool isCloseButtonVisible = true;
 
   @override
   Future<void> setVerificationOptions(ReclaimApiVerificationOptions? options) async {
@@ -385,6 +391,8 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
         'claimCreationType': options.claimCreationType,
       });
       _claimCreationType = options.claimCreationType.toClaimCreationType;
+      isCloseButtonVisible = options.isCloseButtonVisible;
+      canAutoSubmit = options.canAutoSubmit;
       _reclaimVerificationOptions = ReclaimVerificationOptions(
         preventCookieDeletion: !options.canDeleteCookiesBeforeVerificationStarts,
         attestorAuthenticationRequest:

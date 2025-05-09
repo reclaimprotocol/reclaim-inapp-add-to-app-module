@@ -45,7 +45,7 @@ typedef NS_ENUM(NSUInteger, ReclaimSessionStatus) {
 
 typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
   ClaimCreationTypeApiStandalone = 0,
-  ClaimCreationTypeApiOnMeChain = 1,
+  ClaimCreationTypeApiMeChain = 1,
 };
 
 /// Wrapper for ClaimCreationTypeApi to allow for nullability.
@@ -76,7 +76,6 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
     context:(NSString *)context
     sessionId:(NSString *)sessionId
     parameters:(NSDictionary<NSString *, NSString *> *)parameters
-    autoSubmit:(BOOL )autoSubmit
     acceptAiProviders:(BOOL )acceptAiProviders
     webhookUrl:(nullable NSString *)webhookUrl;
 @property(nonatomic, copy) NSString * appId;
@@ -87,7 +86,6 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
 @property(nonatomic, copy) NSString * context;
 @property(nonatomic, copy) NSString * sessionId;
 @property(nonatomic, copy) NSDictionary<NSString *, NSString *> * parameters;
-@property(nonatomic, assign) BOOL  autoSubmit;
 @property(nonatomic, assign) BOOL  acceptAiProviders;
 @property(nonatomic, copy, nullable) NSString * webhookUrl;
 @end
@@ -191,7 +189,9 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)makeWithCanDeleteCookiesBeforeVerificationStarts:(BOOL )canDeleteCookiesBeforeVerificationStarts
     canUseAttestorAuthenticationRequest:(BOOL )canUseAttestorAuthenticationRequest
-    claimCreationType:(ClaimCreationTypeApi)claimCreationType;
+    claimCreationType:(ClaimCreationTypeApi)claimCreationType
+    canAutoSubmit:(BOOL )canAutoSubmit
+    isCloseButtonVisible:(BOOL )isCloseButtonVisible;
 /// Whether to delete cookies before user journey starts in the client web view.
 /// Defaults to true.
 @property(nonatomic, assign) BOOL  canDeleteCookiesBeforeVerificationStarts;
@@ -200,6 +200,12 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
 /// {@macro CreateClaimOptions.attestorAuthenticationRequest}
 @property(nonatomic, assign) BOOL  canUseAttestorAuthenticationRequest;
 @property(nonatomic, assign) ClaimCreationTypeApi claimCreationType;
+/// Whether module can auto submit the claim.
+/// Defaults to true.
+@property(nonatomic, assign) BOOL  canAutoSubmit;
+/// Whether the close button is visible.
+/// Defaults to true.
+@property(nonatomic, assign) BOOL  isCloseButtonVisible;
 @end
 
 /// The codec used by all APIs.

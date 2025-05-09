@@ -116,7 +116,7 @@ enum class ReclaimSessionStatus(val raw: Int) {
 
 enum class ClaimCreationTypeApi(val raw: Int) {
   STANDALONE(0),
-  ON_ME_CHAIN(1);
+  ME_CHAIN(1);
 
   companion object {
     fun ofRaw(raw: Int): ClaimCreationTypeApi? {
@@ -135,7 +135,6 @@ data class ReclaimApiVerificationRequest (
   val context: String,
   val sessionId: String,
   val parameters: Map<String, String>,
-  val autoSubmit: Boolean,
   val acceptAiProviders: Boolean,
   val webhookUrl: String? = null
 )
@@ -150,10 +149,9 @@ data class ReclaimApiVerificationRequest (
       val context = pigeonVar_list[5] as String
       val sessionId = pigeonVar_list[6] as String
       val parameters = pigeonVar_list[7] as Map<String, String>
-      val autoSubmit = pigeonVar_list[8] as Boolean
-      val acceptAiProviders = pigeonVar_list[9] as Boolean
-      val webhookUrl = pigeonVar_list[10] as String?
-      return ReclaimApiVerificationRequest(appId, providerId, secret, signature, timestamp, context, sessionId, parameters, autoSubmit, acceptAiProviders, webhookUrl)
+      val acceptAiProviders = pigeonVar_list[8] as Boolean
+      val webhookUrl = pigeonVar_list[9] as String?
+      return ReclaimApiVerificationRequest(appId, providerId, secret, signature, timestamp, context, sessionId, parameters, acceptAiProviders, webhookUrl)
     }
   }
   fun toList(): List<Any?> {
@@ -166,7 +164,6 @@ data class ReclaimApiVerificationRequest (
       context,
       sessionId,
       parameters,
-      autoSubmit,
       acceptAiProviders,
       webhookUrl,
     )
@@ -481,7 +478,17 @@ data class ReclaimApiVerificationOptions (
    * {@macro CreateClaimOptions.attestorAuthenticationRequest}
    */
   val canUseAttestorAuthenticationRequest: Boolean,
-  val claimCreationType: ClaimCreationTypeApi
+  val claimCreationType: ClaimCreationTypeApi,
+  /**
+   * Whether module can auto submit the claim.
+   * Defaults to true.
+   */
+  val canAutoSubmit: Boolean,
+  /**
+   * Whether the close button is visible.
+   * Defaults to true.
+   */
+  val isCloseButtonVisible: Boolean
 )
  {
   companion object {
@@ -489,7 +496,9 @@ data class ReclaimApiVerificationOptions (
       val canDeleteCookiesBeforeVerificationStarts = pigeonVar_list[0] as Boolean
       val canUseAttestorAuthenticationRequest = pigeonVar_list[1] as Boolean
       val claimCreationType = pigeonVar_list[2] as ClaimCreationTypeApi
-      return ReclaimApiVerificationOptions(canDeleteCookiesBeforeVerificationStarts, canUseAttestorAuthenticationRequest, claimCreationType)
+      val canAutoSubmit = pigeonVar_list[3] as Boolean
+      val isCloseButtonVisible = pigeonVar_list[4] as Boolean
+      return ReclaimApiVerificationOptions(canDeleteCookiesBeforeVerificationStarts, canUseAttestorAuthenticationRequest, claimCreationType, canAutoSubmit, isCloseButtonVisible)
     }
   }
   fun toList(): List<Any?> {
@@ -497,6 +506,8 @@ data class ReclaimApiVerificationOptions (
       canDeleteCookiesBeforeVerificationStarts,
       canUseAttestorAuthenticationRequest,
       claimCreationType,
+      canAutoSubmit,
+      isCloseButtonVisible,
     )
   }
   override fun equals(other: Any?): Boolean {
