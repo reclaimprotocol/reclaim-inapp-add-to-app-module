@@ -11,6 +11,7 @@ android:
 	rm -rf $(DIST_ANDROID)
 	mkdir -p $(DIST_ANDROID)
 	mv build/host/outputs/repo/ $(DIST_ANDROID)/repo
+	echo "Upload everything under $(DIST_ANDROID)/repo in android/repo of S3 bucket"
 clean:
 	rm -rf $(DIST_ANDROID)
 	rm -rf $(DIST_IOS)
@@ -31,6 +32,7 @@ ios:
 	rm -rf $(DIST_IOS)
 	mkdir -p $(DIST_IOS)
 	mv build/ios/ReclaimXCFrameworks.tar.gz $(DIST_IOS)
+	echo "Upload $(DIST_IOS)/ReclaimXCFrameworks.tar.gz in ios/$(VERSION) of S3 bucket"
 	@# mv build/ios/ReclaimXCFrameworks $(DIST_IOS)
 gen_schema:
 	dart run pigeon --input pigeon/schema.dart

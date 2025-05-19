@@ -2,15 +2,16 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:reclaim_flutter_sdk/logging/data/log.dart';
-import 'package:reclaim_flutter_sdk/logging/logging.dart';
-import 'package:reclaim_flutter_sdk/reclaim_flutter_sdk.dart';
-import 'package:reclaim_flutter_sdk/services/capability/capability.dart';
-import 'package:reclaim_flutter_sdk/types/claim_creation_type.dart';
-import 'package:reclaim_flutter_sdk/widgets/reclaim_theme_provider.dart';
+import 'package:logging/logging.dart';
 import 'package:reclaim_gnark_zkoperator/reclaim_gnark_zkoperator.dart';
 // ignore: implementation_imports
 import 'package:reclaim_gnark_zkoperator/src/download/download.dart' show downloadWithHttp;
+import 'package:reclaim_inapp_sdk/attestor.dart';
+import 'package:reclaim_inapp_sdk/capability_access.dart';
+import 'package:reclaim_inapp_sdk/logging.dart';
+import 'package:reclaim_inapp_sdk/overrides.dart';
+import 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart';
+import 'package:reclaim_inapp_sdk/ui.dart';
 
 import 'src/data/url_request.dart';
 import 'src/pigeon/messages.pigeon.dart';
@@ -20,8 +21,6 @@ const CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY = String.fromEnvironment(
 );
 
 final logger = Logger('reclaim_flutter_sdk.reclaim_verifier_module');
-
-final gnarkProverFuture = ReclaimZkOperator.getInstance();
 
 extension ReclaimSessionStatusExtension on ReclaimSessionStatus {
   static ReclaimSessionStatus fromSessionStatus(SessionStatus status) {
@@ -51,7 +50,7 @@ extension ClaimCreationTypeExtension on ClaimCreationTypeApi {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  hierarchicalLoggingEnabled = true;
+  startReclaimSdkLogging();
 
   Attestor.instance.useAttestor((client) async {
     // don't wait to make this [client] available in the pool
@@ -59,7 +58,7 @@ void main() async {
     return;
   });
 
-  initializeReclaimLogging();
+  ReclaimZkOperator.getInstance();
 
   runApp(MaterialApp(debugShowCheckedModeBanner: false, home: ReclaimThemeProvider(child: ReclaimModuleApp())));
 }
@@ -110,70 +109,68 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
     super.dispose();
   }
 
-  ReclaimVerificationOptions? _reclaimVerificationOptions;
+  final _defaultReclaimVerificationOptions = ReclaimVerificationOptions(
+    canAutoSubmit: true,
+    isCloseButtonVisible: true,
+    attestorZkOperator: AttestorZkOperatorWithCallback.withReclaimZKOperator(
+      onComputeProof: (type, args, onPerformanceReport) async {
+        // Get gnark prover instance and compute the attestor proof.
+        return (await ReclaimZkOperator.getInstance()).computeAttestorProof(
+          type,
+          args,
+          onPerformanceReport: (algorithm, report) {
+            onPerformanceReport(ZKComputePerformanceReport(algorithmName: algorithm?.name ?? '', report: report));
+          },
+        );
+      },
+    ),
+  );
+
+  late ReclaimVerificationOptions _reclaimVerificationOptions = _defaultReclaimVerificationOptions;
 
   @override
   Future<ReclaimApiVerificationResponse> startVerification(ReclaimApiVerificationRequest request) async {
     try {
-      final ReclaimVerification reclaimVerification;
+      final reclaimVerification = ReclaimVerification.of(context);
       final usePreGeneratedSession =
           request.signature.isNotEmpty &&
           request.timestamp != null &&
           request.timestamp!.isNotEmpty &&
           request.sessionId.isNotEmpty;
-      if (usePreGeneratedSession) {
-        reclaimVerification = ReclaimVerification.withSession(
-          sessionInformation: ReclaimSessionInformation(
-            signature: request.signature,
-            timestamp: request.timestamp ?? '',
-            sessionId: request.sessionId,
-          ),
-          buildContext: context,
-          appId: request.appId,
-          providerId: request.providerId,
-          context: request.context,
-          parameters: request.parameters,
-          computeAttestorProof: _onComputeAttestorProof,
-          acceptAiProviders: request.acceptAiProviders,
-          webhookUrl: request.webhookUrl,
-          claimCreationType: _claimCreationType,
-          autoSubmit: canAutoSubmit,
-          hideCloseButton: !isCloseButtonVisible,
-          verificationOptions: _reclaimVerificationOptions,
-        );
-      } else {
-        reclaimVerification = ReclaimVerification(
-          buildContext: context,
-          appId: request.appId,
-          providerId: request.providerId,
-          secret: request.secret,
-          context: request.context,
-          parameters: request.parameters,
-          computeAttestorProof: _onComputeAttestorProof,
-          acceptAiProviders: request.acceptAiProviders,
-          webhookUrl: request.webhookUrl,
-          claimCreationType: _claimCreationType,
-          autoSubmit: canAutoSubmit,
-          hideCloseButton: !isCloseButtonVisible,
-          verificationOptions: _reclaimVerificationOptions,
-        );
-      }
 
-      final proofs = await reclaimVerification.startVerification();
-
+      final response = await reclaimVerification.startVerification(
+        request: ReclaimVerificationRequest(
+          sessionProvider: () {
+            if (usePreGeneratedSession) {
+              return ReclaimSessionInformation(
+                signature: request.signature,
+                timestamp: request.timestamp ?? '',
+                sessionId: request.sessionId,
+              );
+            }
+            return ReclaimSessionInformation.generateNew(
+              applicationId: request.appId,
+              applicationSecret: request.secret,
+              providerId: request.providerId,
+            );
+          },
+          applicationId: request.appId,
+          providerId: request.providerId,
+          contextString: request.context,
+          parameters: request.parameters,
+        ),
+        options: _reclaimVerificationOptions,
+      );
       return ReclaimApiVerificationResponse(
         sessionId: SessionIdentity.latest?.sessionId ?? request.sessionId,
-        didSubmitManualVerification: proofs == null,
-        proofs: [
-          if (proofs != null)
-            for (final proof in proofs) json.decode(json.encode(proof)),
-        ],
+        didSubmitManualVerification: false,
+        proofs: json.decode(json.encode(response.proofs)),
         exception: null,
       );
     } catch (e, s) {
       return ReclaimApiVerificationResponse(
         sessionId: SessionIdentity.latest?.sessionId ?? request.sessionId,
-        didSubmitManualVerification: false,
+        didSubmitManualVerification: e is ReclaimVerificationManualReviewException,
         proofs: const [],
         exception: ReclaimApiVerificationException(
           message: e.toString(),
@@ -228,7 +225,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
       return true;
     }
 
-    throw ReclaimException('Unauthorized use of capability: $capabilityName');
+    throw ReclaimVerificationCancelledException('Unauthorized use of capability: $capabilityName');
   }
 
   @override
@@ -247,7 +244,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
         );
       } on CapabilityAccessTokenException catch (e, s) {
         logger.severe('Failed to set capability access token', e, s);
-        throw ReclaimException(e.message);
+        throw ReclaimVerificationCancelledException(e.message);
       }
     }
 
@@ -264,10 +261,12 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
         ReclaimFeatureFlagData(
           cookiePersist: feature.cookiePersist,
           singleReclaimRequest: feature.singleReclaimRequest,
+          attestorBrowserRpcUrl: feature.attestorBrowserRpcUrl,
           idleTimeThresholdForManualVerificationTrigger: feature.idleTimeThresholdForManualVerificationTrigger,
           sessionTimeoutForManualVerificationTrigger: feature.sessionTimeoutForManualVerificationTrigger,
-          attestorBrowserRpcUrl: feature.attestorBrowserRpcUrl,
-          isAIFlowEnabled: feature.isAIFlowEnabled ?? false,
+          canUseAiFlow: feature.isAIFlowEnabled ?? false,
+          // TODO: Implement in future versions
+          manualReviewMessage: null,
         ),
       if (provider != null)
         ReclaimProviderOverride(
@@ -287,7 +286,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
                 );
 
                 if (response == null) {
-                  throw ReclaimException(
+                  throw ReclaimVerificationCancelledException(
                     'Failed to fetch provider information from ${provider.providerInformationUrl}',
                   );
                 }
@@ -310,14 +309,14 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
               if (e is ReclaimException) {
                 rethrow;
               }
-              throw ReclaimException('Failed to fetch provider information due to $e');
+              throw ReclaimVerificationCancelledException('Failed to fetch provider information due to $e');
             }
 
             try {
               return HttpProvider.fromJson(providerInformation);
             } catch (e, s) {
               logger.severe('Failed to parse provider information', e, s);
-              throw ReclaimException('Failed to parse provider information: ${e.toString()}');
+              throw ReclaimVerificationCancelledException('Failed to parse provider information: ${e.toString()}');
             }
           },
         ),
@@ -373,16 +372,12 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
     ]);
   }
 
-  ClaimCreationType _claimCreationType = ClaimCreationType.standalone;
-  bool canAutoSubmit = true;
-  bool isCloseButtonVisible = true;
-
   @override
   Future<void> setVerificationOptions(ReclaimApiVerificationOptions? options) async {
     final log = logger.child('setVerificationOptions');
     if (options == null) {
       log.info('Setting verification options to null');
-      _reclaimVerificationOptions = null;
+      _reclaimVerificationOptions = _defaultReclaimVerificationOptions;
     } else {
       log.info({
         'reason': 'Setting verification options',
@@ -390,11 +385,11 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
         'canUseAttestorAuthenticationRequest': options.canUseAttestorAuthenticationRequest,
         'claimCreationType': options.claimCreationType,
       });
-      _claimCreationType = options.claimCreationType.toClaimCreationType;
-      isCloseButtonVisible = options.isCloseButtonVisible;
-      canAutoSubmit = options.canAutoSubmit;
-      _reclaimVerificationOptions = ReclaimVerificationOptions(
-        preventCookieDeletion: !options.canDeleteCookiesBeforeVerificationStarts,
+      _reclaimVerificationOptions = _reclaimVerificationOptions.copyWith(
+        canAutoSubmit: options.canAutoSubmit,
+        isCloseButtonVisible: options.isCloseButtonVisible,
+        claimCreationType: options.claimCreationType.toClaimCreationType,
+        canClearWebStorage: options.canDeleteCookiesBeforeVerificationStarts,
         attestorAuthenticationRequest:
             options.canUseAttestorAuthenticationRequest ? _requestAttestorAuthenticationRequestFromHost : null,
       );
@@ -408,12 +403,12 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
     try {
       final map = json.decode(result);
       if (map is! Map) {
-        throw ReclaimException('Invalid attestor authentication request');
+        throw ReclaimVerificationCancelledException('Invalid attestor authentication request');
       }
       return AttestorAuthenticationRequest.fromJson(map as Map<String, dynamic>);
     } catch (e, s) {
       logger.severe('Failed to parse attestor authentication request', e, s);
-      throw ReclaimException('Failed to parse attestor authentication request: ${e.toString()}');
+      throw ReclaimVerificationCancelledException('Failed to parse attestor authentication request: ${e.toString()}');
     }
   }
 
@@ -426,30 +421,16 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
     hostOverridesApi.onLogs(json.encode(entry));
   }
 
-  Future<String> _onComputeAttestorProof(
-    String type,
-    List<dynamic> args,
-    OnZKComputePerformanceReportCallback onPerformanceReport,
-  ) async {
-    final gnarkProver = await gnarkProverFuture;
-    return gnarkProver.computeAttestorProof(
-      type,
-      args,
-      onPerformanceReport: (algorithm, report) {
-        onPerformanceReport(ZKComputePerformanceReport(algorithmName: algorithm?.name ?? '', report: report));
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final mediaQuerySizeWidth = MediaQuery.sizeOf(context).width;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return PopScope(
       canPop: true,
       child: Scaffold(
         body: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0 + (mediaQuerySizeWidth * 0.2)),
-          child: const Center(child: LinearProgressIndicator(borderRadius: BorderRadius.all(Radius.circular(20)))),
+          padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+          child: Center(child: ClaimTriggerIndicator(color: colorScheme.primary)),
         ),
       ),
     );

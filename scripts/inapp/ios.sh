@@ -2,11 +2,21 @@
 
 set -ex;
 
-git clone https://$PACKAGE_CLONE_USER:$PACkAGE_CLONE_PASSWD@github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git;
+export WORK_DIR="$(pwd)";
 
-cd reclaim-inapp-android-sdk;
+export IOS_CLONE_DIR="$WORK_DIR/build/ios-sdk";
+
+git clone https://$PACKAGE_CLONE_USER:$PACkAGE_CLONE_PASSWD@github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git $IOS_CLONE_DIR;
+
+cd $IOS_CLONE_DIR;
 
 # also copy changelog.md
+echo "
+## $VERSION
+
+* Updates inapp module dependency to $VERSION
+
+" > CHANGELOG.md
 
 echo $VERSION > Sources/ReclaimInAppSdk/Resources/ReclaimInAppSdk.version;
 
@@ -16,11 +26,14 @@ sed -i '' "s/s.version           = '.*'/s.version           = '$VERSION'/" ./Rec
 
 ./Scripts/prepare.sh
 
-# Upload Build/$VERSION to S3 bucket
+echo "Upload $IOS_CLONE_DIR/Build/$VERSION to S3 bucket, make sure $VERSION/ directory exists, and $VERSION/ should have the files and not $VERSION/"
 
 cat Devel/Package.swift.prod > Package.swift
 cat Devel/podspec.prod > ReclaimInAppSdk.podspec
 
 # COMMIT, TAG, PUSH
 
-pod trunk push ReclaimInAppSdk.podspec --allow-warnings
+echo "Test, then 'git tag -a $VERSION -m $VERSION; git push; git push --tags', and then finally run the following to deploy to Cocoapods (will be available for use in ~1 hour):"
+echo "pod trunk push ReclaimInAppSdk.podspec --allow-warnings"
+
+cd $WORK_DIR;
