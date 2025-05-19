@@ -164,10 +164,11 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
       return ReclaimApiVerificationResponse(
         sessionId: SessionIdentity.latest?.sessionId ?? request.sessionId,
         didSubmitManualVerification: false,
-        proofs: json.decode(json.encode(response.proofs)),
+        proofs: (json.decode(json.encode(response.proofs)) as List).map((e) => e as Map<String, dynamic>).toList(),
         exception: null,
       );
     } catch (e, s) {
+      logger.severe('Failed verification response', e, s);
       return ReclaimApiVerificationResponse(
         sessionId: SessionIdentity.latest?.sessionId ?? request.sessionId,
         didSubmitManualVerification: e is ReclaimVerificationManualReviewException,
