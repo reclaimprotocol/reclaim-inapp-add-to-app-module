@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_consistency
+
 import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
@@ -34,7 +36,9 @@ class ReclaimApiVerificationRequest {
   final String context;
   final String sessionId;
   final Map<String, String> parameters;
+  @Deprecated('Will be removed in future versions')
   final bool acceptAiProviders;
+  @Deprecated('Will be removed in future versions')
   final String? webhookUrl;
 }
 
@@ -96,6 +100,7 @@ class ClientFeatureOverrides {
   final int? idleTimeThresholdForManualVerificationTrigger;
   final int? sessionTimeoutForManualVerificationTrigger;
   final String? attestorBrowserRpcUrl;
+  @Deprecated('Replace with canUseAiFlow')
   final bool? isAIFlowEnabled;
 }
 
@@ -166,6 +171,7 @@ class ReclaimApiVerificationOptions {
 
   /// Whether to delete cookies before user journey starts in the client web view.
   /// Defaults to true.
+  @Deprecated('Replace with canClearWebStorage')
   final bool canDeleteCookiesBeforeVerificationStarts;
 
   /// Whether module can use a callback to host that returns an authentication request when a Reclaim HTTP provider is provided.
