@@ -54,3 +54,4 @@ dist/
 .env.secret
 
 inapp-sdks/
+crashes/
