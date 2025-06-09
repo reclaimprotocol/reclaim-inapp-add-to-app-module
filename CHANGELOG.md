@@ -1,3 +1,8 @@
+## 0.8.0
+
+* Updates the UI with a verification review banner in the verification flow
+* Updates inapp module dependency to 0.8.0
+
 ## 0.7.0
 
 * Updates inapp module dependency to 0.7.0

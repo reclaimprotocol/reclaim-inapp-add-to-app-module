@@ -122,6 +122,24 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
 - (NSArray<id> *)toList;
 @end
 
+@interface ProviderVersionApi ()
++ (ProviderVersionApi *)fromList:(NSArray<id> *)list;
++ (nullable ProviderVersionApi *)nullableFromList:(NSArray<id> *)list;
+- (NSArray<id> *)toList;
+@end
+
+@interface SessionInitResponseApi ()
++ (SessionInitResponseApi *)fromList:(NSArray<id> *)list;
++ (nullable SessionInitResponseApi *)nullableFromList:(NSArray<id> *)list;
+- (NSArray<id> *)toList;
+@end
+
+@interface LogEntryApi ()
++ (LogEntryApi *)fromList:(NSArray<id> *)list;
++ (nullable LogEntryApi *)nullableFromList:(NSArray<id> *)list;
+- (NSArray<id> *)toList;
+@end
+
 @implementation ReclaimApiVerificationRequest
 + (instancetype)makeWithAppId:(NSString *)appId
     providerId:(NSString *)providerId
@@ -132,7 +150,8 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     sessionId:(NSString *)sessionId
     parameters:(NSDictionary<NSString *, NSString *> *)parameters
     acceptAiProviders:(BOOL )acceptAiProviders
-    webhookUrl:(nullable NSString *)webhookUrl {
+    webhookUrl:(nullable NSString *)webhookUrl
+    providerVersion:(nullable ProviderVersionApi *)providerVersion {
   ReclaimApiVerificationRequest* pigeonResult = [[ReclaimApiVerificationRequest alloc] init];
   pigeonResult.appId = appId;
   pigeonResult.providerId = providerId;
@@ -144,6 +163,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.parameters = parameters;
   pigeonResult.acceptAiProviders = acceptAiProviders;
   pigeonResult.webhookUrl = webhookUrl;
+  pigeonResult.providerVersion = providerVersion;
   return pigeonResult;
 }
 + (ReclaimApiVerificationRequest *)fromList:(NSArray<id> *)list {
@@ -158,6 +178,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.parameters = GetNullableObjectAtIndex(list, 7);
   pigeonResult.acceptAiProviders = [GetNullableObjectAtIndex(list, 8) boolValue];
   pigeonResult.webhookUrl = GetNullableObjectAtIndex(list, 9);
+  pigeonResult.providerVersion = GetNullableObjectAtIndex(list, 10);
   return pigeonResult;
 }
 + (nullable ReclaimApiVerificationRequest *)nullableFromList:(NSArray<id> *)list {
@@ -175,6 +196,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     self.parameters ?: [NSNull null],
     @(self.acceptAiProviders),
     self.webhookUrl ?: [NSNull null],
+    self.providerVersion ?: [NSNull null],
   ];
 }
 @end
@@ -277,7 +299,8 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     idleTimeThresholdForManualVerificationTrigger:(nullable NSNumber *)idleTimeThresholdForManualVerificationTrigger
     sessionTimeoutForManualVerificationTrigger:(nullable NSNumber *)sessionTimeoutForManualVerificationTrigger
     attestorBrowserRpcUrl:(nullable NSString *)attestorBrowserRpcUrl
-    isAIFlowEnabled:(nullable NSNumber *)isAIFlowEnabled {
+    isAIFlowEnabled:(nullable NSNumber *)isAIFlowEnabled
+    manualReviewMessage:(nullable NSString *)manualReviewMessage {
   ClientFeatureOverrides* pigeonResult = [[ClientFeatureOverrides alloc] init];
   pigeonResult.cookiePersist = cookiePersist;
   pigeonResult.singleReclaimRequest = singleReclaimRequest;
@@ -285,6 +308,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.sessionTimeoutForManualVerificationTrigger = sessionTimeoutForManualVerificationTrigger;
   pigeonResult.attestorBrowserRpcUrl = attestorBrowserRpcUrl;
   pigeonResult.isAIFlowEnabled = isAIFlowEnabled;
+  pigeonResult.manualReviewMessage = manualReviewMessage;
   return pigeonResult;
 }
 + (ClientFeatureOverrides *)fromList:(NSArray<id> *)list {
@@ -295,6 +319,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.sessionTimeoutForManualVerificationTrigger = GetNullableObjectAtIndex(list, 3);
   pigeonResult.attestorBrowserRpcUrl = GetNullableObjectAtIndex(list, 4);
   pigeonResult.isAIFlowEnabled = GetNullableObjectAtIndex(list, 5);
+  pigeonResult.manualReviewMessage = GetNullableObjectAtIndex(list, 6);
   return pigeonResult;
 }
 + (nullable ClientFeatureOverrides *)nullableFromList:(NSArray<id> *)list {
@@ -308,6 +333,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     self.sessionTimeoutForManualVerificationTrigger ?: [NSNull null],
     self.attestorBrowserRpcUrl ?: [NSNull null],
     self.isAIFlowEnabled ?: [NSNull null],
+    self.manualReviewMessage ?: [NSNull null],
   ];
 }
 @end
@@ -458,6 +484,101 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
 }
 @end
 
+@implementation ProviderVersionApi
++ (instancetype)makeWithVersionExpression:(nullable NSString *)versionExpression
+    resolvedVersion:(nullable NSString *)resolvedVersion {
+  ProviderVersionApi* pigeonResult = [[ProviderVersionApi alloc] init];
+  pigeonResult.versionExpression = versionExpression;
+  pigeonResult.resolvedVersion = resolvedVersion;
+  return pigeonResult;
+}
++ (ProviderVersionApi *)fromList:(NSArray<id> *)list {
+  ProviderVersionApi *pigeonResult = [[ProviderVersionApi alloc] init];
+  pigeonResult.versionExpression = GetNullableObjectAtIndex(list, 0);
+  pigeonResult.resolvedVersion = GetNullableObjectAtIndex(list, 1);
+  return pigeonResult;
+}
++ (nullable ProviderVersionApi *)nullableFromList:(NSArray<id> *)list {
+  return (list) ? [ProviderVersionApi fromList:list] : nil;
+}
+- (NSArray<id> *)toList {
+  return @[
+    self.versionExpression ?: [NSNull null],
+    self.resolvedVersion ?: [NSNull null],
+  ];
+}
+@end
+
+@implementation SessionInitResponseApi
++ (instancetype)makeWithSessionId:(NSString *)sessionId
+    resolvedProviderVersion:(nullable NSString *)resolvedProviderVersion {
+  SessionInitResponseApi* pigeonResult = [[SessionInitResponseApi alloc] init];
+  pigeonResult.sessionId = sessionId;
+  pigeonResult.resolvedProviderVersion = resolvedProviderVersion;
+  return pigeonResult;
+}
++ (SessionInitResponseApi *)fromList:(NSArray<id> *)list {
+  SessionInitResponseApi *pigeonResult = [[SessionInitResponseApi alloc] init];
+  pigeonResult.sessionId = GetNullableObjectAtIndex(list, 0);
+  pigeonResult.resolvedProviderVersion = GetNullableObjectAtIndex(list, 1);
+  return pigeonResult;
+}
++ (nullable SessionInitResponseApi *)nullableFromList:(NSArray<id> *)list {
+  return (list) ? [SessionInitResponseApi fromList:list] : nil;
+}
+- (NSArray<id> *)toList {
+  return @[
+    self.sessionId ?: [NSNull null],
+    self.resolvedProviderVersion ?: [NSNull null],
+  ];
+}
+@end
+
+@implementation LogEntryApi
++ (instancetype)makeWithSessionId:(nullable NSString *)sessionId
+    message:(NSString *)message
+    level:(NSInteger )level
+    dateTimeIso:(NSString *)dateTimeIso
+    source:(NSString *)source
+    error:(nullable NSString *)error
+    stackTraceAsString:(nullable NSString *)stackTraceAsString {
+  LogEntryApi* pigeonResult = [[LogEntryApi alloc] init];
+  pigeonResult.sessionId = sessionId;
+  pigeonResult.message = message;
+  pigeonResult.level = level;
+  pigeonResult.dateTimeIso = dateTimeIso;
+  pigeonResult.source = source;
+  pigeonResult.error = error;
+  pigeonResult.stackTraceAsString = stackTraceAsString;
+  return pigeonResult;
+}
++ (LogEntryApi *)fromList:(NSArray<id> *)list {
+  LogEntryApi *pigeonResult = [[LogEntryApi alloc] init];
+  pigeonResult.sessionId = GetNullableObjectAtIndex(list, 0);
+  pigeonResult.message = GetNullableObjectAtIndex(list, 1);
+  pigeonResult.level = [GetNullableObjectAtIndex(list, 2) integerValue];
+  pigeonResult.dateTimeIso = GetNullableObjectAtIndex(list, 3);
+  pigeonResult.source = GetNullableObjectAtIndex(list, 4);
+  pigeonResult.error = GetNullableObjectAtIndex(list, 5);
+  pigeonResult.stackTraceAsString = GetNullableObjectAtIndex(list, 6);
+  return pigeonResult;
+}
++ (nullable LogEntryApi *)nullableFromList:(NSArray<id> *)list {
+  return (list) ? [LogEntryApi fromList:list] : nil;
+}
+- (NSArray<id> *)toList {
+  return @[
+    self.sessionId ?: [NSNull null],
+    self.message ?: [NSNull null],
+    @(self.level),
+    self.dateTimeIso ?: [NSNull null],
+    self.source ?: [NSNull null],
+    self.error ?: [NSNull null],
+    self.stackTraceAsString ?: [NSNull null],
+  ];
+}
+@end
+
 @interface nullMessagesPigeonCodecReader : FlutterStandardReader
 @end
 @implementation nullMessagesPigeonCodecReader
@@ -495,6 +616,12 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
       return [ReclaimSessionIdentityUpdate fromList:[self readValue]];
     case 141: 
       return [ReclaimApiVerificationOptions fromList:[self readValue]];
+    case 142: 
+      return [ProviderVersionApi fromList:[self readValue]];
+    case 143: 
+      return [SessionInitResponseApi fromList:[self readValue]];
+    case 144: 
+      return [LogEntryApi fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
   }
@@ -546,6 +673,15 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     [self writeValue:[value toList]];
   } else if ([value isKindOfClass:[ReclaimApiVerificationOptions class]]) {
     [self writeByte:141];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[ProviderVersionApi class]]) {
+    [self writeByte:142];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[SessionInitResponseApi class]]) {
+    [self writeByte:143];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[LogEntryApi class]]) {
+    [self writeByte:144];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];
@@ -631,6 +767,26 @@ NSObject<FlutterMessageCodec> *nullGetMessagesCodec(void) {
     } 
   }];
 }
+- (void)startVerificationFromJsonTemplate:(NSDictionary<dynamic *, dynamic *> *)arg_template completion:(void (^)(ReclaimApiVerificationResponse *_Nullable, FlutterError *_Nullable))completion {
+  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromJson", _messageChannelSuffix];
+  FlutterBasicMessageChannel *channel =
+    [FlutterBasicMessageChannel
+      messageChannelWithName:channelName
+      binaryMessenger:self.binaryMessenger
+      codec:nullGetMessagesCodec()];
+  [channel sendMessage:@[arg_template ?: [NSNull null]] reply:^(NSArray<id> *reply) {
+    if (reply != nil) {
+      if (reply.count > 1) {
+        completion(nil, [FlutterError errorWithCode:reply[0] message:reply[1] details:reply[2]]);
+      } else {
+        ReclaimApiVerificationResponse *output = reply[0] == [NSNull null] ? nil : reply[0];
+        completion(output, nil);
+      }
+    } else {
+      completion(nil, createConnectionError(channelName));
+    } 
+  }];
+}
 - (void)setOverridesProvider:(nullable ClientProviderInformationOverride *)arg_provider feature:(nullable ClientFeatureOverrides *)arg_feature logConsumer:(nullable ClientLogConsumerOverride *)arg_logConsumer sessionManagement:(nullable ClientReclaimSessionManagementOverride *)arg_sessionManagement appInfo:(nullable ClientReclaimAppInfoOverride *)arg_appInfo capabilityAccessToken:(nullable NSString *)arg_capabilityAccessToken completion:(void (^)(FlutterError *_Nullable))completion {
   NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setOverrides", _messageChannelSuffix];
   FlutterBasicMessageChannel *channel =
@@ -688,6 +844,26 @@ NSObject<FlutterMessageCodec> *nullGetMessagesCodec(void) {
     } 
   }];
 }
+- (void)sendLogEntry:(LogEntryApi *)arg_entry completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion {
+  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.sendLog", _messageChannelSuffix];
+  FlutterBasicMessageChannel *channel =
+    [FlutterBasicMessageChannel
+      messageChannelWithName:channelName
+      binaryMessenger:self.binaryMessenger
+      codec:nullGetMessagesCodec()];
+  [channel sendMessage:@[arg_entry ?: [NSNull null]] reply:^(NSArray<id> *reply) {
+    if (reply != nil) {
+      if (reply.count > 1) {
+        completion(nil, [FlutterError errorWithCode:reply[0] message:reply[1] details:reply[2]]);
+      } else {
+        NSNumber *output = reply[0] == [NSNull null] ? nil : reply[0];
+        completion(output, nil);
+      }
+    } else {
+      completion(nil, createConnectionError(channelName));
+    } 
+  }];
+}
 - (void)pingWithCompletion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion {
   NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.ping", _messageChannelSuffix];
   FlutterBasicMessageChannel *channel =
@@ -742,14 +918,15 @@ void SetUpReclaimHostOverridesApiWithSuffix(id<FlutterBinaryMessenger> binaryMes
         binaryMessenger:binaryMessenger
         codec:nullGetMessagesCodec()];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(createSessionAppId:providerId:timestamp:signature:completion:)], @"ReclaimHostOverridesApi api (%@) doesn't respond to @selector(createSessionAppId:providerId:timestamp:signature:completion:)", api);
+      NSCAssert([api respondsToSelector:@selector(createSessionAppId:providerId:timestamp:signature:providerVersion:completion:)], @"ReclaimHostOverridesApi api (%@) doesn't respond to @selector(createSessionAppId:providerId:timestamp:signature:providerVersion:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray<id> *args = message;
         NSString *arg_appId = GetNullableObjectAtIndex(args, 0);
         NSString *arg_providerId = GetNullableObjectAtIndex(args, 1);
         NSString *arg_timestamp = GetNullableObjectAtIndex(args, 2);
         NSString *arg_signature = GetNullableObjectAtIndex(args, 3);
-        [api createSessionAppId:arg_appId providerId:arg_providerId timestamp:arg_timestamp signature:arg_signature completion:^(NSString *_Nullable output, FlutterError *_Nullable error) {
+        NSString *arg_providerVersion = GetNullableObjectAtIndex(args, 4);
+        [api createSessionAppId:arg_appId providerId:arg_providerId timestamp:arg_timestamp signature:arg_signature providerVersion:arg_providerVersion completion:^(SessionInitResponseApi *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];

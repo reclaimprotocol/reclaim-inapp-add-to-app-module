@@ -27,6 +27,7 @@ class ReclaimApiVerificationRequest {
     required this.parameters,
     required this.acceptAiProviders,
     required this.webhookUrl,
+    required this.providerVersion,
   });
   final String appId;
   final String providerId;
@@ -40,6 +41,7 @@ class ReclaimApiVerificationRequest {
   final bool acceptAiProviders;
   @Deprecated('Will be removed in future versions')
   final String? webhookUrl;
+  final ProviderVersionApi? providerVersion;
 }
 
 enum ReclaimApiVerificationExceptionType {
@@ -94,6 +96,8 @@ class ClientFeatureOverrides {
     this.attestorBrowserRpcUrl,
     // false
     this.isAIFlowEnabled,
+    // null
+    this.manualReviewMessage,
   });
   final bool? cookiePersist;
   final bool? singleReclaimRequest;
@@ -102,6 +106,7 @@ class ClientFeatureOverrides {
   final String? attestorBrowserRpcUrl;
   @Deprecated('Replace with canUseAiFlow')
   final bool? isAIFlowEnabled;
+  final String? manualReviewMessage;
 }
 
 class ClientLogConsumerOverride {
@@ -190,6 +195,40 @@ class ReclaimApiVerificationOptions {
   final bool isCloseButtonVisible;
 }
 
+class ProviderVersionApi {
+  const ProviderVersionApi({this.versionExpression, this.resolvedVersion});
+
+  final String? versionExpression;
+  final String? resolvedVersion;
+}
+
+class SessionInitResponseApi {
+  const SessionInitResponseApi({required this.sessionId, required this.resolvedProviderVersion});
+
+  final String sessionId;
+  final String? resolvedProviderVersion;
+}
+
+class LogEntryApi {
+  const LogEntryApi({
+    required this.message,
+    required this.level,
+    required this.dateTimeIso,
+    required this.source,
+    required this.error,
+    required this.stackTraceAsString,
+    required this.sessionId,
+  });
+
+  final String? sessionId;
+  final String message;
+  final int level;
+  final String dateTimeIso;
+  final String source;
+  final String? error;
+  final String? stackTraceAsString;
+}
+
 /// Apis implemented by the Reclaim module for use by the host.
 @FlutterApi()
 abstract class ReclaimModuleApi {
@@ -197,6 +236,8 @@ abstract class ReclaimModuleApi {
   ReclaimApiVerificationResponse startVerification(ReclaimApiVerificationRequest request);
   @async
   ReclaimApiVerificationResponse startVerificationFromUrl(String url);
+  @async
+  ReclaimApiVerificationResponse startVerificationFromJson(Map<dynamic, dynamic> template);
   @async
   void setOverrides(
     ClientProviderInformationOverride? provider,
@@ -211,6 +252,8 @@ abstract class ReclaimModuleApi {
   @async
   void setVerificationOptions(ReclaimApiVerificationOptions? options);
   @async
+  bool sendLog(LogEntryApi entry);
+  @async
   bool ping();
 }
 
@@ -220,11 +263,12 @@ abstract class ReclaimHostOverridesApi {
   @async
   void onLogs(String logJsonString);
   @async
-  String createSession({
+  SessionInitResponseApi createSession({
     required String appId,
     required String providerId,
     required String timestamp,
     required String signature,
+    required String providerVersion,
   });
   @async
   bool updateSession({required String sessionId, required ReclaimSessionStatus status});
