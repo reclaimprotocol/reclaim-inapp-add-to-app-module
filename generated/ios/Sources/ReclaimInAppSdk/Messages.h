@@ -64,6 +64,9 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
 @class ClientReclaimAppInfoOverride;
 @class ReclaimSessionIdentityUpdate;
 @class ReclaimApiVerificationOptions;
+@class ProviderVersionApi;
+@class SessionInitResponseApi;
+@class LogEntryApi;
 
 @interface ReclaimApiVerificationRequest : NSObject
 /// `init` unavailable to enforce nonnull fields, see the `make` class method.
@@ -76,8 +79,7 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
     context:(NSString *)context
     sessionId:(NSString *)sessionId
     parameters:(NSDictionary<NSString *, NSString *> *)parameters
-    acceptAiProviders:(BOOL )acceptAiProviders
-    webhookUrl:(nullable NSString *)webhookUrl;
+    providerVersion:(nullable ProviderVersionApi *)providerVersion;
 @property(nonatomic, copy) NSString * appId;
 @property(nonatomic, copy) NSString * providerId;
 @property(nonatomic, copy) NSString * secret;
@@ -86,8 +88,7 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
 @property(nonatomic, copy) NSString * context;
 @property(nonatomic, copy) NSString * sessionId;
 @property(nonatomic, copy) NSDictionary<NSString *, NSString *> * parameters;
-@property(nonatomic, assign) BOOL  acceptAiProviders;
-@property(nonatomic, copy, nullable) NSString * webhookUrl;
+@property(nonatomic, strong, nullable) ProviderVersionApi * providerVersion;
 @end
 
 @interface ReclaimApiVerificationException : NSObject
@@ -131,13 +132,17 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
     idleTimeThresholdForManualVerificationTrigger:(nullable NSNumber *)idleTimeThresholdForManualVerificationTrigger
     sessionTimeoutForManualVerificationTrigger:(nullable NSNumber *)sessionTimeoutForManualVerificationTrigger
     attestorBrowserRpcUrl:(nullable NSString *)attestorBrowserRpcUrl
-    isAIFlowEnabled:(nullable NSNumber *)isAIFlowEnabled;
+    isAIFlowEnabled:(nullable NSNumber *)isAIFlowEnabled
+    manualReviewMessage:(nullable NSString *)manualReviewMessage
+    loginPromptMessage:(nullable NSString *)loginPromptMessage;
 @property(nonatomic, strong, nullable) NSNumber * cookiePersist;
 @property(nonatomic, strong, nullable) NSNumber * singleReclaimRequest;
 @property(nonatomic, strong, nullable) NSNumber * idleTimeThresholdForManualVerificationTrigger;
 @property(nonatomic, strong, nullable) NSNumber * sessionTimeoutForManualVerificationTrigger;
 @property(nonatomic, copy, nullable) NSString * attestorBrowserRpcUrl;
 @property(nonatomic, strong, nullable) NSNumber * isAIFlowEnabled;
+@property(nonatomic, copy, nullable) NSString * manualReviewMessage;
+@property(nonatomic, copy, nullable) NSString * loginPromptMessage;
 @end
 
 @interface ClientLogConsumerOverride : NSObject
@@ -208,6 +213,41 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
 @property(nonatomic, assign) BOOL  isCloseButtonVisible;
 @end
 
+@interface ProviderVersionApi : NSObject
++ (instancetype)makeWithVersionExpression:(nullable NSString *)versionExpression
+    resolvedVersion:(nullable NSString *)resolvedVersion;
+@property(nonatomic, copy, nullable) NSString * versionExpression;
+@property(nonatomic, copy, nullable) NSString * resolvedVersion;
+@end
+
+@interface SessionInitResponseApi : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithSessionId:(NSString *)sessionId
+    resolvedProviderVersion:(nullable NSString *)resolvedProviderVersion;
+@property(nonatomic, copy) NSString * sessionId;
+@property(nonatomic, copy, nullable) NSString * resolvedProviderVersion;
+@end
+
+@interface LogEntryApi : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithSessionId:(nullable NSString *)sessionId
+    message:(NSString *)message
+    level:(NSInteger )level
+    dateTimeIso:(NSString *)dateTimeIso
+    source:(NSString *)source
+    error:(nullable NSString *)error
+    stackTraceAsString:(nullable NSString *)stackTraceAsString;
+@property(nonatomic, copy, nullable) NSString * sessionId;
+@property(nonatomic, copy) NSString * message;
+@property(nonatomic, assign) NSInteger  level;
+@property(nonatomic, copy) NSString * dateTimeIso;
+@property(nonatomic, copy) NSString * source;
+@property(nonatomic, copy, nullable) NSString * error;
+@property(nonatomic, copy, nullable) NSString * stackTraceAsString;
+@end
+
 /// The codec used by all APIs.
 NSObject<FlutterMessageCodec> *nullGetMessagesCodec(void);
 
@@ -217,9 +257,11 @@ NSObject<FlutterMessageCodec> *nullGetMessagesCodec(void);
 - (instancetype)initWithBinaryMessenger:(id<FlutterBinaryMessenger>)binaryMessenger messageChannelSuffix:(nullable NSString *)messageChannelSuffix;
 - (void)startVerificationRequest:(ReclaimApiVerificationRequest *)request completion:(void (^)(ReclaimApiVerificationResponse *_Nullable, FlutterError *_Nullable))completion;
 - (void)startVerificationFromUrlUrl:(NSString *)url completion:(void (^)(ReclaimApiVerificationResponse *_Nullable, FlutterError *_Nullable))completion;
+- (void)startVerificationFromJsonTemplate:(NSDictionary<dynamic *, dynamic *> *)template completion:(void (^)(ReclaimApiVerificationResponse *_Nullable, FlutterError *_Nullable))completion;
 - (void)setOverridesProvider:(nullable ClientProviderInformationOverride *)provider feature:(nullable ClientFeatureOverrides *)feature logConsumer:(nullable ClientLogConsumerOverride *)logConsumer sessionManagement:(nullable ClientReclaimSessionManagementOverride *)sessionManagement appInfo:(nullable ClientReclaimAppInfoOverride *)appInfo capabilityAccessToken:(nullable NSString *)capabilityAccessToken completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)clearAllOverridesWithCompletion:(void (^)(FlutterError *_Nullable))completion;
 - (void)setVerificationOptionsOptions:(nullable ReclaimApiVerificationOptions *)options completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)sendLogEntry:(LogEntryApi *)entry completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)pingWithCompletion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 @end
 
@@ -227,7 +269,7 @@ NSObject<FlutterMessageCodec> *nullGetMessagesCodec(void);
 /// Apis implemented by the host using the Reclaim module.
 @protocol ReclaimHostOverridesApi
 - (void)onLogsLogJsonString:(NSString *)logJsonString completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)createSessionAppId:(NSString *)appId providerId:(NSString *)providerId timestamp:(NSString *)timestamp signature:(NSString *)signature completion:(void (^)(NSString *_Nullable, FlutterError *_Nullable))completion;
+- (void)createSessionAppId:(NSString *)appId providerId:(NSString *)providerId timestamp:(NSString *)timestamp signature:(NSString *)signature providerVersion:(NSString *)providerVersion completion:(void (^)(SessionInitResponseApi *_Nullable, FlutterError *_Nullable))completion;
 - (void)updateSessionSessionId:(NSString *)sessionId status:(ReclaimSessionStatus)status completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)logSessionAppId:(NSString *)appId providerId:(NSString *)providerId sessionId:(NSString *)sessionId logType:(NSString *)logType metadata:(nullable NSDictionary<NSString *, dynamic *> *)metadata completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)onSessionIdentityUpdateUpdate:(nullable ReclaimSessionIdentityUpdate *)update completion:(void (^)(FlutterError *_Nullable))completion;

@@ -13,7 +13,6 @@ import 'package:reclaim_inapp_sdk/overrides.dart';
 import 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart';
 import 'package:reclaim_inapp_sdk/ui.dart';
 
-import 'src/data/url_request.dart';
 import 'src/pigeon/messages.pigeon.dart';
 
 const CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY = String.fromEnvironment(
@@ -128,41 +127,19 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
 
   late ReclaimVerificationOptions _reclaimVerificationOptions = _defaultReclaimVerificationOptions;
 
-  @override
-  Future<ReclaimApiVerificationResponse> startVerification(ReclaimApiVerificationRequest request) async {
+  Future<ReclaimApiVerificationResponse> _startVerification(
+    ReclaimVerificationRequest request,
+    String requestSessionId,
+  ) async {
     try {
       final reclaimVerification = ReclaimVerification.of(context);
-      final usePreGeneratedSession =
-          request.signature.isNotEmpty &&
-          request.timestamp != null &&
-          request.timestamp!.isNotEmpty &&
-          request.sessionId.isNotEmpty;
 
       final response = await reclaimVerification.startVerification(
-        request: ReclaimVerificationRequest(
-          sessionProvider: () {
-            if (usePreGeneratedSession) {
-              return ReclaimSessionInformation(
-                signature: request.signature,
-                timestamp: request.timestamp ?? '',
-                sessionId: request.sessionId,
-              );
-            }
-            return ReclaimSessionInformation.generateNew(
-              applicationId: request.appId,
-              applicationSecret: request.secret,
-              providerId: request.providerId,
-            );
-          },
-          applicationId: request.appId,
-          providerId: request.providerId,
-          contextString: request.context,
-          parameters: request.parameters,
-        ),
+        request: request,
         options: _reclaimVerificationOptions,
       );
       return ReclaimApiVerificationResponse(
-        sessionId: SessionIdentity.latest?.sessionId ?? request.sessionId,
+        sessionId: SessionIdentity.latest?.sessionId ?? requestSessionId,
         didSubmitManualVerification: false,
         proofs: (json.decode(json.encode(response.proofs)) as List).map((e) => e as Map<String, dynamic>).toList(),
         exception: null,
@@ -170,7 +147,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
     } catch (e, s) {
       logger.severe('Failed verification response', e, s);
       return ReclaimApiVerificationResponse(
-        sessionId: SessionIdentity.latest?.sessionId ?? request.sessionId,
+        sessionId: SessionIdentity.latest?.sessionId ?? requestSessionId,
         didSubmitManualVerification: e is ReclaimVerificationManualReviewException,
         proofs: const [],
         exception: ReclaimApiVerificationException(
@@ -196,22 +173,56 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
   }
 
   @override
-  Future<ReclaimApiVerificationResponse> startVerificationFromUrl(String url) {
-    final request = ReclaimUrlRequest.fromUrl(url);
-    return startVerification(
-      ReclaimApiVerificationRequest(
-        appId: request.applicationId,
+  Future<ReclaimApiVerificationResponse> startVerification(ReclaimApiVerificationRequest request) async {
+    final usePreGeneratedSession =
+        request.signature.isNotEmpty &&
+        request.timestamp != null &&
+        request.timestamp!.isNotEmpty &&
+        request.sessionId.isNotEmpty;
+
+    return _startVerification(
+      ReclaimVerificationRequest(
+        sessionProvider: () {
+          final version = ProviderVersionExact(
+            request.providerVersion?.resolvedVersion ?? '',
+            versionExpression: request.providerVersion?.versionExpression,
+          );
+          if (usePreGeneratedSession) {
+            return ReclaimSessionInformation(
+              signature: request.signature,
+              timestamp: request.timestamp ?? '',
+              sessionId: request.sessionId,
+              version: version,
+            );
+          }
+          return ReclaimSessionInformation.generateNew(
+            applicationId: request.appId,
+            applicationSecret: request.secret,
+            providerId: request.providerId,
+            providerVersion: version.versionExpression,
+          );
+        },
+        applicationId: request.appId,
         providerId: request.providerId,
-        secret: request.signature,
-        signature: request.signature,
-        timestamp: request.timestamp,
-        context: request.context ?? '',
-        sessionId: request.sessionId ?? '',
-        parameters: request.parameters ?? const {},
-        acceptAiProviders: request.acceptAiProviders ?? false,
-        webhookUrl: request.callbackUrl,
+        contextString: request.context,
+        parameters: request.parameters,
       ),
+      request.sessionId,
     );
+  }
+
+  @override
+  Future<ReclaimApiVerificationResponse> startVerificationFromUrl(String url) {
+    final request = ClientSdkVerificationRequest.fromUrl(url);
+    return _startVerification(ReclaimVerificationRequest.fromSdkRequest(request), request.sessionId ?? '');
+  }
+
+  @override
+  Future<ReclaimApiVerificationResponse> startVerificationFromJson(Map<dynamic, dynamic> template) {
+    final request = ClientSdkVerificationRequest.fromJson(<String, dynamic>{
+      for (final entry in template.entries) (entry.key?.toString() ?? ''): entry.value,
+    });
+    return _startVerification(ReclaimVerificationRequest.fromSdkRequest(request), request.sessionId ?? '');
   }
 
   @override
@@ -266,8 +277,8 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
           idleTimeThresholdForManualVerificationTrigger: feature.idleTimeThresholdForManualVerificationTrigger,
           sessionTimeoutForManualVerificationTrigger: feature.sessionTimeoutForManualVerificationTrigger,
           canUseAiFlow: feature.isAIFlowEnabled ?? false,
-          // TODO: Implement in future versions
-          manualReviewMessage: null,
+          manualReviewMessage: feature.manualReviewMessage,
+          loginPromptMessage: feature.loginPromptMessage,
         ),
       if (provider != null)
         ReclaimProviderOverride(
@@ -342,12 +353,18 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
             required String providerId,
             required String timestamp,
             required String signature,
+            required String providerVersion,
           }) async {
-            return hostOverridesApi.createSession(
+            final response = await hostOverridesApi.createSession(
               appId: appId,
               providerId: providerId,
               timestamp: timestamp,
               signature: signature,
+              providerVersion: providerVersion,
+            );
+            return SessionInitResponse(
+              sessionId: response.sessionId,
+              resolvedProviderVersion: response.resolvedProviderVersion,
             );
           },
           // metadata is not sent to host
@@ -420,6 +437,23 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
       fallbackSessionIdentity: SessionIdentity.latest ?? SessionIdentity(appId: '', providerId: '', sessionId: ''),
     );
     hostOverridesApi.onLogs(json.encode(entry));
+  }
+
+  @override
+  Future<bool> sendLog(LogEntryApi entry) async {
+    final level = Level.LEVELS.firstWhere((it) => it.value == entry.level, orElse: () => Level.INFO);
+    final buffer = StringBuffer(entry.message);
+    final stackTrace = entry.stackTraceAsString;
+    if (stackTrace != null && stackTrace.isNotEmpty) {
+      buffer.write('\nSTACKTRACE: $stackTrace');
+    }
+    final givenSessionId = entry.sessionId;
+    final latestSessionId = SessionIdentity.latest?.sessionId;
+    if (givenSessionId != null && givenSessionId.isNotEmpty && (latestSessionId == null || latestSessionId.isEmpty)) {
+      SessionIdentity.updateLatest(SessionIdentity(appId: '', providerId: '', sessionId: givenSessionId));
+    }
+    logger.child(entry.source).log(level, buffer.toString(), entry.error);
+    return true;
   }
 
   @override

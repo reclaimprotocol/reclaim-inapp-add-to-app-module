@@ -170,8 +170,7 @@ struct ReclaimApiVerificationRequest: Hashable {
   var context: String
   var sessionId: String
   var parameters: [String: String]
-  var acceptAiProviders: Bool
-  var webhookUrl: String? = nil
+  var providerVersion: ProviderVersionApi? = nil
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -184,8 +183,7 @@ struct ReclaimApiVerificationRequest: Hashable {
     let context = pigeonVar_list[5] as! String
     let sessionId = pigeonVar_list[6] as! String
     let parameters = pigeonVar_list[7] as! [String: String]
-    let acceptAiProviders = pigeonVar_list[8] as! Bool
-    let webhookUrl: String? = nilOrValue(pigeonVar_list[9])
+    let providerVersion: ProviderVersionApi? = nilOrValue(pigeonVar_list[8])
 
     return ReclaimApiVerificationRequest(
       appId: appId,
@@ -196,8 +194,7 @@ struct ReclaimApiVerificationRequest: Hashable {
       context: context,
       sessionId: sessionId,
       parameters: parameters,
-      acceptAiProviders: acceptAiProviders,
-      webhookUrl: webhookUrl
+      providerVersion: providerVersion
     )
   }
   func toList() -> [Any?] {
@@ -210,8 +207,7 @@ struct ReclaimApiVerificationRequest: Hashable {
       context,
       sessionId,
       parameters,
-      acceptAiProviders,
-      webhookUrl,
+      providerVersion,
     ]
   }
   static func == (lhs: ReclaimApiVerificationRequest, rhs: ReclaimApiVerificationRequest) -> Bool {
@@ -332,6 +328,8 @@ struct ClientFeatureOverrides: Hashable {
   var sessionTimeoutForManualVerificationTrigger: Int64? = nil
   var attestorBrowserRpcUrl: String? = nil
   var isAIFlowEnabled: Bool? = nil
+  var manualReviewMessage: String? = nil
+  var loginPromptMessage: String? = nil
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -342,6 +340,8 @@ struct ClientFeatureOverrides: Hashable {
     let sessionTimeoutForManualVerificationTrigger: Int64? = nilOrValue(pigeonVar_list[3])
     let attestorBrowserRpcUrl: String? = nilOrValue(pigeonVar_list[4])
     let isAIFlowEnabled: Bool? = nilOrValue(pigeonVar_list[5])
+    let manualReviewMessage: String? = nilOrValue(pigeonVar_list[6])
+    let loginPromptMessage: String? = nilOrValue(pigeonVar_list[7])
 
     return ClientFeatureOverrides(
       cookiePersist: cookiePersist,
@@ -349,7 +349,9 @@ struct ClientFeatureOverrides: Hashable {
       idleTimeThresholdForManualVerificationTrigger: idleTimeThresholdForManualVerificationTrigger,
       sessionTimeoutForManualVerificationTrigger: sessionTimeoutForManualVerificationTrigger,
       attestorBrowserRpcUrl: attestorBrowserRpcUrl,
-      isAIFlowEnabled: isAIFlowEnabled
+      isAIFlowEnabled: isAIFlowEnabled,
+      manualReviewMessage: manualReviewMessage,
+      loginPromptMessage: loginPromptMessage
     )
   }
   func toList() -> [Any?] {
@@ -360,6 +362,8 @@ struct ClientFeatureOverrides: Hashable {
       sessionTimeoutForManualVerificationTrigger,
       attestorBrowserRpcUrl,
       isAIFlowEnabled,
+      manualReviewMessage,
+      loginPromptMessage,
     ]
   }
   static func == (lhs: ClientFeatureOverrides, rhs: ClientFeatureOverrides) -> Bool {
@@ -548,6 +552,113 @@ struct ReclaimApiVerificationOptions: Hashable {
   }
 }
 
+/// Generated class from Pigeon that represents data sent in messages.
+struct ProviderVersionApi: Hashable {
+  var versionExpression: String? = nil
+  var resolvedVersion: String? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> ProviderVersionApi? {
+    let versionExpression: String? = nilOrValue(pigeonVar_list[0])
+    let resolvedVersion: String? = nilOrValue(pigeonVar_list[1])
+
+    return ProviderVersionApi(
+      versionExpression: versionExpression,
+      resolvedVersion: resolvedVersion
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      versionExpression,
+      resolvedVersion,
+    ]
+  }
+  static func == (lhs: ProviderVersionApi, rhs: ProviderVersionApi) -> Bool {
+    return deepEqualsMessages(lhs.toList(), rhs.toList())  }
+  func hash(into hasher: inout Hasher) {
+    deepHashMessages(value: toList(), hasher: &hasher)
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct SessionInitResponseApi: Hashable {
+  var sessionId: String
+  var resolvedProviderVersion: String? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> SessionInitResponseApi? {
+    let sessionId = pigeonVar_list[0] as! String
+    let resolvedProviderVersion: String? = nilOrValue(pigeonVar_list[1])
+
+    return SessionInitResponseApi(
+      sessionId: sessionId,
+      resolvedProviderVersion: resolvedProviderVersion
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      sessionId,
+      resolvedProviderVersion,
+    ]
+  }
+  static func == (lhs: SessionInitResponseApi, rhs: SessionInitResponseApi) -> Bool {
+    return deepEqualsMessages(lhs.toList(), rhs.toList())  }
+  func hash(into hasher: inout Hasher) {
+    deepHashMessages(value: toList(), hasher: &hasher)
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct LogEntryApi: Hashable {
+  var sessionId: String? = nil
+  var message: String
+  var level: Int64
+  var dateTimeIso: String
+  var source: String
+  var error: String? = nil
+  var stackTraceAsString: String? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> LogEntryApi? {
+    let sessionId: String? = nilOrValue(pigeonVar_list[0])
+    let message = pigeonVar_list[1] as! String
+    let level = pigeonVar_list[2] as! Int64
+    let dateTimeIso = pigeonVar_list[3] as! String
+    let source = pigeonVar_list[4] as! String
+    let error: String? = nilOrValue(pigeonVar_list[5])
+    let stackTraceAsString: String? = nilOrValue(pigeonVar_list[6])
+
+    return LogEntryApi(
+      sessionId: sessionId,
+      message: message,
+      level: level,
+      dateTimeIso: dateTimeIso,
+      source: source,
+      error: error,
+      stackTraceAsString: stackTraceAsString
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      sessionId,
+      message,
+      level,
+      dateTimeIso,
+      source,
+      error,
+      stackTraceAsString,
+    ]
+  }
+  static func == (lhs: LogEntryApi, rhs: LogEntryApi) -> Bool {
+    return deepEqualsMessages(lhs.toList(), rhs.toList())  }
+  func hash(into hasher: inout Hasher) {
+    deepHashMessages(value: toList(), hasher: &hasher)
+  }
+}
+
 private class MessagesPigeonCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
@@ -589,6 +700,12 @@ private class MessagesPigeonCodecReader: FlutterStandardReader {
       return ReclaimSessionIdentityUpdate.fromList(self.readValue() as! [Any?])
     case 141:
       return ReclaimApiVerificationOptions.fromList(self.readValue() as! [Any?])
+    case 142:
+      return ProviderVersionApi.fromList(self.readValue() as! [Any?])
+    case 143:
+      return SessionInitResponseApi.fromList(self.readValue() as! [Any?])
+    case 144:
+      return LogEntryApi.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
     }
@@ -636,6 +753,15 @@ private class MessagesPigeonCodecWriter: FlutterStandardWriter {
     } else if let value = value as? ReclaimApiVerificationOptions {
       super.writeByte(141)
       super.writeValue(value.toList())
+    } else if let value = value as? ProviderVersionApi {
+      super.writeByte(142)
+      super.writeValue(value.toList())
+    } else if let value = value as? SessionInitResponseApi {
+      super.writeByte(143)
+      super.writeValue(value.toList())
+    } else if let value = value as? LogEntryApi {
+      super.writeByte(144)
+      super.writeValue(value.toList())
     } else {
       super.writeValue(value)
     }
@@ -663,9 +789,11 @@ class MessagesPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
 protocol ReclaimModuleApiProtocol {
   func startVerification(request requestArg: ReclaimApiVerificationRequest, completion: @escaping (Result<ReclaimApiVerificationResponse, PigeonError>) -> Void)
   func startVerificationFromUrl(url urlArg: String, completion: @escaping (Result<ReclaimApiVerificationResponse, PigeonError>) -> Void)
+  func startVerificationFromJson(template templateArg: [AnyHashable?: Sendable?], completion: @escaping (Result<ReclaimApiVerificationResponse, PigeonError>) -> Void)
   func setOverrides(provider providerArg: ClientProviderInformationOverride?, feature featureArg: ClientFeatureOverrides?, logConsumer logConsumerArg: ClientLogConsumerOverride?, sessionManagement sessionManagementArg: ClientReclaimSessionManagementOverride?, appInfo appInfoArg: ClientReclaimAppInfoOverride?, capabilityAccessToken capabilityAccessTokenArg: String?, completion: @escaping (Result<Void, PigeonError>) -> Void)
   func clearAllOverrides(completion: @escaping (Result<Void, PigeonError>) -> Void)
   func setVerificationOptions(options optionsArg: ReclaimApiVerificationOptions?, completion: @escaping (Result<Void, PigeonError>) -> Void)
+  func sendLog(entry entryArg: LogEntryApi, completion: @escaping (Result<Bool, PigeonError>) -> Void)
   func ping(completion: @escaping (Result<Bool, PigeonError>) -> Void)
 }
 class ReclaimModuleApi: ReclaimModuleApiProtocol {
@@ -703,6 +831,27 @@ class ReclaimModuleApi: ReclaimModuleApiProtocol {
     let channelName: String = "dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromUrl\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([urlArg] as [Any?]) { response in
+      guard let listResponse = response as? [Any?] else {
+        completion(.failure(createConnectionError(withChannelName: channelName)))
+        return
+      }
+      if listResponse.count > 1 {
+        let code: String = listResponse[0] as! String
+        let message: String? = nilOrValue(listResponse[1])
+        let details: String? = nilOrValue(listResponse[2])
+        completion(.failure(PigeonError(code: code, message: message, details: details)))
+      } else if listResponse[0] == nil {
+        completion(.failure(PigeonError(code: "null-error", message: "Flutter api returned null value for non-null return value.", details: "")))
+      } else {
+        let result = listResponse[0] as! ReclaimApiVerificationResponse
+        completion(.success(result))
+      }
+    }
+  }
+  func startVerificationFromJson(template templateArg: [AnyHashable?: Sendable?], completion: @escaping (Result<ReclaimApiVerificationResponse, PigeonError>) -> Void) {
+    let channelName: String = "dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromJson\(messageChannelSuffix)"
+    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([templateArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
         completion(.failure(createConnectionError(withChannelName: channelName)))
         return
@@ -774,6 +923,27 @@ class ReclaimModuleApi: ReclaimModuleApiProtocol {
       }
     }
   }
+  func sendLog(entry entryArg: LogEntryApi, completion: @escaping (Result<Bool, PigeonError>) -> Void) {
+    let channelName: String = "dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.sendLog\(messageChannelSuffix)"
+    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([entryArg] as [Any?]) { response in
+      guard let listResponse = response as? [Any?] else {
+        completion(.failure(createConnectionError(withChannelName: channelName)))
+        return
+      }
+      if listResponse.count > 1 {
+        let code: String = listResponse[0] as! String
+        let message: String? = nilOrValue(listResponse[1])
+        let details: String? = nilOrValue(listResponse[2])
+        completion(.failure(PigeonError(code: code, message: message, details: details)))
+      } else if listResponse[0] == nil {
+        completion(.failure(PigeonError(code: "null-error", message: "Flutter api returned null value for non-null return value.", details: "")))
+      } else {
+        let result = listResponse[0] as! Bool
+        completion(.success(result))
+      }
+    }
+  }
   func ping(completion: @escaping (Result<Bool, PigeonError>) -> Void) {
     let channelName: String = "dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.ping\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
@@ -801,7 +971,7 @@ class ReclaimModuleApi: ReclaimModuleApiProtocol {
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol ReclaimHostOverridesApi {
   func onLogs(logJsonString: String, completion: @escaping (Result<Void, Error>) -> Void)
-  func createSession(appId: String, providerId: String, timestamp: String, signature: String, completion: @escaping (Result<String, Error>) -> Void)
+  func createSession(appId: String, providerId: String, timestamp: String, signature: String, providerVersion: String, completion: @escaping (Result<SessionInitResponseApi, Error>) -> Void)
   func updateSession(sessionId: String, status: ReclaimSessionStatus, completion: @escaping (Result<Bool, Error>) -> Void)
   func logSession(appId: String, providerId: String, sessionId: String, logType: String, metadata: [String: Sendable?]?, completion: @escaping (Result<Void, Error>) -> Void)
   func onSessionIdentityUpdate(update: ReclaimSessionIdentityUpdate?, completion: @escaping (Result<Void, Error>) -> Void)
@@ -839,7 +1009,8 @@ class ReclaimHostOverridesApiSetup {
         let providerIdArg = args[1] as! String
         let timestampArg = args[2] as! String
         let signatureArg = args[3] as! String
-        api.createSession(appId: appIdArg, providerId: providerIdArg, timestamp: timestampArg, signature: signatureArg) { result in
+        let providerVersionArg = args[4] as! String
+        api.createSession(appId: appIdArg, providerId: providerIdArg, timestamp: timestampArg, signature: signatureArg, providerVersion: providerVersionArg) { result in
           switch result {
           case .success(let res):
             reply(wrapResult(res))

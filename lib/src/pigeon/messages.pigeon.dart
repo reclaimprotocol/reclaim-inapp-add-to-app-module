@@ -72,8 +72,7 @@ class ReclaimApiVerificationRequest {
     required this.context,
     required this.sessionId,
     required this.parameters,
-    required this.acceptAiProviders,
-    this.webhookUrl,
+    this.providerVersion,
   });
 
   String appId;
@@ -92,23 +91,10 @@ class ReclaimApiVerificationRequest {
 
   Map<String, String> parameters;
 
-  bool acceptAiProviders;
-
-  String? webhookUrl;
+  ProviderVersionApi? providerVersion;
 
   List<Object?> _toList() {
-    return <Object?>[
-      appId,
-      providerId,
-      secret,
-      signature,
-      timestamp,
-      context,
-      sessionId,
-      parameters,
-      acceptAiProviders,
-      webhookUrl,
-    ];
+    return <Object?>[appId, providerId, secret, signature, timestamp, context, sessionId, parameters, providerVersion];
   }
 
   Object encode() {
@@ -126,8 +112,7 @@ class ReclaimApiVerificationRequest {
       context: result[5]! as String,
       sessionId: result[6]! as String,
       parameters: (result[7] as Map<Object?, Object?>?)!.cast<String, String>(),
-      acceptAiProviders: result[8]! as bool,
-      webhookUrl: result[9] as String?,
+      providerVersion: result[8] as ProviderVersionApi?,
     );
   }
 
@@ -246,7 +231,7 @@ class ClientProviderInformationOverride {
   ClientProviderInformationOverride({
     this.providerInformationUrl,
     this.providerInformationJsonString,
-    required this.canFetchProviderInformationFromHost,
+    this.canFetchProviderInformationFromHost = false,
   });
 
   String? providerInformationUrl;
@@ -297,6 +282,8 @@ class ClientFeatureOverrides {
     this.sessionTimeoutForManualVerificationTrigger,
     this.attestorBrowserRpcUrl,
     this.isAIFlowEnabled,
+    this.manualReviewMessage,
+    this.loginPromptMessage,
   });
 
   bool? cookiePersist;
@@ -311,6 +298,10 @@ class ClientFeatureOverrides {
 
   bool? isAIFlowEnabled;
 
+  String? manualReviewMessage;
+
+  String? loginPromptMessage;
+
   List<Object?> _toList() {
     return <Object?>[
       cookiePersist,
@@ -319,6 +310,8 @@ class ClientFeatureOverrides {
       sessionTimeoutForManualVerificationTrigger,
       attestorBrowserRpcUrl,
       isAIFlowEnabled,
+      manualReviewMessage,
+      loginPromptMessage,
     ];
   }
 
@@ -335,6 +328,8 @@ class ClientFeatureOverrides {
       sessionTimeoutForManualVerificationTrigger: result[3] as int?,
       attestorBrowserRpcUrl: result[4] as String?,
       isAIFlowEnabled: result[5] as bool?,
+      manualReviewMessage: result[6] as String?,
+      loginPromptMessage: result[7] as String?,
     );
   }
 
@@ -357,9 +352,9 @@ class ClientFeatureOverrides {
 
 class ClientLogConsumerOverride {
   ClientLogConsumerOverride({
-    required this.enableLogHandler,
-    required this.canSdkCollectTelemetry,
-    this.canSdkPrintLogs,
+    this.enableLogHandler = true,
+    this.canSdkCollectTelemetry = true,
+    this.canSdkPrintLogs = false,
   });
 
   bool enableLogHandler;
@@ -403,7 +398,7 @@ class ClientLogConsumerOverride {
 }
 
 class ClientReclaimSessionManagementOverride {
-  ClientReclaimSessionManagementOverride({required this.enableSdkSessionManagement});
+  ClientReclaimSessionManagementOverride({this.enableSdkSessionManagement = true});
 
   bool enableSdkSessionManagement;
 
@@ -529,11 +524,11 @@ class ReclaimSessionIdentityUpdate {
 
 class ReclaimApiVerificationOptions {
   ReclaimApiVerificationOptions({
-    required this.canDeleteCookiesBeforeVerificationStarts,
-    required this.canUseAttestorAuthenticationRequest,
-    required this.claimCreationType,
-    required this.canAutoSubmit,
-    required this.isCloseButtonVisible,
+    this.canDeleteCookiesBeforeVerificationStarts = true,
+    this.canUseAttestorAuthenticationRequest = false,
+    this.claimCreationType = ClaimCreationTypeApi.standalone,
+    this.canAutoSubmit = true,
+    this.isCloseButtonVisible = true,
   });
 
   /// Whether to delete cookies before user journey starts in the client web view.
@@ -597,6 +592,143 @@ class ReclaimApiVerificationOptions {
   int get hashCode => Object.hashAll(_toList());
 }
 
+class ProviderVersionApi {
+  ProviderVersionApi({this.versionExpression, this.resolvedVersion});
+
+  String? versionExpression;
+
+  String? resolvedVersion;
+
+  List<Object?> _toList() {
+    return <Object?>[versionExpression, resolvedVersion];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static ProviderVersionApi decode(Object result) {
+    result as List<Object?>;
+    return ProviderVersionApi(versionExpression: result[0] as String?, resolvedVersion: result[1] as String?);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! ProviderVersionApi || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(encode(), other.encode());
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList());
+}
+
+class SessionInitResponseApi {
+  SessionInitResponseApi({required this.sessionId, this.resolvedProviderVersion});
+
+  String sessionId;
+
+  String? resolvedProviderVersion;
+
+  List<Object?> _toList() {
+    return <Object?>[sessionId, resolvedProviderVersion];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static SessionInitResponseApi decode(Object result) {
+    result as List<Object?>;
+    return SessionInitResponseApi(sessionId: result[0]! as String, resolvedProviderVersion: result[1] as String?);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! SessionInitResponseApi || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(encode(), other.encode());
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList());
+}
+
+class LogEntryApi {
+  LogEntryApi({
+    this.sessionId,
+    required this.message,
+    required this.level,
+    required this.dateTimeIso,
+    required this.source,
+    this.error,
+    this.stackTraceAsString,
+  });
+
+  String? sessionId;
+
+  String message;
+
+  int level;
+
+  String dateTimeIso;
+
+  String source;
+
+  String? error;
+
+  String? stackTraceAsString;
+
+  List<Object?> _toList() {
+    return <Object?>[sessionId, message, level, dateTimeIso, source, error, stackTraceAsString];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static LogEntryApi decode(Object result) {
+    result as List<Object?>;
+    return LogEntryApi(
+      sessionId: result[0] as String?,
+      message: result[1]! as String,
+      level: result[2]! as int,
+      dateTimeIso: result[3]! as String,
+      source: result[4]! as String,
+      error: result[5] as String?,
+      stackTraceAsString: result[6] as String?,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! LogEntryApi || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(encode(), other.encode());
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList());
+}
+
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -643,6 +775,15 @@ class _PigeonCodec extends StandardMessageCodec {
     } else if (value is ReclaimApiVerificationOptions) {
       buffer.putUint8(141);
       writeValue(buffer, value.encode());
+    } else if (value is ProviderVersionApi) {
+      buffer.putUint8(142);
+      writeValue(buffer, value.encode());
+    } else if (value is SessionInitResponseApi) {
+      buffer.putUint8(143);
+      writeValue(buffer, value.encode());
+    } else if (value is LogEntryApi) {
+      buffer.putUint8(144);
+      writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
     }
@@ -680,6 +821,12 @@ class _PigeonCodec extends StandardMessageCodec {
         return ReclaimSessionIdentityUpdate.decode(readValue(buffer)!);
       case 141:
         return ReclaimApiVerificationOptions.decode(readValue(buffer)!);
+      case 142:
+        return ProviderVersionApi.decode(readValue(buffer)!);
+      case 143:
+        return SessionInitResponseApi.decode(readValue(buffer)!);
+      case 144:
+        return LogEntryApi.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -694,6 +841,8 @@ abstract class ReclaimModuleApi {
 
   Future<ReclaimApiVerificationResponse> startVerificationFromUrl(String url);
 
+  Future<ReclaimApiVerificationResponse> startVerificationFromJson(Map<dynamic, dynamic> template);
+
   Future<void> setOverrides(
     ClientProviderInformationOverride? provider,
     ClientFeatureOverrides? feature,
@@ -706,6 +855,8 @@ abstract class ReclaimModuleApi {
   Future<void> clearAllOverrides();
 
   Future<void> setVerificationOptions(ReclaimApiVerificationOptions? options);
+
+  Future<bool> sendLog(LogEntryApi entry);
 
   Future<bool> ping();
 
@@ -764,6 +915,37 @@ abstract class ReclaimModuleApi {
           );
           try {
             final ReclaimApiVerificationResponse output = await api.startVerificationFromUrl(arg_url!);
+            return wrapResponse(result: output);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          } catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromJson$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(
+            message != null,
+            'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromJson was null.',
+          );
+          final List<Object?> args = (message as List<Object?>?)!;
+          final Map<dynamic, dynamic>? arg_template = (args[0] as Map<Object?, Object?>?)?.cast<dynamic, dynamic>();
+          assert(
+            arg_template != null,
+            'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromJson was null, expected non-null Map<dynamic, dynamic>.',
+          );
+          try {
+            final ReclaimApiVerificationResponse output = await api.startVerificationFromJson(arg_template!);
             return wrapResponse(result: output);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
@@ -863,6 +1045,37 @@ abstract class ReclaimModuleApi {
     }
     {
       final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.sendLog$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(
+            message != null,
+            'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.sendLog was null.',
+          );
+          final List<Object?> args = (message as List<Object?>?)!;
+          final LogEntryApi? arg_entry = (args[0] as LogEntryApi?);
+          assert(
+            arg_entry != null,
+            'Argument for dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.sendLog was null, expected non-null LogEntryApi.',
+          );
+          try {
+            final bool output = await api.sendLog(arg_entry!);
+            return wrapResponse(result: output);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          } catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.ping$messageChannelSuffix',
         pigeonChannelCodec,
         binaryMessenger: binaryMessenger,
@@ -922,11 +1135,12 @@ class ReclaimHostOverridesApi {
     }
   }
 
-  Future<String> createSession({
+  Future<SessionInitResponseApi> createSession({
     required String appId,
     required String providerId,
     required String timestamp,
     required String signature,
+    required String providerVersion,
   }) async {
     final String pigeonVar_channelName =
         'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.createSession$pigeonVar_messageChannelSuffix';
@@ -940,6 +1154,7 @@ class ReclaimHostOverridesApi {
       providerId,
       timestamp,
       signature,
+      providerVersion,
     ]);
     final List<Object?>? pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -956,7 +1171,7 @@ class ReclaimHostOverridesApi {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (pigeonVar_replyList[0] as String?)!;
+      return (pigeonVar_replyList[0] as SessionInitResponseApi?)!;
     }
   }
 
