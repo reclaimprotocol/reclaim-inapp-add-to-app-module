@@ -4,6 +4,7 @@
 * Add support for versioned providers
 * Update [BREAKING] session init handler
 * Updates the UI with a verification review banner in the verification flow
+* Remove [BREAKING] `acceptAiProviders`, and `webhookUrl` from ReclaimVerification Request
 
 ## 0.7.0
 
