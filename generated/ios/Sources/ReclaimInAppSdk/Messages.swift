@@ -170,8 +170,6 @@ struct ReclaimApiVerificationRequest: Hashable {
   var context: String
   var sessionId: String
   var parameters: [String: String]
-  var acceptAiProviders: Bool
-  var webhookUrl: String? = nil
   var providerVersion: ProviderVersionApi? = nil
 
 
@@ -185,9 +183,7 @@ struct ReclaimApiVerificationRequest: Hashable {
     let context = pigeonVar_list[5] as! String
     let sessionId = pigeonVar_list[6] as! String
     let parameters = pigeonVar_list[7] as! [String: String]
-    let acceptAiProviders = pigeonVar_list[8] as! Bool
-    let webhookUrl: String? = nilOrValue(pigeonVar_list[9])
-    let providerVersion: ProviderVersionApi? = nilOrValue(pigeonVar_list[10])
+    let providerVersion: ProviderVersionApi? = nilOrValue(pigeonVar_list[8])
 
     return ReclaimApiVerificationRequest(
       appId: appId,
@@ -198,8 +194,6 @@ struct ReclaimApiVerificationRequest: Hashable {
       context: context,
       sessionId: sessionId,
       parameters: parameters,
-      acceptAiProviders: acceptAiProviders,
-      webhookUrl: webhookUrl,
       providerVersion: providerVersion
     )
   }
@@ -213,8 +207,6 @@ struct ReclaimApiVerificationRequest: Hashable {
       context,
       sessionId,
       parameters,
-      acceptAiProviders,
-      webhookUrl,
       providerVersion,
     ]
   }
@@ -337,6 +329,7 @@ struct ClientFeatureOverrides: Hashable {
   var attestorBrowserRpcUrl: String? = nil
   var isAIFlowEnabled: Bool? = nil
   var manualReviewMessage: String? = nil
+  var loginPromptMessage: String? = nil
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -348,6 +341,7 @@ struct ClientFeatureOverrides: Hashable {
     let attestorBrowserRpcUrl: String? = nilOrValue(pigeonVar_list[4])
     let isAIFlowEnabled: Bool? = nilOrValue(pigeonVar_list[5])
     let manualReviewMessage: String? = nilOrValue(pigeonVar_list[6])
+    let loginPromptMessage: String? = nilOrValue(pigeonVar_list[7])
 
     return ClientFeatureOverrides(
       cookiePersist: cookiePersist,
@@ -356,7 +350,8 @@ struct ClientFeatureOverrides: Hashable {
       sessionTimeoutForManualVerificationTrigger: sessionTimeoutForManualVerificationTrigger,
       attestorBrowserRpcUrl: attestorBrowserRpcUrl,
       isAIFlowEnabled: isAIFlowEnabled,
-      manualReviewMessage: manualReviewMessage
+      manualReviewMessage: manualReviewMessage,
+      loginPromptMessage: loginPromptMessage
     )
   }
   func toList() -> [Any?] {
@@ -368,6 +363,7 @@ struct ClientFeatureOverrides: Hashable {
       attestorBrowserRpcUrl,
       isAIFlowEnabled,
       manualReviewMessage,
+      loginPromptMessage,
     ]
   }
   static func == (lhs: ClientFeatureOverrides, rhs: ClientFeatureOverrides) -> Bool {

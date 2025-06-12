@@ -25,8 +25,6 @@ class ReclaimApiVerificationRequest {
     required this.context,
     required this.sessionId,
     required this.parameters,
-    required this.acceptAiProviders,
-    required this.webhookUrl,
     required this.providerVersion,
   });
   final String appId;
@@ -37,10 +35,6 @@ class ReclaimApiVerificationRequest {
   final String context;
   final String sessionId;
   final Map<String, String> parameters;
-  @Deprecated('Will be removed in future versions')
-  final bool acceptAiProviders;
-  @Deprecated('Will be removed in future versions')
-  final String? webhookUrl;
   final ProviderVersionApi? providerVersion;
 }
 
@@ -98,6 +92,8 @@ class ClientFeatureOverrides {
     this.isAIFlowEnabled,
     // null
     this.manualReviewMessage,
+    // null
+    this.loginPromptMessage,
   });
   final bool? cookiePersist;
   final bool? singleReclaimRequest;
@@ -107,6 +103,7 @@ class ClientFeatureOverrides {
   @Deprecated('Replace with canUseAiFlow')
   final bool? isAIFlowEnabled;
   final String? manualReviewMessage;
+  final String? loginPromptMessage;
 }
 
 class ClientLogConsumerOverride {

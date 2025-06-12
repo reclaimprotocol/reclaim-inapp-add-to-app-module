@@ -149,8 +149,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     context:(NSString *)context
     sessionId:(NSString *)sessionId
     parameters:(NSDictionary<NSString *, NSString *> *)parameters
-    acceptAiProviders:(BOOL )acceptAiProviders
-    webhookUrl:(nullable NSString *)webhookUrl
     providerVersion:(nullable ProviderVersionApi *)providerVersion {
   ReclaimApiVerificationRequest* pigeonResult = [[ReclaimApiVerificationRequest alloc] init];
   pigeonResult.appId = appId;
@@ -161,8 +159,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.context = context;
   pigeonResult.sessionId = sessionId;
   pigeonResult.parameters = parameters;
-  pigeonResult.acceptAiProviders = acceptAiProviders;
-  pigeonResult.webhookUrl = webhookUrl;
   pigeonResult.providerVersion = providerVersion;
   return pigeonResult;
 }
@@ -176,9 +172,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.context = GetNullableObjectAtIndex(list, 5);
   pigeonResult.sessionId = GetNullableObjectAtIndex(list, 6);
   pigeonResult.parameters = GetNullableObjectAtIndex(list, 7);
-  pigeonResult.acceptAiProviders = [GetNullableObjectAtIndex(list, 8) boolValue];
-  pigeonResult.webhookUrl = GetNullableObjectAtIndex(list, 9);
-  pigeonResult.providerVersion = GetNullableObjectAtIndex(list, 10);
+  pigeonResult.providerVersion = GetNullableObjectAtIndex(list, 8);
   return pigeonResult;
 }
 + (nullable ReclaimApiVerificationRequest *)nullableFromList:(NSArray<id> *)list {
@@ -194,8 +188,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     self.context ?: [NSNull null],
     self.sessionId ?: [NSNull null],
     self.parameters ?: [NSNull null],
-    @(self.acceptAiProviders),
-    self.webhookUrl ?: [NSNull null],
     self.providerVersion ?: [NSNull null],
   ];
 }
@@ -300,7 +292,8 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     sessionTimeoutForManualVerificationTrigger:(nullable NSNumber *)sessionTimeoutForManualVerificationTrigger
     attestorBrowserRpcUrl:(nullable NSString *)attestorBrowserRpcUrl
     isAIFlowEnabled:(nullable NSNumber *)isAIFlowEnabled
-    manualReviewMessage:(nullable NSString *)manualReviewMessage {
+    manualReviewMessage:(nullable NSString *)manualReviewMessage
+    loginPromptMessage:(nullable NSString *)loginPromptMessage {
   ClientFeatureOverrides* pigeonResult = [[ClientFeatureOverrides alloc] init];
   pigeonResult.cookiePersist = cookiePersist;
   pigeonResult.singleReclaimRequest = singleReclaimRequest;
@@ -309,6 +302,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.attestorBrowserRpcUrl = attestorBrowserRpcUrl;
   pigeonResult.isAIFlowEnabled = isAIFlowEnabled;
   pigeonResult.manualReviewMessage = manualReviewMessage;
+  pigeonResult.loginPromptMessage = loginPromptMessage;
   return pigeonResult;
 }
 + (ClientFeatureOverrides *)fromList:(NSArray<id> *)list {
@@ -320,6 +314,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.attestorBrowserRpcUrl = GetNullableObjectAtIndex(list, 4);
   pigeonResult.isAIFlowEnabled = GetNullableObjectAtIndex(list, 5);
   pigeonResult.manualReviewMessage = GetNullableObjectAtIndex(list, 6);
+  pigeonResult.loginPromptMessage = GetNullableObjectAtIndex(list, 7);
   return pigeonResult;
 }
 + (nullable ClientFeatureOverrides *)nullableFromList:(NSArray<id> *)list {
@@ -334,6 +329,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     self.attestorBrowserRpcUrl ?: [NSNull null],
     self.isAIFlowEnabled ?: [NSNull null],
     self.manualReviewMessage ?: [NSNull null],
+    self.loginPromptMessage ?: [NSNull null],
   ];
 }
 @end

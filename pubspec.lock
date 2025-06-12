@@ -966,14 +966,14 @@ packages:
       path: "/Users/mushaheedsyed/Projects/reclaimprotocol.org/flutter_packages/flutter-gnark-prover"
       relative: false
     source: path
-    version: "1.2.0"
+    version: "1.3.0"
   reclaim_inapp_sdk:
     dependency: "direct main"
     description:
       path: "/Users/mushaheedsyed/Projects/reclaimprotocol.org/flutter_packages/inapp_sdk/main"
       relative: false
     source: path
-    version: "0.8.0"
+    version: "0.8.3"
   retry:
     dependency: transitive
     description:

@@ -278,6 +278,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
           sessionTimeoutForManualVerificationTrigger: feature.sessionTimeoutForManualVerificationTrigger,
           canUseAiFlow: feature.isAIFlowEnabled ?? false,
           manualReviewMessage: feature.manualReviewMessage,
+          loginPromptMessage: feature.loginPromptMessage,
         ),
       if (provider != null)
         ReclaimProviderOverride(

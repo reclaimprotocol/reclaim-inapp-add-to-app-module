@@ -135,8 +135,6 @@ data class ReclaimApiVerificationRequest (
   val context: String,
   val sessionId: String,
   val parameters: Map<String, String>,
-  val acceptAiProviders: Boolean,
-  val webhookUrl: String? = null,
   val providerVersion: ProviderVersionApi? = null
 )
  {
@@ -150,10 +148,8 @@ data class ReclaimApiVerificationRequest (
       val context = pigeonVar_list[5] as String
       val sessionId = pigeonVar_list[6] as String
       val parameters = pigeonVar_list[7] as Map<String, String>
-      val acceptAiProviders = pigeonVar_list[8] as Boolean
-      val webhookUrl = pigeonVar_list[9] as String?
-      val providerVersion = pigeonVar_list[10] as ProviderVersionApi?
-      return ReclaimApiVerificationRequest(appId, providerId, secret, signature, timestamp, context, sessionId, parameters, acceptAiProviders, webhookUrl, providerVersion)
+      val providerVersion = pigeonVar_list[8] as ProviderVersionApi?
+      return ReclaimApiVerificationRequest(appId, providerId, secret, signature, timestamp, context, sessionId, parameters, providerVersion)
     }
   }
   fun toList(): List<Any?> {
@@ -166,8 +162,6 @@ data class ReclaimApiVerificationRequest (
       context,
       sessionId,
       parameters,
-      acceptAiProviders,
-      webhookUrl,
       providerVersion,
     )
   }
@@ -296,7 +290,8 @@ data class ClientFeatureOverrides (
   val sessionTimeoutForManualVerificationTrigger: Long? = null,
   val attestorBrowserRpcUrl: String? = null,
   val isAIFlowEnabled: Boolean? = null,
-  val manualReviewMessage: String? = null
+  val manualReviewMessage: String? = null,
+  val loginPromptMessage: String? = null
 )
  {
   companion object {
@@ -308,7 +303,8 @@ data class ClientFeatureOverrides (
       val attestorBrowserRpcUrl = pigeonVar_list[4] as String?
       val isAIFlowEnabled = pigeonVar_list[5] as Boolean?
       val manualReviewMessage = pigeonVar_list[6] as String?
-      return ClientFeatureOverrides(cookiePersist, singleReclaimRequest, idleTimeThresholdForManualVerificationTrigger, sessionTimeoutForManualVerificationTrigger, attestorBrowserRpcUrl, isAIFlowEnabled, manualReviewMessage)
+      val loginPromptMessage = pigeonVar_list[7] as String?
+      return ClientFeatureOverrides(cookiePersist, singleReclaimRequest, idleTimeThresholdForManualVerificationTrigger, sessionTimeoutForManualVerificationTrigger, attestorBrowserRpcUrl, isAIFlowEnabled, manualReviewMessage, loginPromptMessage)
     }
   }
   fun toList(): List<Any?> {
@@ -320,6 +316,7 @@ data class ClientFeatureOverrides (
       attestorBrowserRpcUrl,
       isAIFlowEnabled,
       manualReviewMessage,
+      loginPromptMessage,
     )
   }
   override fun equals(other: Any?): Boolean {

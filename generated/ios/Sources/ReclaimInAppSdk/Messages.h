@@ -79,8 +79,6 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
     context:(NSString *)context
     sessionId:(NSString *)sessionId
     parameters:(NSDictionary<NSString *, NSString *> *)parameters
-    acceptAiProviders:(BOOL )acceptAiProviders
-    webhookUrl:(nullable NSString *)webhookUrl
     providerVersion:(nullable ProviderVersionApi *)providerVersion;
 @property(nonatomic, copy) NSString * appId;
 @property(nonatomic, copy) NSString * providerId;
@@ -90,8 +88,6 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
 @property(nonatomic, copy) NSString * context;
 @property(nonatomic, copy) NSString * sessionId;
 @property(nonatomic, copy) NSDictionary<NSString *, NSString *> * parameters;
-@property(nonatomic, assign) BOOL  acceptAiProviders;
-@property(nonatomic, copy, nullable) NSString * webhookUrl;
 @property(nonatomic, strong, nullable) ProviderVersionApi * providerVersion;
 @end
 
@@ -137,7 +133,8 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
     sessionTimeoutForManualVerificationTrigger:(nullable NSNumber *)sessionTimeoutForManualVerificationTrigger
     attestorBrowserRpcUrl:(nullable NSString *)attestorBrowserRpcUrl
     isAIFlowEnabled:(nullable NSNumber *)isAIFlowEnabled
-    manualReviewMessage:(nullable NSString *)manualReviewMessage;
+    manualReviewMessage:(nullable NSString *)manualReviewMessage
+    loginPromptMessage:(nullable NSString *)loginPromptMessage;
 @property(nonatomic, strong, nullable) NSNumber * cookiePersist;
 @property(nonatomic, strong, nullable) NSNumber * singleReclaimRequest;
 @property(nonatomic, strong, nullable) NSNumber * idleTimeThresholdForManualVerificationTrigger;
@@ -145,6 +142,7 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
 @property(nonatomic, copy, nullable) NSString * attestorBrowserRpcUrl;
 @property(nonatomic, strong, nullable) NSNumber * isAIFlowEnabled;
 @property(nonatomic, copy, nullable) NSString * manualReviewMessage;
+@property(nonatomic, copy, nullable) NSString * loginPromptMessage;
 @end
 
 @interface ClientLogConsumerOverride : NSObject
