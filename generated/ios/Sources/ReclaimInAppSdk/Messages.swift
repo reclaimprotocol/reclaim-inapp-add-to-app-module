@@ -975,7 +975,7 @@ protocol ReclaimHostOverridesApi {
   func updateSession(sessionId: String, status: ReclaimSessionStatus, completion: @escaping (Result<Bool, Error>) -> Void)
   func logSession(appId: String, providerId: String, sessionId: String, logType: String, metadata: [String: Sendable?]?, completion: @escaping (Result<Void, Error>) -> Void)
   func onSessionIdentityUpdate(update: ReclaimSessionIdentityUpdate?, completion: @escaping (Result<Void, Error>) -> Void)
-  func fetchProviderInformation(appId: String, providerId: String, sessionId: String, signature: String, timestamp: String, completion: @escaping (Result<String, Error>) -> Void)
+  func fetchProviderInformation(appId: String, providerId: String, sessionId: String, signature: String, timestamp: String, resolvedVersion: String, completion: @escaping (Result<String, Error>) -> Void)
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -1087,7 +1087,8 @@ class ReclaimHostOverridesApiSetup {
         let sessionIdArg = args[2] as! String
         let signatureArg = args[3] as! String
         let timestampArg = args[4] as! String
-        api.fetchProviderInformation(appId: appIdArg, providerId: providerIdArg, sessionId: sessionIdArg, signature: signatureArg, timestamp: timestampArg) { result in
+        let resolvedVersionArg = args[5] as! String
+        api.fetchProviderInformation(appId: appIdArg, providerId: providerIdArg, sessionId: sessionIdArg, signature: signatureArg, timestamp: timestampArg, resolvedVersion: resolvedVersionArg) { result in
           switch result {
           case .success(let res):
             reply(wrapResult(res))

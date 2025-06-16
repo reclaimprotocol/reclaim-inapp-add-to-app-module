@@ -288,6 +288,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
             required String sessionId,
             required String signature,
             required String timestamp,
+            required String resolvedVersion,
           }) async {
             Map<String, dynamic> providerInformation = {};
             try {
@@ -313,6 +314,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
                   sessionId: sessionId,
                   signature: signature,
                   timestamp: timestamp,
+                  resolvedVersion: resolvedVersion,
                 );
                 providerInformation = json.decode(rawProviderInformation);
               }

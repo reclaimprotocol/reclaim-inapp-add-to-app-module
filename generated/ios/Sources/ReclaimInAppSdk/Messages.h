@@ -273,7 +273,7 @@ NSObject<FlutterMessageCodec> *nullGetMessagesCodec(void);
 - (void)updateSessionSessionId:(NSString *)sessionId status:(ReclaimSessionStatus)status completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)logSessionAppId:(NSString *)appId providerId:(NSString *)providerId sessionId:(NSString *)sessionId logType:(NSString *)logType metadata:(nullable NSDictionary<NSString *, dynamic *> *)metadata completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)onSessionIdentityUpdateUpdate:(nullable ReclaimSessionIdentityUpdate *)update completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)fetchProviderInformationAppId:(NSString *)appId providerId:(NSString *)providerId sessionId:(NSString *)sessionId signature:(NSString *)signature timestamp:(NSString *)timestamp completion:(void (^)(NSString *_Nullable, FlutterError *_Nullable))completion;
+- (void)fetchProviderInformationAppId:(NSString *)appId providerId:(NSString *)providerId sessionId:(NSString *)sessionId signature:(NSString *)signature timestamp:(NSString *)timestamp resolvedVersion:(NSString *)resolvedVersion completion:(void (^)(NSString *_Nullable, FlutterError *_Nullable))completion;
 @end
 
 extern void SetUpReclaimHostOverridesApi(id<FlutterBinaryMessenger> binaryMessenger, NSObject<ReclaimHostOverridesApi> *_Nullable api);

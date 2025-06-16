@@ -1267,6 +1267,7 @@ class ReclaimHostOverridesApi {
     required String sessionId,
     required String signature,
     required String timestamp,
+    required String resolvedVersion,
   }) async {
     final String pigeonVar_channelName =
         'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.fetchProviderInformation$pigeonVar_messageChannelSuffix';
@@ -1281,6 +1282,7 @@ class ReclaimHostOverridesApi {
       sessionId,
       signature,
       timestamp,
+      resolvedVersion,
     ]);
     final List<Object?>? pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {

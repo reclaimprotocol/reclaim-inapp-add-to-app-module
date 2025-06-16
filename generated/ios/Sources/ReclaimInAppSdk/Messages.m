@@ -1000,7 +1000,7 @@ void SetUpReclaimHostOverridesApiWithSuffix(id<FlutterBinaryMessenger> binaryMes
         binaryMessenger:binaryMessenger
         codec:nullGetMessagesCodec()];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(fetchProviderInformationAppId:providerId:sessionId:signature:timestamp:completion:)], @"ReclaimHostOverridesApi api (%@) doesn't respond to @selector(fetchProviderInformationAppId:providerId:sessionId:signature:timestamp:completion:)", api);
+      NSCAssert([api respondsToSelector:@selector(fetchProviderInformationAppId:providerId:sessionId:signature:timestamp:resolvedVersion:completion:)], @"ReclaimHostOverridesApi api (%@) doesn't respond to @selector(fetchProviderInformationAppId:providerId:sessionId:signature:timestamp:resolvedVersion:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray<id> *args = message;
         NSString *arg_appId = GetNullableObjectAtIndex(args, 0);
@@ -1008,7 +1008,8 @@ void SetUpReclaimHostOverridesApiWithSuffix(id<FlutterBinaryMessenger> binaryMes
         NSString *arg_sessionId = GetNullableObjectAtIndex(args, 2);
         NSString *arg_signature = GetNullableObjectAtIndex(args, 3);
         NSString *arg_timestamp = GetNullableObjectAtIndex(args, 4);
-        [api fetchProviderInformationAppId:arg_appId providerId:arg_providerId sessionId:arg_sessionId signature:arg_signature timestamp:arg_timestamp completion:^(NSString *_Nullable output, FlutterError *_Nullable error) {
+        NSString *arg_resolvedVersion = GetNullableObjectAtIndex(args, 5);
+        [api fetchProviderInformationAppId:arg_appId providerId:arg_providerId sessionId:arg_sessionId signature:arg_signature timestamp:arg_timestamp resolvedVersion:arg_resolvedVersion completion:^(NSString *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];
