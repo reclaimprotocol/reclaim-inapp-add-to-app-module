@@ -965,7 +965,7 @@ interface ReclaimHostOverridesApi {
   fun updateSession(sessionId: String, status: ReclaimSessionStatus, callback: (Result<Boolean>) -> Unit)
   fun logSession(appId: String, providerId: String, sessionId: String, logType: String, metadata: Map<String, Any?>?, callback: (Result<Unit>) -> Unit)
   fun onSessionIdentityUpdate(update: ReclaimSessionIdentityUpdate?, callback: (Result<Unit>) -> Unit)
-  fun fetchProviderInformation(appId: String, providerId: String, sessionId: String, signature: String, timestamp: String, callback: (Result<String>) -> Unit)
+  fun fetchProviderInformation(appId: String, providerId: String, sessionId: String, signature: String, timestamp: String, resolvedVersion: String, callback: (Result<String>) -> Unit)
 
   companion object {
     /** The codec used by ReclaimHostOverridesApi. */
@@ -1092,7 +1092,8 @@ interface ReclaimHostOverridesApi {
             val sessionIdArg = args[2] as String
             val signatureArg = args[3] as String
             val timestampArg = args[4] as String
-            api.fetchProviderInformation(appIdArg, providerIdArg, sessionIdArg, signatureArg, timestampArg) { result: Result<String> ->
+            val resolvedVersionArg = args[5] as String
+            api.fetchProviderInformation(appIdArg, providerIdArg, sessionIdArg, signatureArg, timestampArg, resolvedVersionArg) { result: Result<String> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(MessagesPigeonUtils.wrapError(error))

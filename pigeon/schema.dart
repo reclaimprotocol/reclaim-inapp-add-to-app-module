@@ -286,6 +286,7 @@ abstract class ReclaimHostOverridesApi {
     required String sessionId,
     required String signature,
     required String timestamp,
+    required String resolvedVersion,
   });
 }
 
