@@ -23,7 +23,7 @@ echo "## $VERSION
 cat temp >> CHANGELOG.md;
 rm temp;
 
-echo $VERSION > Sources/ReclaimInAppSdk/Resources/ReclaimInAppSdk.version;
+echo $VERSION > Sources/ReclaimInAppSdk/Resources/InAppSdk.version;
 
 sed -i '' "s/RECLAIM_SDK_VERSION=\".*\"/RECLAIM_SDK_VERSION=\"$VERSION\"/" ./Scripts/download_frameworks.sh;
 sed -i '' "s/s.version           = '.*'/s.version           = '$VERSION'/" ./Devel/podspec.prod;
@@ -33,6 +33,15 @@ sed -i '' "s/.package(url: \"https:\/\/github.com\/reclaimprotocol\/reclaim-inap
 sed -i '' "s/Currently the latest version is \`.*\`/Currently the latest version is \`$VERSION\`/" ./README.md;
 sed -i '' "s/pod 'ReclaimInAppSdk', :git => 'https:\/\/github.com\/reclaimprotocol\/reclaim-inapp-ios-sdk.git', :tag => '.*'/pod 'ReclaimInAppSdk', :git => 'https:\/\/github.com\/reclaimprotocol\/reclaim-inapp-ios-sdk.git', :tag => '$VERSION'/" ./Examples/SwiftUIWithPodExample/Podfile;
 sed -i '' "s/pod 'ReclaimInAppSdk', '~> .*'/pod 'ReclaimInAppSdk', '~> $VERSION'/" ./Examples/SwiftUIWithPodExample/Podfile;
+
+echo "
+RECLAIM_APP_ID = ${RECLAIM_CONSUMER_APP_ID}
+RECLAIM_APP_SECRET = ${RECLAIM_CONSUMER_APP_SECRET}
+RECLAIM_PROVIDER_ID = example
+
+" > Examples/SwiftUIWithPodExample/BaseConfig.xcconfig;
+
+cp Examples/SwiftUIWithPodExample/BaseConfig.xcconfig Examples/SwiftUIExample/BaseConfig.xcconfig;
 
 ./Scripts/prepare.sh
 
