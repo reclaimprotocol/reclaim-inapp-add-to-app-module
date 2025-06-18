@@ -30,6 +30,11 @@ sed -i '' "s/implementation \"org.reclaimprotocol:inapp_sdk:.*\"/implementation 
 sed -i '' "s/implementation \"org.reclaimprotocol:inapp_sdk:.*\"/implementation \"org.reclaimprotocol:inapp_sdk:$VERSION\"/" ./example/app/build.gradle;
 sed -i '' "s/..\/dist\/library\/.*\/repo/..\/dist\/library\/$VERSION\/repo/" ./example/settings.gradle;
 
+echo "
+reclaimSdk.appId=${RECLAIM_CONSUMER_APP_ID}
+reclaimSdk.appSecret=${RECLAIM_CONSUMER_APP_SECRET}
+" >> example/local.properties;
+
 make build;
 
 # test & upload to S3 bucket
