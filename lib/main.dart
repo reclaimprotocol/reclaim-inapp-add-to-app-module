@@ -253,6 +253,23 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
   @override
   Future<ReclaimApiVerificationResponse> startVerificationFromJson(Map<dynamic, dynamic> template) {
     try {
+      if (template.containsKey('reclaimProofRequestConfig')) {
+        final config = template['reclaimProofRequestConfig'];
+        if (config is String) {
+          return startVerificationFromJson(json.decode(config));
+        }
+        if (config is Map) {
+          return startVerificationFromJson(<String, dynamic>{
+            for (final entry in config.entries) (entry.key?.toString() ?? ''): entry.value,
+          });
+        }
+      }
+      if (template.containsKey('context')) {
+        final context = template['context'];
+        if (context is Map) {
+          return startVerificationFromJson(<String, dynamic>{...template, 'context': json.encode(context)});
+        }
+      }
       final request = ClientSdkVerificationRequest.fromJson(<String, dynamic>{
         for (final entry in template.entries) (entry.key?.toString() ?? ''): entry.value,
       });
