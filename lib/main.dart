@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:reclaim_gnark_zkoperator/reclaim_gnark_zkoperator.dart';
@@ -58,8 +59,18 @@ void main() async {
   });
 
   ReclaimZkOperator.getInstance();
+  _precacheFonts();
 
   runApp(MaterialApp(debugShowCheckedModeBanner: false, home: ReclaimThemeProvider(child: ReclaimModuleApp())));
+}
+
+void _precacheFonts() async {
+  final log = logger.child('_precacheFonts');
+  try {
+    await ReclaimThemeProvider.font.description.installFontIfRequired();
+  } catch (e, s) {
+    log.severe('Error precaching fonts', e, s);
+  }
 }
 
 class ReclaimModuleApp extends StatefulWidget {
@@ -164,6 +175,10 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
     try {
       final reclaimVerification = ReclaimVerification.of(context);
 
+      logger.info(
+        'Starting verification with request applicationId: ${request.applicationId}, provider: ${request.providerId}, context: ${request.contextString}, params: ${json.encode(request.parameters)}',
+      );
+
       final response = await reclaimVerification.startVerification(
         request: request,
         options: _reclaimVerificationOptions,
@@ -232,6 +247,12 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
   Future<ReclaimApiVerificationResponse> startVerificationFromUrl(String url) {
     try {
       final request = ClientSdkVerificationRequest.fromUrl(url);
+      final debugMessage = 'Starting verification with url: $url';
+      if (kDebugMode) {
+        debugPrint(debugMessage);
+      } else {
+        logger.info(debugMessage);
+      }
       return _startVerification(ReclaimVerificationRequest.fromSdkRequest(request), request.sessionId ?? '');
     } catch (e, s) {
       logger.severe('Failed to start verification from url', e, s);
@@ -253,6 +274,13 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
   @override
   Future<ReclaimApiVerificationResponse> startVerificationFromJson(Map<dynamic, dynamic> template) {
     try {
+      final debugMessage = 'Starting verification with json: ${json.encode(template)}';
+      if (kDebugMode) {
+        debugPrint(debugMessage);
+      } else {
+        logger.info(debugMessage);
+      }
+
       if (template.containsKey('reclaimProofRequestConfig')) {
         final config = template['reclaimProofRequestConfig'];
         if (config is String) {
@@ -270,6 +298,10 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
           return startVerificationFromJson(<String, dynamic>{...template, 'context': json.encode(context)});
         }
       }
+      if (template.containsKey('timeStamp')) {
+        template['timestamp'] = template['timeStamp'];
+      }
+
       final request = ClientSdkVerificationRequest.fromJson(json.decode(json.encode(template)));
       return _startVerification(ReclaimVerificationRequest.fromSdkRequest(request), request.sessionId ?? '');
     } catch (e, s) {
