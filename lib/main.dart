@@ -88,15 +88,23 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
   }
 
   void _onSessionIdentityUpdate(SessionIdentity? identity) {
-    if (identity == null) {
-      hostOverridesApi.onSessionIdentityUpdate(null);
-    } else {
-      hostOverridesApi.onSessionIdentityUpdate(
-        ReclaimSessionIdentityUpdate(
-          appId: identity.appId,
-          providerId: identity.providerId,
-          sessionId: identity.sessionId,
-        ),
+    try {
+      if (identity == null) {
+        hostOverridesApi.onSessionIdentityUpdate(null);
+      } else {
+        hostOverridesApi.onSessionIdentityUpdate(
+          ReclaimSessionIdentityUpdate(
+            appId: identity.appId,
+            providerId: identity.providerId,
+            sessionId: identity.sessionId,
+          ),
+        );
+      }
+    } catch (e, s) {
+      logger.warning(
+        'Could not send session identity update to host. Likely no listener is set to receive this event.',
+        e,
+        s,
       );
     }
   }
@@ -122,10 +130,32 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
           },
         );
       },
+      isPlatformSupported: () async => (await ReclaimZkOperator.getInstance()).isPlatformSupported(),
     ),
   );
 
   late ReclaimVerificationOptions _reclaimVerificationOptions = _defaultReclaimVerificationOptions;
+
+  ReclaimApiVerificationExceptionType fromExceptionToApiExceptionType(Object e) {
+    if (e is ReclaimException) {
+      switch (e) {
+        case ReclaimVerificationCancelledException():
+          return ReclaimApiVerificationExceptionType.verificationCancelled;
+        case ReclaimVerificationDismissedException():
+        case ReclaimVerificationSkippedException():
+          return ReclaimApiVerificationExceptionType.verificationDismissed;
+        case ReclaimExpiredSessionException():
+        case ReclaimInitSessionException():
+          return ReclaimApiVerificationExceptionType.sessionExpired;
+        case ReclaimVerificationProviderScriptException():
+        case ReclaimVerificationRequirementException():
+        case ReclaimVerificationProviderLoadException():
+        case ReclaimAttestorException():
+          return ReclaimApiVerificationExceptionType.verificationFailed;
+      }
+    }
+    return ReclaimApiVerificationExceptionType.unknown;
+  }
 
   Future<ReclaimApiVerificationResponse> _startVerification(
     ReclaimVerificationRequest request,
@@ -153,20 +183,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
         exception: ReclaimApiVerificationException(
           message: e.toString(),
           stackTraceAsString: s.toString(),
-          type: () {
-            if (e is ReclaimException) {
-              if (e is ReclaimVerificationDismissedException) {
-                return ReclaimApiVerificationExceptionType.verificationDismissed;
-              }
-              if (e is ReclaimVerificationCancelledException) {
-                return ReclaimApiVerificationExceptionType.verificationCancelled;
-              }
-              if (e is ReclaimExpiredSessionException) {
-                return ReclaimApiVerificationExceptionType.sessionExpired;
-              }
-            }
-            return ReclaimApiVerificationExceptionType.unknown;
-          }(),
+          type: fromExceptionToApiExceptionType(e),
         ),
       );
     }
@@ -213,16 +230,65 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
 
   @override
   Future<ReclaimApiVerificationResponse> startVerificationFromUrl(String url) {
-    final request = ClientSdkVerificationRequest.fromUrl(url);
-    return _startVerification(ReclaimVerificationRequest.fromSdkRequest(request), request.sessionId ?? '');
+    try {
+      final request = ClientSdkVerificationRequest.fromUrl(url);
+      return _startVerification(ReclaimVerificationRequest.fromSdkRequest(request), request.sessionId ?? '');
+    } catch (e, s) {
+      logger.severe('Failed to start verification from url', e, s);
+      return Future.value(
+        ReclaimApiVerificationResponse(
+          sessionId: 'unknown',
+          didSubmitManualVerification: false,
+          proofs: const [],
+          exception: ReclaimApiVerificationException(
+            message: 'Failed to parse verification request from url. Caused by: $e',
+            stackTraceAsString: s.toString(),
+            type: ReclaimApiVerificationExceptionType.verificationCancelled,
+          ),
+        ),
+      );
+    }
   }
 
   @override
   Future<ReclaimApiVerificationResponse> startVerificationFromJson(Map<dynamic, dynamic> template) {
-    final request = ClientSdkVerificationRequest.fromJson(<String, dynamic>{
-      for (final entry in template.entries) (entry.key?.toString() ?? ''): entry.value,
-    });
-    return _startVerification(ReclaimVerificationRequest.fromSdkRequest(request), request.sessionId ?? '');
+    try {
+      if (template.containsKey('reclaimProofRequestConfig')) {
+        final config = template['reclaimProofRequestConfig'];
+        if (config is String) {
+          return startVerificationFromJson(json.decode(config));
+        }
+        if (config is Map) {
+          return startVerificationFromJson(<String, dynamic>{
+            for (final entry in config.entries) (entry.key?.toString() ?? ''): entry.value,
+          });
+        }
+      }
+      if (template.containsKey('context')) {
+        final context = template['context'];
+        if (context is Map) {
+          return startVerificationFromJson(<String, dynamic>{...template, 'context': json.encode(context)});
+        }
+      }
+      final request = ClientSdkVerificationRequest.fromJson(<String, dynamic>{
+        for (final entry in template.entries) (entry.key?.toString() ?? ''): entry.value,
+      });
+      return _startVerification(ReclaimVerificationRequest.fromSdkRequest(request), request.sessionId ?? '');
+    } catch (e, s) {
+      logger.severe('Failed to start verification from json', e, s);
+      return Future.value(
+        ReclaimApiVerificationResponse(
+          sessionId: 'unknown',
+          didSubmitManualVerification: false,
+          proofs: const [],
+          exception: ReclaimApiVerificationException(
+            message: 'Failed to parse verification request from json. Caused by: $e',
+            stackTraceAsString: s.toString(),
+            type: ReclaimApiVerificationExceptionType.verificationCancelled,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -230,7 +296,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
     ReclaimOverride.clearAll();
   }
 
-  Future<bool> canUseCapability(String capabilityName) async {
+  Future<bool> assertCanUseCapability(String capabilityName) async {
     final capabilityAccessVerifier = CapabilityAccessVerifier();
 
     if (await capabilityAccessVerifier.canUse(capabilityName)) {
@@ -238,6 +304,17 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
     }
 
     throw ReclaimVerificationCancelledException('Unauthorized use of capability: $capabilityName');
+  }
+
+  Future<bool> assertCanUseAnyCapability(List<String> capabilityNames) async {
+    final capabilityAccessVerifier = CapabilityAccessVerifier();
+    for (final capabilityName in capabilityNames) {
+      if (await capabilityAccessVerifier.canUse(capabilityName)) {
+        return true;
+      }
+    }
+
+    throw ReclaimVerificationCancelledException('Unauthorized use of capability: $capabilityNames');
   }
 
   @override
@@ -260,12 +337,16 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
       }
     }
 
+    if (logConsumer?.canSdkPrintLogs == true) {
+      await assertCanUseAnyCapability(['overrides_v1', 'sdk_console_logging_v1']);
+    }
+
     if (feature?.attestorBrowserRpcUrl != null ||
         provider != null ||
         logConsumer?.canSdkPrintLogs == true ||
         logConsumer?.canSdkCollectTelemetry == false ||
         sessionManagement?.enableSdkSessionManagement == true) {
-      await canUseCapability('overrides_v1');
+      await assertCanUseCapability('overrides_v1');
     }
 
     ReclaimOverride.setAll([
