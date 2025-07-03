@@ -270,9 +270,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
           return startVerificationFromJson(<String, dynamic>{...template, 'context': json.encode(context)});
         }
       }
-      final request = ClientSdkVerificationRequest.fromJson(<String, dynamic>{
-        for (final entry in template.entries) (entry.key?.toString() ?? ''): entry.value,
-      });
+      final request = ClientSdkVerificationRequest.fromJson(json.decode(json.encode(template)));
       return _startVerification(ReclaimVerificationRequest.fromSdkRequest(request), request.sessionId ?? '');
     } catch (e, s) {
       logger.severe('Failed to start verification from json', e, s);
@@ -341,8 +339,11 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
       await assertCanUseAnyCapability(['overrides_v1', 'sdk_console_logging_v1']);
     }
 
-    if (feature?.attestorBrowserRpcUrl != null ||
-        provider != null ||
+    if (feature?.attestorBrowserRpcUrl != null) {
+      await assertCanUseAnyCapability(['overrides_v1', 'sdk_attestor_browser_rpc_v1']);
+    }
+
+    if (provider != null ||
         logConsumer?.canSdkPrintLogs == true ||
         logConsumer?.canSdkCollectTelemetry == false ||
         sessionManagement?.enableSdkSessionManagement == true) {
@@ -450,14 +451,13 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
               resolvedProviderVersion: response.resolvedProviderVersion,
             );
           },
-          // metadata is not sent to host
+          // TODO: metadata is not sent to host
           updateSession: (sessionId, status, metadata) async {
             return hostOverridesApi.updateSession(
               sessionId: sessionId,
               status: ReclaimSessionStatusExtension.fromSessionStatus(status),
             );
           },
-          // metadata is not sent to host
           logRecord: ({
             required appId,
             required logType,
@@ -465,7 +465,13 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
             required sessionId,
             Map<String, dynamic>? metadata,
           }) {
-            hostOverridesApi.logSession(appId: appId, providerId: providerId, sessionId: sessionId, logType: logType);
+            hostOverridesApi.logSession(
+              appId: appId,
+              providerId: providerId,
+              sessionId: sessionId,
+              logType: logType,
+              metadata: metadata,
+            );
           },
         ),
       if (appInfo != null)
