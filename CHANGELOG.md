@@ -1,3 +1,7 @@
+## 0.10.5
+
+* Fix timeout by moving it inside async lock scope to prevent useless retries
+
 ## 0.10.4
 
 * Add a fix to prevent app from launching deeplinks in incognito
