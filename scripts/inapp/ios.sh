@@ -2,6 +2,12 @@
 
 set -ex;
 
+export VERSION=$(grep '^version:' pubspec.yaml | sed -e 's/version: //')
+
+mkdir -p inapp-sdks;
+
+cd inapp-sdks;
+
 export WORK_DIR="$(pwd)";
 
 export IOS_CLONE_DIR="$WORK_DIR/build/ios-sdk";
