@@ -1,3 +1,7 @@
+## 0.10.9
+
+* Replace old attestor clients before use
+
 ## 0.10.8
 
 * Update Hawkeye script
