@@ -20,13 +20,20 @@ fi
 
 cd $ANDROID_CLONE_DIR;
 
-cat CHANGELOG.md > temp;
-# also copy changelog.md
-echo "## $VERSION
+DEFAULT_CHANGELOG="## $VERSION
 
 * Updates inapp module dependency to $VERSION
-" > CHANGELOG.md
+"
+
+EFFECTIVE_CHANGELOG="${NEXT_CHANGELOG:-$DEFAULT_CHANGELOG}"
+
+# copy current changelog.md
+cat CHANGELOG.md > temp;
+# enter new changes
+echo "$EFFECTIVE_CHANGELOG" > CHANGELOG.md
+# append old changelog
 cat temp >> CHANGELOG.md;
+# remove copy
 rm temp;
 
 echo $VERSION > version;
