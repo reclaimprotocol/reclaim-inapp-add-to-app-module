@@ -45,3 +45,9 @@ generate:
 local_repo:
 	# For local testing of remote repo for iOS and Android
 	python3 -m http.server -d ./dist/
+build:
+	(source .env.secret && ./scripts/build.sh;)
+clean:
+	rm -rf dist/
+	rm -rf inapp-sdks/
+	flutter clean;

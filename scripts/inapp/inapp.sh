@@ -10,4 +10,8 @@ rm -rf inapp-sdks;
 ./scripts/inapp/android.sh;
 
 # Upload everything under dist/ios/ to S3 bucket
+# publish on cocoapods
 ./scripts/inapp/ios.sh;
+
+# publish on npm
+./scripts/inapp/reactnative.sh;
