@@ -451,7 +451,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
                     _sendLogsToHost(record, identity);
                     return logConsumer.canSdkCollectTelemetry;
                   }
-                  : (!logConsumer.canSdkCollectTelemetry ? (_, __) => false : null),
+                  : (!logConsumer.canSdkCollectTelemetry ? (_, _) => false : null),
         ),
       // A handler has been provided. We'll not let SDK manage sessions in this case.
       // Disabling [enableSdkSessionManagement] lets the host manage sessions.
