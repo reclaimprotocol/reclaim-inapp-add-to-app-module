@@ -7,7 +7,6 @@ import 'package:logging/logging.dart';
 import 'package:reclaim_gnark_zkoperator/reclaim_gnark_zkoperator.dart';
 // ignore: implementation_imports
 import 'package:reclaim_gnark_zkoperator/src/download/download.dart' show downloadWithHttp;
-import 'package:reclaim_inapp_sdk/attestor.dart';
 import 'package:reclaim_inapp_sdk/capability_access.dart';
 import 'package:reclaim_inapp_sdk/logging.dart';
 import 'package:reclaim_inapp_sdk/overrides.dart';
@@ -51,13 +50,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   startReclaimSdkLogging();
-
-  Attestor.instance.useAttestor((client) async {
-    // don't wait to make this [client] available in the pool
-    client.ensureReady();
-    return;
-  });
-
   ReclaimZkOperator.getInstance();
   _precacheFonts();
 
@@ -159,6 +151,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
         case ReclaimInitSessionException():
           return ReclaimApiVerificationExceptionType.sessionExpired;
         case ReclaimVerificationProviderScriptException():
+        case ReclaimVerificationNoActivityDetectedException():
         case ReclaimVerificationRequirementException():
         case ReclaimVerificationProviderLoadException():
         case ReclaimAttestorException():
