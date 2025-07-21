@@ -4,6 +4,12 @@ set -ex;
 
 export VERSION=$(grep '^version:' pubspec.yaml | sed -e 's/version: //')
 
+LATEST_CHANGELOG_LINES=$(awk '/^##/{c++; next} c==1' CHANGELOG.md)
+
+export NEXT_CHANGELOG="## $VERSION
+$LATEST_CHANGELOG_LINES
+"
+
 rm -rf inapp-sdks;
 
 # Upload everything under dist/android/$VERSION/repo to S3 bucket
