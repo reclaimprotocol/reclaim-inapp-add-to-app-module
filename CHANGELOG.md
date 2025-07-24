@@ -1,3 +1,9 @@
+## 0.10.12
+
+* Fix url loading without trying app link from webview
+* Add cookie `credentials` field in http provider requests
+* Fix verification review UI when oprf is enabled and real value is unavailable
+
 ## 0.10.11
 
 * Update activity detection
