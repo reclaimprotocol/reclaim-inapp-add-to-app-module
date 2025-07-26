@@ -973,7 +973,7 @@ packages:
       path: "/Users/mushaheedsyed/Projects/reclaimprotocol.org/flutter_packages/inapp_sdk/main"
       relative: false
     source: path
-    version: "0.10.10"
+    version: "0.10.13"
   retry:
     dependency: transitive
     description:
