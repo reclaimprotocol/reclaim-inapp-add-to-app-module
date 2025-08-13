@@ -20,6 +20,9 @@
 * Add AI flow coordinator widget to manage and coordinate AI flow
 * Fix visibility of terms of service
 * Add text with hyperlink when an error occurs to help users learn more about potential failures
+
+## 0.10.13
+
 * Fix webview re-initialization when initial attempt fails
 * Update verification review screen UI
 * Add handling of local client errors on attestor browser rpc message
