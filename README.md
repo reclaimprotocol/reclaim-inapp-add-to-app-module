@@ -60,3 +60,16 @@ To learn more, visit https://flutter.dev/to/integrate-android-archive
 ## iOS
 
 To build the iOS framework, run `make ios`. Generated frameworks have a size of around 937 MB (Last checked on 2025-01-04).
+
+## Troubleshooting
+
+### Cronet errors on android without play services
+On android devices which don't have play services, you may get following errors in Android logs: `java.lang.RuntimeException: All available Cronet providers are disabled. A provider should be enabled before it can be used.`, `Google-Play-Services-Cronet-Provider is unavailable.`. This is because the Reclaim InApp SDK depends on cronet for making http requests.
+To fix this, you need to use embedded cronet in your android app by adding the following dependency in your build.gradle dependencies block: 
+```gradle
+dependencies {
+    // ... other dependencies (not shown for brevity)
+    // Use embedded cronet
+    implementation("org.chromium.net:cronet-embedded:119.6045.31")
+}
+```

@@ -14,6 +14,7 @@ import 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart';
 import 'package:reclaim_inapp_sdk/ui.dart';
 
 import 'src/pigeon/messages.pigeon.dart';
+import 'src/util/link.dart';
 
 const CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY = String.fromEnvironment(
   'org.reclaimprotocol.inapp_sdk.CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY',
@@ -237,7 +238,7 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
   }
 
   @override
-  Future<ReclaimApiVerificationResponse> startVerificationFromUrl(String url) {
+  Future<ReclaimApiVerificationResponse> startVerificationFromUrl(String url, {int depth = 0}) async {
     try {
       final request = ClientSdkVerificationRequest.fromUrl(url);
       final debugMessage = 'Starting verification with url: $url';
@@ -248,6 +249,12 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
       }
       return _startVerification(ReclaimVerificationRequest.fromSdkRequest(request), request.sessionId ?? '');
     } catch (e, s) {
+      if (e is FormatException) {
+        final location = await followLink(url, depth);
+        if (location != null) {
+          return startVerificationFromUrl(location, depth: depth + 1);
+        }
+      }
       logger.severe('Failed to start verification from url', e, s);
       return Future.value(
         ReclaimApiVerificationResponse(
@@ -389,93 +396,94 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
         ),
       if (provider != null)
         ReclaimProviderOverride(
-          fetchProviderInformation: ({
-            required String appId,
-            required String providerId,
-            required String sessionId,
-            required String signature,
-            required String timestamp,
-            required String resolvedVersion,
-          }) async {
-            Map<String, dynamic> providerInformation = {};
-            try {
-              if (provider.providerInformationUrl != null) {
-                final response = await downloadWithHttp(
-                  provider.providerInformationUrl!,
-                  cacheDirName: 'inapp_sdk_provider_information',
-                );
+          fetchProviderInformation:
+              ({
+                required String appId,
+                required String providerId,
+                required String sessionId,
+                required String signature,
+                required String timestamp,
+                required String resolvedVersion,
+              }) async {
+                Map<String, dynamic> providerInformation = {};
+                try {
+                  if (provider.providerInformationUrl != null) {
+                    final response = await downloadWithHttp(
+                      provider.providerInformationUrl!,
+                      cacheDirName: 'inapp_sdk_provider_information',
+                    );
 
-                if (response == null) {
-                  throw ReclaimVerificationCancelledException(
-                    'Failed to fetch provider information from ${provider.providerInformationUrl}',
-                  );
+                    if (response == null) {
+                      throw ReclaimVerificationCancelledException(
+                        'Failed to fetch provider information from ${provider.providerInformationUrl}',
+                      );
+                    }
+
+                    providerInformation = json.decode(utf8.decode(response));
+                  } else if (provider.providerInformationJsonString != null) {
+                    providerInformation = json.decode(provider.providerInformationJsonString!);
+                  } else if (provider.canFetchProviderInformationFromHost) {
+                    final String rawProviderInformation = await hostOverridesApi.fetchProviderInformation(
+                      appId: appId,
+                      providerId: providerId,
+                      sessionId: sessionId,
+                      signature: signature,
+                      timestamp: timestamp,
+                      resolvedVersion: resolvedVersion,
+                    );
+                    providerInformation = json.decode(rawProviderInformation);
+                  }
+                } catch (e, s) {
+                  logger.severe('Failed to fetch provider information', e, s);
+                  if (e is ReclaimException) {
+                    rethrow;
+                  }
+                  throw ReclaimVerificationCancelledException('Failed to fetch provider information due to $e');
                 }
 
-                providerInformation = json.decode(utf8.decode(response));
-              } else if (provider.providerInformationJsonString != null) {
-                providerInformation = json.decode(provider.providerInformationJsonString!);
-              } else if (provider.canFetchProviderInformationFromHost) {
-                final String rawProviderInformation = await hostOverridesApi.fetchProviderInformation(
-                  appId: appId,
-                  providerId: providerId,
-                  sessionId: sessionId,
-                  signature: signature,
-                  timestamp: timestamp,
-                  resolvedVersion: resolvedVersion,
-                );
-                providerInformation = json.decode(rawProviderInformation);
-              }
-            } catch (e, s) {
-              logger.severe('Failed to fetch provider information', e, s);
-              if (e is ReclaimException) {
-                rethrow;
-              }
-              throw ReclaimVerificationCancelledException('Failed to fetch provider information due to $e');
-            }
-
-            try {
-              return HttpProvider.fromJson(providerInformation);
-            } catch (e, s) {
-              logger.severe('Failed to parse provider information', e, s);
-              throw ReclaimVerificationCancelledException('Failed to parse provider information: ${e.toString()}');
-            }
-          },
+                try {
+                  return HttpProvider.fromJson(providerInformation);
+                } catch (e, s) {
+                  logger.severe('Failed to parse provider information', e, s);
+                  throw ReclaimVerificationCancelledException('Failed to parse provider information: ${e.toString()}');
+                }
+              },
         ),
       if (logConsumer != null)
         LogConsumerOverride(
           // Setting this to true will print logs from reclaim_flutter_sdk to the console.
           canPrintLogs: logConsumer.canSdkPrintLogs == true,
-          onRecord:
-              logConsumer.enableLogHandler
-                  ? (record, identity) {
-                    _sendLogsToHost(record, identity);
-                    return logConsumer.canSdkCollectTelemetry;
-                  }
-                  : (!logConsumer.canSdkCollectTelemetry ? (_, _) => false : null),
+          onRecord: logConsumer.enableLogHandler
+              ? (record, identity) {
+                  _sendLogsToHost(record, identity);
+                  return logConsumer.canSdkCollectTelemetry;
+                }
+              : (!logConsumer.canSdkCollectTelemetry ? (_, _) => false : null),
         ),
       // A handler has been provided. We'll not let SDK manage sessions in this case.
       // Disabling [enableSdkSessionManagement] lets the host manage sessions.
       if (sessionManagement != null && !sessionManagement.enableSdkSessionManagement)
         ReclaimSessionOverride.session(
-          createSession: ({
-            required String appId,
-            required String providerId,
-            required String timestamp,
-            required String signature,
-            required String providerVersion,
-          }) async {
-            final response = await hostOverridesApi.createSession(
-              appId: appId,
-              providerId: providerId,
-              timestamp: timestamp,
-              signature: signature,
-              providerVersion: providerVersion,
-            );
-            return SessionInitResponse(
-              sessionId: response.sessionId,
-              resolvedProviderVersion: response.resolvedProviderVersion,
-            );
-          },
+          createSession:
+              ({
+                required String appId,
+                required String providerId,
+                required String timestamp,
+                required String signature,
+                required String providerVersion,
+              }) async {
+                final response = await hostOverridesApi.createSession(
+                  appId: appId,
+                  providerId: providerId,
+                  timestamp: timestamp,
+                  signature: signature,
+                  providerVersion: providerVersion,
+                );
+                return SessionInitResponse(
+                  sessionId: response.sessionId,
+                  resolvedProviderVersion: response.resolvedProviderVersion,
+                );
+              },
           // TODO: metadata is not sent to host
           updateSession: (sessionId, status, metadata) async {
             return hostOverridesApi.updateSession(
@@ -483,21 +491,22 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
               status: ReclaimSessionStatusExtension.fromSessionStatus(status),
             );
           },
-          logRecord: ({
-            required appId,
-            required logType,
-            required providerId,
-            required sessionId,
-            Map<String, dynamic>? metadata,
-          }) {
-            hostOverridesApi.logSession(
-              appId: appId,
-              providerId: providerId,
-              sessionId: sessionId,
-              logType: logType,
-              metadata: metadata,
-            );
-          },
+          logRecord:
+              ({
+                required appId,
+                required logType,
+                required providerId,
+                required sessionId,
+                Map<String, dynamic>? metadata,
+              }) {
+                hostOverridesApi.logSession(
+                  appId: appId,
+                  providerId: providerId,
+                  sessionId: sessionId,
+                  logType: logType,
+                  metadata: metadata,
+                );
+              },
         ),
       if (appInfo != null)
         AppInfo(appName: appInfo.appName, appImage: appInfo.appImageUrl, isRecurring: appInfo.isRecurring),
@@ -522,8 +531,9 @@ class _ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimM
         isCloseButtonVisible: options.isCloseButtonVisible,
         claimCreationType: options.claimCreationType.toClaimCreationType,
         canClearWebStorage: options.canDeleteCookiesBeforeVerificationStarts,
-        attestorAuthenticationRequest:
-            options.canUseAttestorAuthenticationRequest ? _requestAttestorAuthenticationRequestFromHost : null,
+        attestorAuthenticationRequest: options.canUseAttestorAuthenticationRequest
+            ? _requestAttestorAuthenticationRequestFromHost
+            : null,
       );
     }
   }
