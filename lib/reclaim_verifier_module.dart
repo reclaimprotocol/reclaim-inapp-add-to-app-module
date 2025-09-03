@@ -108,6 +108,17 @@ extension ReclaimModuleAppExtension on GlobalKey<ReclaimModuleAppState> {
 
 abstract interface class ReclaimModuleExternalApi extends ReclaimModuleApi {
   Future<void> setSessionIdentityListener(void Function(SessionIdentity?)? onSessionIdentity);
+
+  @override
+  Future<void> setOverrides(
+    ClientProviderInformationOverride? provider,
+    ClientFeatureOverrides? feature,
+    ClientLogConsumerOverride? logConsumer,
+    ClientReclaimSessionManagementOverride? sessionManagement,
+    ClientReclaimAppInfoOverride? appInfo,
+    String? capabilityAccessToken, {
+    ReclaimHostOverridesApi? overridesHandlerApi,
+  });
 }
 
 class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimModuleExternalApi {
@@ -391,7 +402,6 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
     ClientLogConsumerOverride? logConsumer,
     ClientReclaimSessionManagementOverride? sessionManagement,
     ClientReclaimAppInfoOverride? appInfo,
-
     String? capabilityAccessToken, {
     ReclaimHostOverridesApi? overridesHandlerApi,
   }) async {
