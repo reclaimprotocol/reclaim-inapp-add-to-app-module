@@ -74,7 +74,9 @@ void _precacheFonts() async {
 }
 
 class ReclaimModuleApp extends StatefulWidget {
-  const ReclaimModuleApp({super.key});
+  const ReclaimModuleApp._({super.key, this.onApi});
+
+  final ValueChanged<ReclaimModuleExternalApi>? onApi;
 
   static bool _isPreWarmed = false;
 
@@ -87,12 +89,14 @@ class ReclaimModuleApp extends StatefulWidget {
     _precacheFonts();
   }
 
-  static Widget build({GlobalKey<ReclaimModuleAppState>? key}) {
+  static Widget build({GlobalKey<ReclaimModuleAppState>? key, ValueChanged<ReclaimModuleExternalApi>? onApi}) {
     preWarm();
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ReclaimThemeProvider(child: ReclaimModuleApp(key: key)),
+      home: ReclaimThemeProvider(
+        child: ReclaimModuleApp._(key: key, onApi: onApi),
+      ),
     );
   }
 
@@ -137,6 +141,11 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
     super.initState();
     ReclaimModuleApi.setUp(this);
     _sessionIdentityUpdateListener = SessionIdentity.onChanged.listen(_onSessionIdentityUpdate);
+    Future.microtask(() {
+      if (mounted) {
+        return widget.onApi?.call(this);
+      }
+    });
   }
 
   @override
