@@ -888,7 +888,9 @@ abstract class ReclaimModuleApi {
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
           } catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
@@ -919,7 +921,9 @@ abstract class ReclaimModuleApi {
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
           } catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
@@ -950,7 +954,9 @@ abstract class ReclaimModuleApi {
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
           } catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
@@ -990,7 +996,9 @@ abstract class ReclaimModuleApi {
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
           } catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
@@ -1011,7 +1019,9 @@ abstract class ReclaimModuleApi {
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
           } catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
@@ -1038,7 +1048,9 @@ abstract class ReclaimModuleApi {
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
           } catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
@@ -1069,7 +1081,9 @@ abstract class ReclaimModuleApi {
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
           } catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
@@ -1090,7 +1104,9 @@ abstract class ReclaimModuleApi {
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
           } catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }

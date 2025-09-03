@@ -391,6 +391,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
     ClientLogConsumerOverride? logConsumer,
     ClientReclaimSessionManagementOverride? sessionManagement,
     ClientReclaimAppInfoOverride? appInfo,
+
     String? capabilityAccessToken, {
     ReclaimHostOverridesApi? overridesHandlerApi,
   }) async {
