@@ -15,9 +15,27 @@ import 'package:reclaim_inapp_sdk/ui.dart';
 
 import 'src/pigeon/messages.pigeon.dart';
 
-const CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY = String.fromEnvironment(
-  'org.reclaimprotocol.inapp_sdk.CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY',
-);
+export 'package:reclaim_inapp_sdk/capability_access.dart';
+export 'package:reclaim_inapp_sdk/logging.dart';
+export 'package:reclaim_inapp_sdk/overrides.dart';
+export 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart';
+export 'package:reclaim_inapp_sdk/ui.dart';
+export 'src/pigeon/messages.pigeon.dart';
+
+// ignore: non_constant_identifier_names
+String? _CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY;
+
+// ignore: non_constant_identifier_names
+String get CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY {
+  final key = _CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY;
+  if (key != null) return key;
+  return String.fromEnvironment('org.reclaimprotocol.inapp_sdk.CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY');
+}
+
+// ignore: non_constant_identifier_names
+set CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY(String key) {
+  _CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY = key;
+}
 
 final logger = Logger('reclaim_flutter_sdk.reclaim_verifier_module');
 
