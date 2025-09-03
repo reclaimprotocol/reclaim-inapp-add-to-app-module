@@ -101,12 +101,16 @@ class ReclaimModuleApp extends StatefulWidget {
 }
 
 extension ReclaimModuleAppExtension on GlobalKey<ReclaimModuleAppState> {
-  ReclaimModuleApi? get api {
+  ReclaimModuleExternalApi? get api {
     return currentState;
   }
 }
 
-class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimModuleApi {
+abstract interface class ReclaimModuleExternalApi extends ReclaimModuleApi {
+  Future<void> setSessionIdentityListener(void Function(SessionIdentity?)? onSessionIdentity);
+}
+
+class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimModuleExternalApi {
   late final hostOverridesApi = ReclaimHostOverridesApi();
   late final hostVerificationApi = ReclaimHostVerificationApi();
 
@@ -122,6 +126,12 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
     super.initState();
     ReclaimModuleApi.setUp(this);
     _sessionIdentityUpdateListener = SessionIdentity.onChanged.listen(_onSessionIdentityUpdate);
+  }
+
+  @override
+  Future<void> setSessionIdentityListener(void Function(SessionIdentity?)? onSessionIdentity) async {
+    _sessionIdentityUpdateListener.cancel();
+    _sessionIdentityUpdateListener = SessionIdentity.onChanged.listen(onSessionIdentity);
   }
 
   void _onSessionIdentityUpdate(SessionIdentity? identity) {
@@ -381,8 +391,10 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
     ClientLogConsumerOverride? logConsumer,
     ClientReclaimSessionManagementOverride? sessionManagement,
     ClientReclaimAppInfoOverride? appInfo,
-    String? capabilityAccessToken,
-  ) async {
+    String? capabilityAccessToken, {
+    ReclaimHostOverridesApi? overridesHandlerApi,
+  }) async {
+    final overridesHandler = overridesHandlerApi ?? hostOverridesApi;
     if (capabilityAccessToken != null) {
       try {
         ReclaimOverride.set(
@@ -450,7 +462,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
                   } else if (provider.providerInformationJsonString != null) {
                     providerInformation = json.decode(provider.providerInformationJsonString!);
                   } else if (provider.canFetchProviderInformationFromHost) {
-                    final String rawProviderInformation = await hostOverridesApi.fetchProviderInformation(
+                    final String rawProviderInformation = await overridesHandler.fetchProviderInformation(
                       appId: appId,
                       providerId: providerId,
                       sessionId: sessionId,
@@ -482,7 +494,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
           canPrintLogs: logConsumer.canSdkPrintLogs == true,
           onRecord: logConsumer.enableLogHandler
               ? (record, identity) {
-                  _sendLogsToHost(record, identity);
+                  _sendLogsToHost(record, identity, overridesHandler);
                   return logConsumer.canSdkCollectTelemetry;
                 }
               : (!logConsumer.canSdkCollectTelemetry ? (_, _) => false : null),
@@ -499,7 +511,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
                 required String signature,
                 required String providerVersion,
               }) async {
-                final response = await hostOverridesApi.createSession(
+                final response = await overridesHandler.createSession(
                   appId: appId,
                   providerId: providerId,
                   timestamp: timestamp,
@@ -513,7 +525,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
               },
           // TODO: metadata is not sent to host
           updateSession: (sessionId, status, metadata) async {
-            return hostOverridesApi.updateSession(
+            return overridesHandler.updateSession(
               sessionId: sessionId,
               status: ReclaimSessionStatusExtension.fromSessionStatus(status),
             );
@@ -526,7 +538,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
                 required sessionId,
                 Map<String, dynamic>? metadata,
               }) {
-                hostOverridesApi.logSession(
+                overridesHandler.logSession(
                   appId: appId,
                   providerId: providerId,
                   sessionId: sessionId,
@@ -581,13 +593,13 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
     }
   }
 
-  void _sendLogsToHost(LogRecord record, SessionIdentity? identity) {
+  void _sendLogsToHost(LogRecord record, SessionIdentity? identity, ReclaimHostOverridesApi overridesHandler) {
     final entry = LogEntry.fromRecord(
       record,
       identity,
       fallbackSessionIdentity: SessionIdentity.latest ?? SessionIdentity(appId: '', providerId: '', sessionId: ''),
     );
-    hostOverridesApi.onLogs(json.encode(entry));
+    overridesHandler.onLogs(json.encode(entry));
   }
 
   @override
