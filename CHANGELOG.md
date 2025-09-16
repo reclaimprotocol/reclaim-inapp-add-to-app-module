@@ -1,6 +1,7 @@
-## 0.16.0
+## 0.17.0
 
-* Refactor [internal] attestor client code for better compatibility with new architectures
+* Add [WIP] dark theme support for app
+* Update theme data to provide return to app text, terms & privacy policy urls
 * Add support for custom verification flow theme for any reclaim devtool app
 * Add a whitelist to automatically allow permissions for autoplay and protected media id when requested from webview
 * Add `writeRedactionMode` in requestData for provider
