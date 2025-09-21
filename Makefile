@@ -20,7 +20,7 @@ ios:
 	flutter clean
 	flutter pub get
 	cd .ios && pod deintegrate
-	sed -i '' "s/platform :ios, '.*'/platform :ios, '13.0'/" ./.ios/Podfile
+	sed -i '' "s/platform :ios, '.*'/platform :ios, '14.0'/" ./.ios/Podfile
 	cd .ios && pod install
 	mkdir -p build/ios
 	mkdir -p debug/ios/
