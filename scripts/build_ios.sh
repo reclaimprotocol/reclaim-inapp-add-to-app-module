@@ -38,7 +38,7 @@ sign_frameworks_in_directory() {
 
     for framework_path in $FRAMEWORK_PATTERN; do
         echo "📦 Processing: $framework_path";
-        
+        local framework_name="$(basename "$framework_path")"
         codesign --timestamp -v -f --sign "$APPLE_DEVELOPMENT_SIGNING_IDENTITY" "$framework_path";
         echo $(codesign -dv "$framework_path");
         echo $(codesign -vv "$framework_path");
