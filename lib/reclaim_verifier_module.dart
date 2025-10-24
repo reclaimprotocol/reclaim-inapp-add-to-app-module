@@ -407,6 +407,19 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
   }
 
   @override
+  Future<void> setConsoleLogging(bool enabled) async {
+    final old = ReclaimOverride.get<LogConsumerOverride>();
+    ReclaimOverride.set(
+      LogConsumerOverride(
+        // Setting this to true will print logs from reclaim_flutter_sdk to the console.
+        canPrintLogs: enabled,
+        onRecord: old?.onRecord,
+        levelChangeHandler: old?.levelChangeHandler,
+      ),
+    );
+  }
+
+  @override
   Future<void> setOverrides(
     ClientProviderInformationOverride? provider,
     ClientFeatureOverrides? feature,
@@ -448,12 +461,20 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
         ReclaimFeatureFlagData(
           cookiePersist: feature.cookiePersist,
           singleReclaimRequest: feature.singleReclaimRequest,
-          attestorBrowserRpcUrl: feature.attestorBrowserRpcUrl,
+          attestor3BrowserRpcUrl: feature.attestorBrowserRpcUrl,
           idleTimeThresholdForManualVerificationTrigger: feature.idleTimeThresholdForManualVerificationTrigger,
           sessionTimeoutForManualVerificationTrigger: feature.sessionTimeoutForManualVerificationTrigger,
           canUseAiFlow: feature.isAIFlowEnabled ?? false,
           manualReviewMessage: feature.manualReviewMessage,
           loginPromptMessage: feature.loginPromptMessage,
+          // TODO: UNIMPLEMENTED
+          hawkeyeInterceptionMethod: null,
+          claimCreationTimeoutDurationInMins: null,
+          sessionNoActivityTimeoutDurationInMins: null,
+          aiProviderNoActivityTimeoutDurationInSecs: null,
+          pageLoadedCompletedDebounceTimeoutMs: null,
+          potentialLoginTimeoutS: null,
+          screenshotCaptureIntervalSeconds: null,
         ),
       if (provider != null)
         ReclaimProviderOverride(

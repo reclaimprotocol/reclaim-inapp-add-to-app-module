@@ -245,10 +245,10 @@ packages:
     dependency: transitive
     description:
       name: device_info_plus
-      sha256: "98f28b42168cc509abc92f88518882fd58061ea372d7999aecc424345c7bff6a"
+      sha256: dd0e8e02186b2196c7848c9d394a5fd6e5b57a43a546082c5820b1ec72317e33
       url: "https://pub.dev"
     source: hosted
-    version: "11.5.0"
+    version: "12.2.0"
   device_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -484,10 +484,10 @@ packages:
     dependency: transitive
     description:
       name: fluttertoast
-      sha256: "90778fe0497fe3a09166e8cf2e0867310ff434b794526589e77ec03cf08ba8e8"
+      sha256: "144ddd74d49c865eba47abe31cbc746c7b311c82d6c32e571fd73c4264b740e2"
       url: "https://pub.dev"
     source: hosted
-    version: "8.2.14"
+    version: "9.0.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -716,10 +716,10 @@ packages:
     dependency: transitive
     description:
       name: package_info_plus
-      sha256: "16eee997588c60225bda0488b6dcfac69280a6b7a3cf02c741895dd370a02968"
+      sha256: f69da0d3189a4b4ceaeb1a3defb0f329b3b352517f52bed4290f83d4f06bc08d
       url: "https://pub.dev"
     source: hosted
-    version: "8.3.1"
+    version: "9.0.0"
   package_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -918,14 +918,14 @@ packages:
       path: "/Users/mushaheedsyed/Projects/reclaimprotocol.org/flutter_packages/flutter-gnark-prover"
       relative: false
     source: path
-    version: "1.5.1"
+    version: "1.6.1"
   reclaim_inapp_sdk:
     dependency: "direct main"
     description:
       path: "/Users/mushaheedsyed/Projects/reclaimprotocol.org/flutter_packages/inapp_sdk/main"
       relative: false
     source: path
-    version: "0.18.0"
+    version: "0.21.0"
   retry:
     dependency: transitive
     description:
