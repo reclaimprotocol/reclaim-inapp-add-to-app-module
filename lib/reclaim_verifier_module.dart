@@ -22,21 +22,6 @@ export 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart';
 export 'package:reclaim_inapp_sdk/ui.dart';
 export 'src/pigeon/messages.pigeon.dart';
 
-// ignore: non_constant_identifier_names
-String? _CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY;
-
-// ignore: non_constant_identifier_names
-String get CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY {
-  final key = _CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY;
-  if (key != null) return key;
-  return String.fromEnvironment('org.reclaimprotocol.inapp_sdk.CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY');
-}
-
-// ignore: non_constant_identifier_names
-set CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY(String key) {
-  _CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY = key;
-}
-
 final logger = Logger('reclaim_flutter_sdk.reclaim_verifier_module');
 
 extension ReclaimSessionStatusExtension on ReclaimSessionStatus {
@@ -432,9 +417,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
     final overridesHandler = overridesHandlerApi ?? hostOverridesApi;
     if (capabilityAccessToken != null) {
       try {
-        ReclaimOverride.set(
-          CapabilityAccessToken.import(capabilityAccessToken, CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY),
-        );
+        ReclaimOverride.set(CapabilityAccessToken.import(capabilityAccessToken));
       } on CapabilityAccessTokenException catch (e, s) {
         logger.severe('Failed to set capability access token', e, s);
         throw ReclaimVerificationCancelledException(e.message);
@@ -468,7 +451,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
           manualReviewMessage: feature.manualReviewMessage,
           loginPromptMessage: feature.loginPromptMessage,
           // TODO: UNIMPLEMENTED
-          hawkeyeInterceptionMethod: null,
+          interceptorOptions: null,
           claimCreationTimeoutDurationInMins: null,
           sessionNoActivityTimeoutDurationInMins: null,
           aiProviderNoActivityTimeoutDurationInSecs: null,

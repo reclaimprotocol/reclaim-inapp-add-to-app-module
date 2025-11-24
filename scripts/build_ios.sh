@@ -12,7 +12,7 @@ sed -i '' "s/platform :ios, '.*'/platform :ios, '14.0'/" ./.ios/Podfile;
 (cd .ios && pod install)
 mkdir -p build/ios
 mkdir -p debug/ios/
-flutter build ios-framework --dart-define-from-file=./env.json --output=build/ios --release --no-profile --debug; # --split-debug-info=debug/ios/v$VERSION
+flutter build ios-framework --output=build/ios --release --no-profile --debug; # --split-debug-info=debug/ios/v$VERSION
 
 # Function to clean and sign frameworks (same as in sign_ios_frameworks.sh)
 sign_frameworks_in_directory() {
