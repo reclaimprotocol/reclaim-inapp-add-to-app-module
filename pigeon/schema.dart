@@ -86,7 +86,7 @@ class ClientFeatureOverrides {
     this.idleTimeThresholdForManualVerificationTrigger,
     // 180
     this.sessionTimeoutForManualVerificationTrigger,
-    // https://attestor.reclaimprotocol.org/browser-rpc
+    // https://attestor.reclaimprotocol.org:444/browser-rpc
     this.attestorBrowserRpcUrl,
     // false
     this.isAIFlowEnabled,
@@ -94,16 +94,37 @@ class ClientFeatureOverrides {
     this.manualReviewMessage,
     // null
     this.loginPromptMessage,
+    // null
+    this.interceptorOptions,
+    // null
+    this.claimCreationTimeoutDurationInMins,
+    // null
+    this.sessionNoActivityTimeoutDurationInMins,
+    // null
+    this.aiProviderNoActivityTimeoutDurationInSecs,
+    // null
+    this.pageLoadedCompletedDebounceTimeoutMs,
+    // null
+    this.potentialLoginTimeoutS,
+    // null
+    this.screenshotCaptureIntervalSeconds,
   });
+
   final bool? cookiePersist;
   final bool? singleReclaimRequest;
+  final String? attestorBrowserRpcUrl;
   final int? idleTimeThresholdForManualVerificationTrigger;
   final int? sessionTimeoutForManualVerificationTrigger;
-  final String? attestorBrowserRpcUrl;
-  @Deprecated('Replace with canUseAiFlow')
   final bool? isAIFlowEnabled;
   final String? manualReviewMessage;
   final String? loginPromptMessage;
+  final String? interceptorOptions;
+  final int? claimCreationTimeoutDurationInMins;
+  final int? sessionNoActivityTimeoutDurationInMins;
+  final int? aiProviderNoActivityTimeoutDurationInSecs;
+  final int? pageLoadedCompletedDebounceTimeoutMs;
+  final int? potentialLoginTimeoutS;
+  final int? screenshotCaptureIntervalSeconds;
 }
 
 class ClientLogConsumerOverride {
@@ -170,6 +191,8 @@ class ReclaimApiVerificationOptions {
     this.claimCreationType = ClaimCreationTypeApi.standalone,
     this.canAutoSubmit = true,
     this.isCloseButtonVisible = true,
+    this.locale,
+    this.useTeeOperator,
   });
 
   /// Whether to delete cookies before user journey starts in the client web view.
@@ -191,6 +214,21 @@ class ReclaimApiVerificationOptions {
   /// Whether the close button is visible.
   /// Defaults to true.
   final bool isCloseButtonVisible;
+
+  /// A language code & Country code for localization that should be enforced in the verification flow.
+  final String? locale;
+
+  /// Enables use of Reclaim's TEE+MPC protocol for HTTP Request claim verification and
+  /// attestation.
+  ///
+  /// When set to `true`, the verification will use Trusted Execution Environment
+  /// (TEE) with Multi-Party Computation (MPC) for enhanced security.
+  ///
+  /// When set to `false`, the standard Reclaim's proxy attestor verification flow is used.
+  ///
+  /// When `null` (default), the backend decides whether to use TEE based on
+  /// a feature flag (currently in staged rollout).
+  final bool? useTeeOperator;
 }
 
 class ProviderVersionApi {

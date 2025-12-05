@@ -4,14 +4,14 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-import 'package:reclaim_gnark_zkoperator/reclaim_gnark_zkoperator.dart';
-// ignore: implementation_imports
-import 'package:reclaim_gnark_zkoperator/src/download/download.dart' show downloadWithHttp;
 import 'package:reclaim_inapp_sdk/capability_access.dart';
 import 'package:reclaim_inapp_sdk/logging.dart';
 import 'package:reclaim_inapp_sdk/overrides.dart';
 import 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart';
 import 'package:reclaim_inapp_sdk/ui.dart';
+import 'package:reclaim_tee_operator_flutter/reclaim_tee_operator_flutter.dart';
+// ignore: implementation_imports
+import 'package:reclaim_tee_operator_flutter/src/common/download/download.dart' show downloadWithHttp;
 
 import 'src/pigeon/messages.pigeon.dart';
 
@@ -20,6 +20,7 @@ export 'package:reclaim_inapp_sdk/logging.dart';
 export 'package:reclaim_inapp_sdk/overrides.dart';
 export 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart';
 export 'package:reclaim_inapp_sdk/ui.dart';
+
 export 'src/pigeon/messages.pigeon.dart';
 
 final logger = Logger('reclaim_flutter_sdk.reclaim_verifier_module');
@@ -450,14 +451,13 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
           canUseAiFlow: feature.isAIFlowEnabled ?? false,
           manualReviewMessage: feature.manualReviewMessage,
           loginPromptMessage: feature.loginPromptMessage,
-          // TODO: UNIMPLEMENTED
-          interceptorOptions: null,
-          claimCreationTimeoutDurationInMins: null,
-          sessionNoActivityTimeoutDurationInMins: null,
-          aiProviderNoActivityTimeoutDurationInSecs: null,
-          pageLoadedCompletedDebounceTimeoutMs: null,
-          potentialLoginTimeoutS: null,
-          screenshotCaptureIntervalSeconds: null,
+          interceptorOptions: feature.interceptorOptions,
+          claimCreationTimeoutDurationInMins: feature.claimCreationTimeoutDurationInMins,
+          sessionNoActivityTimeoutDurationInMins: feature.sessionNoActivityTimeoutDurationInMins,
+          aiProviderNoActivityTimeoutDurationInSecs: feature.aiProviderNoActivityTimeoutDurationInSecs,
+          pageLoadedCompletedDebounceTimeoutMs: feature.pageLoadedCompletedDebounceTimeoutMs,
+          potentialLoginTimeoutS: feature.potentialLoginTimeoutS,
+          screenshotCaptureIntervalSeconds: feature.screenshotCaptureIntervalSeconds,
         ),
       if (provider != null)
         ReclaimProviderOverride(
@@ -587,18 +587,24 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
     } else {
       log.info({
         'reason': 'Setting verification options',
+        'canAutoSubmit': options.canAutoSubmit,
         'canDeleteCookiesBeforeVerificationStarts': options.canDeleteCookiesBeforeVerificationStarts,
         'canUseAttestorAuthenticationRequest': options.canUseAttestorAuthenticationRequest,
         'claimCreationType': options.claimCreationType,
+        'isCloseButtonVisible': options.isCloseButtonVisible,
+        'locale': options.locale,
+        'useTeeOperator': options.useTeeOperator,
       });
       _reclaimVerificationOptions = _reclaimVerificationOptions.copyWith(
         canAutoSubmit: options.canAutoSubmit,
-        isCloseButtonVisible: options.isCloseButtonVisible,
-        claimCreationType: options.claimCreationType.toClaimCreationType,
         canClearWebStorage: options.canDeleteCookiesBeforeVerificationStarts,
         attestorAuthenticationRequest: options.canUseAttestorAuthenticationRequest
             ? _requestAttestorAuthenticationRequestFromHost
             : null,
+        claimCreationType: options.claimCreationType.toClaimCreationType,
+        isCloseButtonVisible: options.isCloseButtonVisible,
+        locale: options.locale,
+        useTeeOperator: options.useTeeOperator,
       );
     }
   }

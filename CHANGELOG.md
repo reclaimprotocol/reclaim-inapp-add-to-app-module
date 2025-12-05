@@ -1,3 +1,11 @@
+## 0.25.0
+
+* Add options locale, and useTeeOperator when using `setVerificationOptions` method.
+* Add option to use Reclaim's TEE+MPC Protocol for HTTP request claim verification & attestation.
+* Mention locale in headers for requests sent to reclaim sdk backend.
+* Add support for app links & deep links launch using `Reclaim.setAllowedAppLinks` API. This API can be used by custom injections
+* Share the exact error message from backend on errors in `ReclaimSessionExpiredException`.
+
 ## 0.24.0
 
 * Fix use of capability access token
