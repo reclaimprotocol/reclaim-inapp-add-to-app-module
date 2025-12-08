@@ -48,6 +48,51 @@ sign_frameworks_in_directory() {
     return 0
 }
 
+# Example usage:
+# create_xcframework objective_c
+create_xcframework() {
+    local somepackage="$1"
+
+    if [ -z "$somepackage" ]; then
+        echo "Usage: create_xcframework <package_name>"
+        return 1
+    fi
+
+    mkdir -p iphoneos
+    mkdir -p iphonesimulator
+
+    rm -rf "$somepackage.framework/_CodeSignature"
+    cp -R "$somepackage.framework/" "iphoneos/$somepackage.framework"
+    cp -R "$somepackage.framework/" "iphonesimulator/$somepackage.framework"
+
+    echo "Original framework architectures:"
+    xcrun lipo -info "$somepackage.framework/$somepackage"
+
+    # Create iphoneos version (remove x86_64, keep arm64)
+    xcrun lipo -remove x86_64 "./iphoneos/$somepackage.framework/$somepackage" -o "./iphoneos/$somepackage.framework/$somepackage"
+    vtool -set-build-version 2 14 26.1 -output "./iphoneos/$somepackage.framework/$somepackage" "./iphoneos/$somepackage.framework/$somepackage"
+    vtool -remove-build-version 7 -output "./iphoneos/$somepackage.framework/$somepackage" "./iphoneos/$somepackage.framework/$somepackage"
+
+    echo "iphoneos framework architectures:"
+    xcrun lipo -info "iphoneos/$somepackage.framework/$somepackage"
+
+    # Create iphonesimulator version (remove arm64, keep x86_64)
+    xcrun lipo -remove arm64 "./iphonesimulator/$somepackage.framework/$somepackage" -o "./iphonesimulator/$somepackage.framework/$somepackage"
+
+    echo "iphonesimulator framework architectures:"
+    xcrun lipo -info "iphonesimulator/$somepackage.framework/$somepackage"
+
+    # Create XCFramework
+    xcodebuild -create-xcframework \
+        -framework "iphoneos/$somepackage.framework/" \
+        -framework "iphonesimulator/$somepackage.framework/" \
+        -output "$somepackage.xcframework"
+
+    rm -rf ./iphonesimulator;
+    rm -rf ./iphoneos;
+}
+
+
 dart run scripts/prepare_ios.dart
 
 ONLY_RELEASE_TARGETS=true
@@ -61,32 +106,23 @@ fi
 
 echo "Converting any binary frameworks to xcframework"
 
+project_dir="$(pwd)"
+
 for framework_path in $FRAMEWORK_PATTERN; do
     echo "Trying to make XCframework for $framework_path"
     if [ -d "$framework_path" ]; then
-        framework_name=$(grep -oE -m 1 '<string>[^<]*\.framework</string>' $framework_path/Info.plist | sed -E 's/<string>(.*)\.framework<\/string>/\1/')
-        
-        # echo "Splitting fat into thin binaries"
-        # framework_path_dir="$(dirname $framework_path)"
-        # device_framework_path="$framework_path_dir/$framework_name-device.framework"
-        # simulator_framework_path="$framework_path_dir/$framework_name-simulator.framework"
-        # cp -r $framework_path $device_framework_path
-        # cp -r $framework_path $simulator_framework_path
+        framework_name=$(basename $framework_path .framework)
 
-        # lipo $device_framework_path -thin arm64 -output $device_framework_path
-        # lipo $simulator_framework_path -thin arm64 -output $simulator_framework_path
+        echo "📦 Creating xcframework for $framework_name"
 
-        # xcodebuild -create-xcframework \
-        #     -framework $device_framework_path \
-        #     -framework $simulator_framework_path \
-        #     -output "${framework_path%.framework}.xcframework"
+        cd "$(dirname $framework_path)"
+        create_xcframework $framework_name 
+        cd $project_dir;
 
-        echo "📦 Creating xcframework for $framework_path"
-
-        xcodebuild -create-xcframework -framework "$framework_path" -output "${framework_path%.framework}.xcframework";
         rm -rf $framework_path
     fi
 done
+
 
 sign_frameworks_in_directory "build/ios/ReclaimXCFrameworks"
 
