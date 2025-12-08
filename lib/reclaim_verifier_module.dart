@@ -451,6 +451,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
           canUseAiFlow: feature.isAIFlowEnabled ?? false,
           manualReviewMessage: feature.manualReviewMessage,
           loginPromptMessage: feature.loginPromptMessage,
+          useTEE: feature.useTEE,
           interceptorOptions: feature.interceptorOptions,
           claimCreationTimeoutDurationInMins: feature.claimCreationTimeoutDurationInMins,
           sessionNoActivityTimeoutDurationInMins: feature.sessionNoActivityTimeoutDurationInMins,
@@ -458,6 +459,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
           pageLoadedCompletedDebounceTimeoutMs: feature.pageLoadedCompletedDebounceTimeoutMs,
           potentialLoginTimeoutS: feature.potentialLoginTimeoutS,
           screenshotCaptureIntervalSeconds: feature.screenshotCaptureIntervalSeconds,
+          teeUrls: feature.teeUrls,
         ),
       if (provider != null)
         ReclaimProviderOverride(

@@ -95,6 +95,8 @@ class ClientFeatureOverrides {
     // null
     this.loginPromptMessage,
     // null
+    this.useTEE,
+    // null
     this.interceptorOptions,
     // null
     this.claimCreationTimeoutDurationInMins,
@@ -108,6 +110,8 @@ class ClientFeatureOverrides {
     this.potentialLoginTimeoutS,
     // null
     this.screenshotCaptureIntervalSeconds,
+    // null
+    this.teeUrls,
   });
 
   final bool? cookiePersist;
@@ -118,6 +122,7 @@ class ClientFeatureOverrides {
   final bool? isAIFlowEnabled;
   final String? manualReviewMessage;
   final String? loginPromptMessage;
+  final bool? useTEE;
   final String? interceptorOptions;
   final int? claimCreationTimeoutDurationInMins;
   final int? sessionNoActivityTimeoutDurationInMins;
@@ -125,6 +130,7 @@ class ClientFeatureOverrides {
   final int? pageLoadedCompletedDebounceTimeoutMs;
   final int? potentialLoginTimeoutS;
   final int? screenshotCaptureIntervalSeconds;
+  final String? teeUrls;
 }
 
 class ClientLogConsumerOverride {
