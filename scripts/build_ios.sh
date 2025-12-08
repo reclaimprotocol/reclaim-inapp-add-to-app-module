@@ -50,6 +50,44 @@ sign_frameworks_in_directory() {
 
 dart run scripts/prepare_ios.dart
 
+ONLY_RELEASE_TARGETS=true
+
+FRAMEWORK_PATTERN=""
+if [ "$ONLY_RELEASE_TARGETS" != "true" ]; then
+    FRAMEWORK_PATTERN="build/ios/ReclaimXCFrameworks/**/*.framework"
+else
+    FRAMEWORK_PATTERN="build/ios/ReclaimXCFrameworks/*.framework"
+fi
+
+echo "Converting any binary frameworks to xcframework"
+
+for framework_path in $FRAMEWORK_PATTERN; do
+    echo "Trying to make XCframework for $framework_path"
+    if [ -d "$framework_path" ]; then
+        framework_name=$(grep -oE -m 1 '<string>[^<]*\.framework</string>' $framework_path/Info.plist | sed -E 's/<string>(.*)\.framework<\/string>/\1/')
+        
+        # echo "Splitting fat into thin binaries"
+        # framework_path_dir="$(dirname $framework_path)"
+        # device_framework_path="$framework_path_dir/$framework_name-device.framework"
+        # simulator_framework_path="$framework_path_dir/$framework_name-simulator.framework"
+        # cp -r $framework_path $device_framework_path
+        # cp -r $framework_path $simulator_framework_path
+
+        # lipo $device_framework_path -thin arm64 -output $device_framework_path
+        # lipo $simulator_framework_path -thin arm64 -output $simulator_framework_path
+
+        # xcodebuild -create-xcframework \
+        #     -framework $device_framework_path \
+        #     -framework $simulator_framework_path \
+        #     -output "${framework_path%.framework}.xcframework"
+
+        echo "📦 Creating xcframework for $framework_path"
+
+        xcodebuild -create-xcframework -framework "$framework_path" -output "${framework_path%.framework}.xcframework";
+        rm -rf $framework_path
+    fi
+done
+
 sign_frameworks_in_directory "build/ios/ReclaimXCFrameworks"
 
 (cd build/ios && tar -zcvf ReclaimXCFrameworks.tar.gz ReclaimXCFrameworks) # FAST
