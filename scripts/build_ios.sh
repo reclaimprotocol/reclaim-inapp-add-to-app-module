@@ -76,12 +76,6 @@ create_xcframework() {
     echo "iphoneos framework architectures:"
     xcrun lipo -info "iphoneos/$somepackage.framework/$somepackage"
 
-    # Create iphonesimulator version (remove arm64, keep x86_64)
-    xcrun lipo -remove arm64 "./iphonesimulator/$somepackage.framework/$somepackage" -o "./iphonesimulator/$somepackage.framework/$somepackage"
-
-    echo "iphonesimulator framework architectures:"
-    xcrun lipo -info "iphonesimulator/$somepackage.framework/$somepackage"
-
     # Create XCFramework
     xcodebuild -create-xcframework \
         -framework "iphoneos/$somepackage.framework/" \
@@ -91,7 +85,6 @@ create_xcframework() {
     rm -rf ./iphonesimulator;
     rm -rf ./iphoneos;
 }
-
 
 dart run scripts/prepare_ios.dart
 
