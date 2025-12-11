@@ -425,7 +425,8 @@ data class ClientReclaimSessionManagementOverride (
 data class ClientReclaimAppInfoOverride (
   val appName: String,
   val appImageUrl: String,
-  val isRecurring: Boolean
+  val isRecurring: Boolean,
+  val theme: String? = null
 )
  {
   companion object {
@@ -433,7 +434,8 @@ data class ClientReclaimAppInfoOverride (
       val appName = pigeonVar_list[0] as String
       val appImageUrl = pigeonVar_list[1] as String
       val isRecurring = pigeonVar_list[2] as Boolean
-      return ClientReclaimAppInfoOverride(appName, appImageUrl, isRecurring)
+      val theme = pigeonVar_list[3] as String?
+      return ClientReclaimAppInfoOverride(appName, appImageUrl, isRecurring, theme)
     }
   }
   fun toList(): List<Any?> {
@@ -441,6 +443,7 @@ data class ClientReclaimAppInfoOverride (
       appName,
       appImageUrl,
       isRecurring,
+      theme,
     )
   }
   override fun equals(other: Any?): Boolean {

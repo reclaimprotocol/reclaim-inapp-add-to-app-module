@@ -479,7 +479,12 @@ class ClientReclaimSessionManagementOverride {
 }
 
 class ClientReclaimAppInfoOverride {
-  ClientReclaimAppInfoOverride({required this.appName, required this.appImageUrl, required this.isRecurring});
+  ClientReclaimAppInfoOverride({
+    required this.appName,
+    required this.appImageUrl,
+    required this.isRecurring,
+    this.theme,
+  });
 
   String appName;
 
@@ -487,8 +492,10 @@ class ClientReclaimAppInfoOverride {
 
   bool isRecurring;
 
+  String? theme;
+
   List<Object?> _toList() {
-    return <Object?>[appName, appImageUrl, isRecurring];
+    return <Object?>[appName, appImageUrl, isRecurring, theme];
   }
 
   Object encode() {
@@ -501,6 +508,7 @@ class ClientReclaimAppInfoOverride {
       appName: result[0]! as String,
       appImageUrl: result[1]! as String,
       isRecurring: result[2]! as bool,
+      theme: result[3] as String?,
     );
   }
 

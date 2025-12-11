@@ -154,11 +154,17 @@ class ClientReclaimSessionManagementOverride {
 }
 
 class ClientReclaimAppInfoOverride {
-  const ClientReclaimAppInfoOverride({required this.appName, required this.appImageUrl, required this.isRecurring});
+  const ClientReclaimAppInfoOverride({
+    required this.appName,
+    required this.appImageUrl,
+    required this.isRecurring,
+    required this.theme,
+  });
   final String appName;
   final String appImageUrl;
   // false
   final bool isRecurring;
+  final String? theme;
 }
 
 enum ReclaimSessionStatus {

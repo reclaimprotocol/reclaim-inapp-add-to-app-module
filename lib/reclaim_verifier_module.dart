@@ -14,6 +14,7 @@ import 'package:reclaim_tee_operator_flutter/reclaim_tee_operator_flutter.dart';
 import 'package:reclaim_tee_operator_flutter/src/common/download/download.dart' show downloadWithHttp;
 
 import 'src/pigeon/messages.pigeon.dart';
+import 'utils/json.dart';
 
 export 'package:reclaim_inapp_sdk/capability_access.dart';
 export 'package:reclaim_inapp_sdk/logging.dart';
@@ -576,7 +577,20 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
               },
         ),
       if (appInfo != null)
-        AppInfo(appName: appInfo.appName, appImage: appInfo.appImageUrl, isRecurring: appInfo.isRecurring),
+        AppInfo(
+          appName: appInfo.appName,
+          appImage: appInfo.appImageUrl,
+          isRecurring: appInfo.isRecurring,
+          theme: appInfo.theme != null
+              ? fromStringToObject(
+                  content: appInfo.theme!,
+                  fromJson: ReclaimAppThemeInfo.fromJson,
+                  onInvalidContent: (e, s) {
+                    logger.severe('Failed to parse app theme', e, s);
+                  },
+                )
+              : null,
+        ),
     ]);
   }
 
