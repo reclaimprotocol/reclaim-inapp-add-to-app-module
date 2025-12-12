@@ -165,10 +165,10 @@ packages:
     dependency: transitive
     description:
       name: code_assets
-      sha256: ae0db647e668cbb295a3527f0938e4039e004c80099dce2f964102373f5ce0b5
+      sha256: "83ccdaa064c980b5596c35dd64a8d3ecc68620174ab9b90b6343b753aa721687"
       url: "https://pub.dev"
     source: hosted
-    version: "0.19.10"
+    version: "1.0.0"
   code_builder:
     dependency: transitive
     description:
@@ -505,10 +505,10 @@ packages:
     dependency: transitive
     description:
       name: hooks
-      sha256: "5410b9f4f6c9f01e8ff0eb81c9801ea13a3c3d39f8f0b1613cda08e27eab3c18"
+      sha256: "5d309c86e7ce34cd8e37aa71cb30cb652d3829b900ab145e4d9da564b31d59f7"
       url: "https://pub.dev"
     source: hosted
-    version: "0.20.5"
+    version: "1.0.0"
   http:
     dependency: "direct main"
     description:
@@ -685,22 +685,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.0"
-  native_toolchain_c:
-    dependency: transitive
-    description:
-      name: native_toolchain_c
-      sha256: f8872ea6c7a50ce08db9ae280ca2b8efdd973157ce462826c82f3c3051d154ce
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.17.2"
   objective_c:
     dependency: transitive
     description:
       name: objective_c
-      sha256: c12701c978eacda8d8a9be1469f005e26bf16a903945982b94f77d7a9dbeea45
+      sha256: "1f81ed9e41909d44162d7ec8663b2c647c202317cc0b56d3d56f6a13146a0b64"
       url: "https://pub.dev"
     source: hosted
-    version: "9.2.1"
+    version: "9.1.0"
   octo_image:
     dependency: transitive
     description:
@@ -923,16 +915,14 @@ packages:
       path: "/Users/mushaheedsyed/Projects/reclaimprotocol.org/flutter_packages/inapp_sdk/main"
       relative: false
     source: path
-    version: "0.25.0"
+    version: "0.27.0"
   reclaim_tee_operator_flutter:
     dependency: "direct main"
     description:
-      path: "."
-      ref: main
-      resolved-ref: ee4009644098ceb3846ad05b07313af19ca9ae69
-      url: "git@github.com:reclaimprotocol/reclaim-tee-operator-flutter.git"
-    source: git
-    version: "1.97.0"
+      path: "/Users/mushaheedsyed/Projects/reclaimprotocol.org/flutter_packages/reclaim-tee-operator-flutter"
+      relative: false
+    source: path
+    version: "1.99.0"
   retry:
     dependency: transitive
     description:
@@ -945,18 +935,18 @@ packages:
     dependency: transitive
     description:
       name: rive
-      sha256: fc0abf65d03d1c9afaeb35be9e71c7cf04d2d1f76e94e69d2af1b3ba413cddf9
+      sha256: "4e555e212e28d6502eba37bab08213faa798de79c5cf21c950f122b50a5e33ba"
       url: "https://pub.dev"
     source: hosted
-    version: "0.14.0-dev.14"
+    version: "0.14.0"
   rive_native:
     dependency: transitive
     description:
       name: rive_native
-      sha256: e9c7d36f19eb6d32f563825d4e9d5032b19a36d3ca3341641431035bca022d19
+      sha256: "4e72aab284fe875e4b7da4b445117e8882f777fcc0358d4416b5850334246fb7"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.17"
+    version: "0.1.0"
   rxdart:
     dependency: transitive
     description:
@@ -969,10 +959,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences
-      sha256: "6e8bf70b7fef813df4e9a36f658ac46d107db4b4cfe1048b477d4e453a8159f5"
+      sha256: "2939ae520c9024cb197fc20dee269cd8cdbf564c8b5746374ec6cacdc5169e64"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.3"
+    version: "2.5.4"
   shared_preferences_android:
     dependency: transitive
     description:
@@ -1294,10 +1284,10 @@ packages:
     dependency: transitive
     description:
       name: watcher
-      sha256: "592ab6e2892f67760543fb712ff0177f4ec76c031f02f5b4ff8d3fc5eb9fb61a"
+      sha256: f52385d4f73589977c80797e60fe51014f7f2b957b5e9a62c3f6ada439889249
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.4"
+    version: "1.2.0"
   web:
     dependency: transitive
     description:
@@ -1371,5 +1361,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.10.0 <4.0.0"
+  dart: ">=3.9.0 <4.0.0"
   flutter: ">=3.35.6"
