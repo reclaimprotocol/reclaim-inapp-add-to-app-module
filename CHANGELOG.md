@@ -1,3 +1,11 @@
+## 0.29.0
+
+* Update default TEEK & TEET URLs
+* Add IS_RECLAIM_INAPPSDK in log events
+* Add isInAppSdk in metadata when SessionManager.onProofSubmitted is called
+* Update use of operator package
+* Initialize algorithms after first page loading starts
+
 ## 0.27.0
 
 * Fix feature flag overrides causing interruption with some login pages and returning incorrect values for fields not overriden

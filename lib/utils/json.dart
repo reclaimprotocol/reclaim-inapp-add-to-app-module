@@ -17,3 +17,9 @@ T? fromStringToObject<T>({
     return null;
   }
 }
+
+// Encode to a JSON string and decode to a Map<dynamic, dynamic> to avoid type errors. This causes all nested objects's toJson to be called.
+Map<T, Object?>? ensureMap<T>(Map<String, Object?>? map) {
+  if (map == null) return null;
+  return json.decode(json.encode(map));
+}

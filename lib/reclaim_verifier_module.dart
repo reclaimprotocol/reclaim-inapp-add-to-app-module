@@ -9,7 +9,7 @@ import 'package:reclaim_inapp_sdk/logging.dart';
 import 'package:reclaim_inapp_sdk/overrides.dart';
 import 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart';
 import 'package:reclaim_inapp_sdk/ui.dart';
-import 'package:reclaim_tee_operator_flutter/reclaim_tee_operator_flutter.dart';
+import 'package:reclaim_inapp_sdk/utils.dart';
 // ignore: implementation_imports
 import 'package:reclaim_tee_operator_flutter/src/common/download/download.dart' show downloadWithHttp;
 
@@ -73,7 +73,6 @@ class ReclaimModuleApp extends StatefulWidget {
     _isPreWarmed = true;
 
     startReclaimSdkLogging();
-    ReclaimZkOperator.getInstance();
     _precacheFonts();
   }
 
@@ -175,19 +174,6 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
   final _defaultReclaimVerificationOptions = ReclaimVerificationOptions(
     canAutoSubmit: true,
     isCloseButtonVisible: true,
-    attestorZkOperator: AttestorZkOperatorWithCallback.withReclaimZKOperator(
-      onComputeProof: (type, args, onPerformanceReport) async {
-        // Get gnark prover instance and compute the attestor proof.
-        return (await ReclaimZkOperator.getInstance()).computeAttestorProof(
-          type,
-          args,
-          onPerformanceReport: (algorithm, report) {
-            onPerformanceReport(ZKComputePerformanceReport(algorithmName: algorithm?.name ?? '', report: report));
-          },
-        );
-      },
-      isPlatformSupported: () async => (await ReclaimZkOperator.getInstance()).isPlatformSupported(),
-    ),
   );
 
   late ReclaimVerificationOptions _reclaimVerificationOptions = _defaultReclaimVerificationOptions;
@@ -221,7 +207,8 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
     try {
       final reclaimVerification = ReclaimVerification.of(context);
 
-      logger.info(
+      logger.event(
+        Level.INFO.withEvent(LogEventType.IS_RECLAIM_INAPPSDK),
         'Starting verification with request applicationId: ${request.applicationId}, provider: ${request.providerId}, context: ${request.contextString}, params: ${json.encode(request.parameters)}',
       );
 
@@ -229,10 +216,36 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
         request: request,
         options: _reclaimVerificationOptions,
       );
+
+      final effectiveSessionId = SessionIdentity.latest?.sessionId ?? requestSessionId;
+
+      final encodableProofs = (json.decode(json.encode(response.proofs)) as List)
+          .map((e) => e as Map<String, dynamic>)
+          .toList();
+      final isAIProofs = () {
+        try {
+          return areParamsFromAIProofs(response.proofs);
+        } catch (e, s) {
+          logger.severe('Failed to check whether proof is AI proof', e, s);
+          return false;
+        }
+      }();
+
+      logger.event(Level.INFO.withEvent(LogEventType.SUBMITTING_PROOF), 'submitting proof');
+
+      final sessionManager = SessionManager();
+      sessionManager.onProofSubmitted(
+        applicationId: request.applicationId,
+        providerId: request.providerId,
+        sessionId: effectiveSessionId,
+        isAIProofs: isAIProofs,
+        isInAppSdk: true,
+      );
+
       return ReclaimApiVerificationResponse(
-        sessionId: SessionIdentity.latest?.sessionId ?? requestSessionId,
+        sessionId: effectiveSessionId,
         didSubmitManualVerification: false,
-        proofs: (json.decode(json.encode(response.proofs)) as List).map((e) => e as Map<String, dynamic>).toList(),
+        proofs: encodableProofs,
         exception: null,
       );
     } catch (e, s) {
@@ -556,7 +569,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
             return overridesHandler.updateSession(
               sessionId: sessionId,
               status: ReclaimSessionStatusExtension.fromSessionStatus(status),
-              metadata: metadata,
+              metadata: ensureMap<String>(metadata),
             );
           },
           logRecord:
@@ -572,7 +585,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
                   providerId: providerId,
                   sessionId: sessionId,
                   logType: logType,
-                  metadata: metadata,
+                  metadata: ensureMap<String>(metadata),
                 );
               },
         ),
@@ -626,8 +639,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
   }
 
   Future<AttestorAuthenticationRequest> _requestAttestorAuthenticationRequestFromHost(HttpProvider provider) async {
-    // Encode to a JSON string and decode to a Map<dynamic, dynamic> to avoid type errors. This causes all nested objects's toJson to be called.
-    final Map<dynamic, dynamic> providerMap = json.decode(json.encode(provider));
+    final providerMap = ensureMap<Object?>(provider.toJson())!;
     final result = await hostVerificationApi.fetchAttestorAuthenticationRequest(providerMap);
     try {
       final map = json.decode(result);

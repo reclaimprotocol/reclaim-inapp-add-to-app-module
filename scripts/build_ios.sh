@@ -30,11 +30,21 @@ sign_frameworks_in_directory() {
 
     FRAMEWORK_PATTERN="$frameworks_dir/*.xcframework"
 
-    APPLE_DEVELOPMENT_SIGNING_IDENTITY="$(security find-identity -v -p codesigning | grep "Apple Development:" | head -n 1 | awk '{print $2}')"
+    APPLE_DEVELOPMENT_SIGNING_IDENTITY_ORGANIZATION="Creatoros Inc"
+
+    APPLE_DEVELOPER_SIGNING_CERTIFICATE_ID="$(security find-certificate -a | grep "$APPLE_DEVELOPMENT_SIGNING_IDENTITY_ORGANIZATION" | grep -o '([A-Z0-9]\{10\})' | tr -d '()')"
+    if [ -z "$APPLE_DEVELOPER_SIGNING_CERTIFICATE_ID" ]; then
+        echo "Error: No Apple Development signing identity found in the keychain with organization $APPLE_DEVELOPMENT_SIGNING_IDENTITY_ORGANIZATION. To check available, try running: security find-certificate -v -p codesigning | grep \"$APPLE_DEVELOPMENT_SIGNING_IDENTITY_ORGANIZATION\""
+        exit 1
+    fi
+
+    APPLE_DEVELOPMENT_SIGNING_IDENTITY="$(security find-identity -v -p codesigning | grep "$APPLE_DEVELOPER_SIGNING_CERTIFICATE_ID" | head -n 1 | awk '{print $2}')"
     if [ -z "$APPLE_DEVELOPMENT_SIGNING_IDENTITY" ]; then
         echo "Error: No Apple Development signing identity found in the keychain. To check available, try running: security find-identity -v -p codesigning | grep \"Apple Development:\""
         exit 1
     fi
+
+    echo "Using apple development signing identity: $APPLE_DEVELOPMENT_SIGNING_IDENTITY"
 
     for framework_path in $FRAMEWORK_PATTERN; do
         echo "📦 Processing: $framework_path";
@@ -104,6 +114,8 @@ project_dir="$(pwd)"
 for framework_path in $FRAMEWORK_PATTERN; do
     echo "Trying to make XCframework for $framework_path"
     if [ -d "$framework_path" ]; then
+        echo "Temporarily disabled .xcframework development. Try uploading app to Testflight when this is needed again"
+        exit 1;
         framework_name=$(basename $framework_path .framework)
 
         echo "📦 Creating xcframework for $framework_name"
@@ -123,3 +135,5 @@ sign_frameworks_in_directory "build/ios/ReclaimXCFrameworks"
 rm -rf $DIST_IOS
 mkdir -p $DIST_IOS
 mv build/ios/ReclaimXCFrameworks.tar.gz $DIST_IOS
+
+echo "Build ready in $DIST_IOS"
