@@ -22,7 +22,7 @@ rm -rf inapp-sdks;
 # publish on npm
 ./scripts/inapp/reactnative.sh;
 
+./scripts/inapp/flutter.sh;
+
 # publish on npm
 ./scripts/inapp/capacitor.sh;
-
-./scripts/inapp/flutter.sh;

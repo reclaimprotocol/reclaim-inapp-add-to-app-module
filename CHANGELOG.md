@@ -1,5 +1,6 @@
 ## 0.29.0
 
+* Add proof submission events
 * Update default TEEK & TEET URLs
 * Add IS_RECLAIM_INAPPSDK in log events
 * Add isInAppSdk in metadata when SessionManager.onProofSubmitted is called

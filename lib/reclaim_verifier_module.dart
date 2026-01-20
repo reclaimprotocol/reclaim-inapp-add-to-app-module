@@ -219,28 +219,45 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
 
       final effectiveSessionId = SessionIdentity.latest?.sessionId ?? requestSessionId;
 
+      if (response.proofs.isNotEmpty) {
+        logger.event(Level.INFO.withEvent(LogEventType.SUBMITTING_PROOF), 'submitting proof');
+      }
+
       final encodableProofs = (json.decode(json.encode(response.proofs)) as List)
           .map((e) => e as Map<String, dynamic>)
           .toList();
-      final isAIProofs = () {
-        try {
-          return areParamsFromAIProofs(response.proofs);
-        } catch (e, s) {
-          logger.severe('Failed to check whether proof is AI proof', e, s);
-          return false;
-        }
-      }();
 
-      logger.event(Level.INFO.withEvent(LogEventType.SUBMITTING_PROOF), 'submitting proof');
+      if (response.proofs.isNotEmpty) {
+        final isAIProofs = () {
+          try {
+            return areParamsFromAIProofs(response.proofs);
+          } catch (e, s) {
+            logger.severe('Failed to check whether proof is AI proof', e, s);
+            return false;
+          }
+        }();
 
-      final sessionManager = SessionManager();
-      sessionManager.onProofSubmitted(
-        applicationId: request.applicationId,
-        providerId: request.providerId,
-        sessionId: effectiveSessionId,
-        isAIProofs: isAIProofs,
-        isInAppSdk: true,
-      );
+        logger.event(Level.INFO.withEvent(LogEventType.SUBMITTING_PROOF), 'submitted proof');
+
+        final sessionManager = SessionManager();
+        sessionManager.onProofSubmitted(
+          applicationId: request.applicationId,
+          providerId: request.providerId,
+          sessionId: effectiveSessionId,
+          isAIProofs: isAIProofs,
+          isInAppSdk: true,
+        );
+      } else {
+        logger.event(Level.SEVERE.withEvent(LogEventType.PROOF_SUBMISSION_FAILED), 'proof submission failed');
+
+        final sessionManager = SessionManager();
+        sessionManager.onProofSubmissionFailed(
+          applicationId: request.applicationId,
+          providerId: request.providerId,
+          sessionId: effectiveSessionId,
+          isInAppSdk: true,
+        );
+      }
 
       return ReclaimApiVerificationResponse(
         sessionId: effectiveSessionId,
@@ -249,9 +266,19 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
         exception: null,
       );
     } catch (e, s) {
-      logger.severe('Failed verification response', e, s);
+      final effectiveSessionId = SessionIdentity.latest?.sessionId ?? requestSessionId;
+      logger.event(Level.SEVERE.withEvent(LogEventType.PROOF_SUBMISSION_FAILED), 'Failed verification response', e, s);
+
+      final sessionManager = SessionManager();
+      sessionManager.onProofSubmissionFailed(
+        applicationId: request.applicationId,
+        providerId: request.providerId,
+        sessionId: effectiveSessionId,
+        isInAppSdk: true,
+      );
+
       return ReclaimApiVerificationResponse(
-        sessionId: SessionIdentity.latest?.sessionId ?? requestSessionId,
+        sessionId: effectiveSessionId,
         didSubmitManualVerification: e is ReclaimVerificationManualReviewException,
         proofs: const [],
         exception: ReclaimApiVerificationException(
@@ -535,11 +562,11 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
           // Setting this to true will print logs from reclaim_flutter_sdk to the console.
           canPrintLogs: logConsumer.canSdkPrintLogs == true,
           onRecord: logConsumer.enableLogHandler
-              ? (record, identity) {
-                  _sendLogsToHost(record, identity, overridesHandler);
+              ? (record) {
+                  _sendLogsToHost(record, overridesHandler);
                   return logConsumer.canSdkCollectTelemetry;
                 }
-              : (!logConsumer.canSdkCollectTelemetry ? (_, _) => false : null),
+              : (!logConsumer.canSdkCollectTelemetry ? (_) => false : null),
         ),
       // A handler has been provided. We'll not let SDK manage sessions in this case.
       // Disabling [enableSdkSessionManagement] lets the host manage sessions.
@@ -653,12 +680,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
     }
   }
 
-  void _sendLogsToHost(LogRecord record, SessionIdentity? identity, ReclaimHostOverridesApi overridesHandler) {
-    final entry = LogEntry.fromRecord(
-      record,
-      identity,
-      fallbackSessionIdentity: SessionIdentity.latest ?? SessionIdentity(appId: '', providerId: '', sessionId: ''),
-    );
+  void _sendLogsToHost(LogEntry entry, ReclaimHostOverridesApi overridesHandler) {
     overridesHandler.onLogs(json.encode(entry));
   }
 
