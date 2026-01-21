@@ -51,7 +51,7 @@ try:
         content = f.read()
 
     # Check if the replacement is already there to prevent duplication
-    if "force \"org.jetbrains.kotlin:kotlin-stdlib:2.0.21\"" in content:
+    if "force \"org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION\"" in content:
         print(f"Skipping {file_path}: Fix already applied.")
         sys.exit(0)
 
