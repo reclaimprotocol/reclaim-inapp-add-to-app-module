@@ -36,11 +36,6 @@ cat temp >> CHANGELOG.md;
 # remove copy
 rm temp;
 
-# sed -i '' "s/ReclaimInAppSdk\", \"~> .*\"/ReclaimInAppSdk\", \"~> $VERSION\"/" ./InappRnSdk.podspec;
-# sed -i '' "s/implementation \"org.reclaimprotocol:inapp_sdk:.*\"/implementation \"org.reclaimprotocol:inapp_sdk:$VERSION\"/" ./android/build.gradle;
-# sed -i '' "s/ReclaimInAppSdk', '~> .*'/ReclaimInAppSdk', '~> $VERSION'/" ./documentation/install-no-framework.md;
-# sed -i '' "s/pod 'ReclaimInAppSdk', :git => 'https:\/\/github.com\/reclaimprotocol\/reclaim-inapp-ios-sdk.git', :tag => '.*'/pod 'ReclaimInAppSdk', :git => 'https:\/\/github.com\/reclaimprotocol\/reclaim-inapp-ios-sdk.git', :tag => '$VERSION'/" ./documentation/install-no-framework.md;
-# sed -i '' "s/Latest version on \[cocoapods.org is .*\]/Latest version on \[cocoapods.org is $VERSION\]/" ./documentation/migration.md;
-# sed -i '' "s/\"version\": \".*\",/\"version\": \"$VERSION\",/" ./package.json;
-# sed -i '' "s/\"@reclaimprotocol\/inapp-rn-sdk\": \"\^.*\"/\"@reclaimprotocol\/inapp-rn-sdk\": \"\^$VERSION\"/" ./samples/example_expo/package.json;
-# sed -i '' "s/\"@reclaimprotocol\/inapp-rn-sdk\": \"\^.*\"/\"@reclaimprotocol\/inapp-rn-sdk\": \"\^$VERSION\"/" ./samples/example_new_arch/package.json;
+sed -i '' "s/SDK_MODULE_VERSION=.*/SDK_MODULE_VERSION=$VERSION/" ./setup.sh;
+# Remove version sources from Reclaim dependencies inside ./internal
+# Update inapp sdk version of dependency in pubspec.yaml
