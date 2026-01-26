@@ -9,11 +9,12 @@ import 'package:reclaim_inapp_sdk/logging.dart';
 import 'package:reclaim_inapp_sdk/overrides.dart';
 import 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart';
 import 'package:reclaim_inapp_sdk/ui.dart';
-import 'package:reclaim_tee_operator_flutter/reclaim_tee_operator_flutter.dart';
+import 'package:reclaim_inapp_sdk/utils.dart';
 // ignore: implementation_imports
 import 'package:reclaim_tee_operator_flutter/src/common/download/download.dart' show downloadWithHttp;
 
 import 'src/pigeon/messages.pigeon.dart';
+import 'utils/json.dart';
 
 export 'package:reclaim_inapp_sdk/capability_access.dart';
 export 'package:reclaim_inapp_sdk/logging.dart';
@@ -72,7 +73,6 @@ class ReclaimModuleApp extends StatefulWidget {
     _isPreWarmed = true;
 
     startReclaimSdkLogging();
-    ReclaimZkOperator.getInstance();
     _precacheFonts();
   }
 
@@ -174,19 +174,6 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
   final _defaultReclaimVerificationOptions = ReclaimVerificationOptions(
     canAutoSubmit: true,
     isCloseButtonVisible: true,
-    attestorZkOperator: AttestorZkOperatorWithCallback.withReclaimZKOperator(
-      onComputeProof: (type, args, onPerformanceReport) async {
-        // Get gnark prover instance and compute the attestor proof.
-        return (await ReclaimZkOperator.getInstance()).computeAttestorProof(
-          type,
-          args,
-          onPerformanceReport: (algorithm, report) {
-            onPerformanceReport(ZKComputePerformanceReport(algorithmName: algorithm?.name ?? '', report: report));
-          },
-        );
-      },
-      isPlatformSupported: () async => (await ReclaimZkOperator.getInstance()).isPlatformSupported(),
-    ),
   );
 
   late ReclaimVerificationOptions _reclaimVerificationOptions = _defaultReclaimVerificationOptions;
@@ -220,7 +207,8 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
     try {
       final reclaimVerification = ReclaimVerification.of(context);
 
-      logger.info(
+      logger.event(
+        Level.INFO.withEvent(LogEventType.IS_RECLAIM_INAPPSDK),
         'Starting verification with request applicationId: ${request.applicationId}, provider: ${request.providerId}, context: ${request.contextString}, params: ${json.encode(request.parameters)}',
       );
 
@@ -228,16 +216,69 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
         request: request,
         options: _reclaimVerificationOptions,
       );
+
+      final effectiveSessionId = SessionIdentity.latest?.sessionId ?? requestSessionId;
+
+      if (response.proofs.isNotEmpty) {
+        logger.event(Level.INFO.withEvent(LogEventType.SUBMITTING_PROOF), 'submitting proof');
+      }
+
+      final encodableProofs = (json.decode(json.encode(response.proofs)) as List)
+          .map((e) => e as Map<String, dynamic>)
+          .toList();
+
+      if (response.proofs.isNotEmpty) {
+        final isAIProofs = () {
+          try {
+            return areParamsFromAIProofs(response.proofs);
+          } catch (e, s) {
+            logger.severe('Failed to check whether proof is AI proof', e, s);
+            return false;
+          }
+        }();
+
+        logger.event(Level.INFO.withEvent(LogEventType.SUBMITTING_PROOF), 'submitted proof');
+
+        final sessionManager = SessionManager();
+        sessionManager.onProofSubmitted(
+          applicationId: request.applicationId,
+          providerId: request.providerId,
+          sessionId: effectiveSessionId,
+          isAIProofs: isAIProofs,
+          isInAppSdk: true,
+        );
+      } else {
+        logger.event(Level.SEVERE.withEvent(LogEventType.PROOF_SUBMISSION_FAILED), 'proof submission failed');
+
+        final sessionManager = SessionManager();
+        sessionManager.onProofSubmissionFailed(
+          applicationId: request.applicationId,
+          providerId: request.providerId,
+          sessionId: effectiveSessionId,
+          isInAppSdk: true,
+        );
+      }
+
       return ReclaimApiVerificationResponse(
-        sessionId: SessionIdentity.latest?.sessionId ?? requestSessionId,
+        sessionId: effectiveSessionId,
         didSubmitManualVerification: false,
-        proofs: (json.decode(json.encode(response.proofs)) as List).map((e) => e as Map<String, dynamic>).toList(),
+        proofs: encodableProofs,
         exception: null,
       );
     } catch (e, s) {
-      logger.severe('Failed verification response', e, s);
+      final effectiveSessionId = SessionIdentity.latest?.sessionId ?? requestSessionId;
+      logger.event(Level.SEVERE.withEvent(LogEventType.PROOF_SUBMISSION_FAILED), 'Failed verification response', e, s);
+
+      final sessionManager = SessionManager();
+      sessionManager.onProofSubmissionFailed(
+        applicationId: request.applicationId,
+        providerId: request.providerId,
+        sessionId: effectiveSessionId,
+        isInAppSdk: true,
+      );
+
       return ReclaimApiVerificationResponse(
-        sessionId: SessionIdentity.latest?.sessionId ?? requestSessionId,
+        sessionId: effectiveSessionId,
         didSubmitManualVerification: e is ReclaimVerificationManualReviewException,
         proofs: const [],
         exception: ReclaimApiVerificationException(
@@ -521,11 +562,11 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
           // Setting this to true will print logs from reclaim_flutter_sdk to the console.
           canPrintLogs: logConsumer.canSdkPrintLogs == true,
           onRecord: logConsumer.enableLogHandler
-              ? (record, identity) {
-                  _sendLogsToHost(record, identity, overridesHandler);
+              ? (record) {
+                  _sendLogsToHost(record, overridesHandler);
                   return logConsumer.canSdkCollectTelemetry;
                 }
-              : (!logConsumer.canSdkCollectTelemetry ? (_, _) => false : null),
+              : (!logConsumer.canSdkCollectTelemetry ? (_) => false : null),
         ),
       // A handler has been provided. We'll not let SDK manage sessions in this case.
       // Disabling [enableSdkSessionManagement] lets the host manage sessions.
@@ -555,7 +596,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
             return overridesHandler.updateSession(
               sessionId: sessionId,
               status: ReclaimSessionStatusExtension.fromSessionStatus(status),
-              metadata: metadata,
+              metadata: ensureMap<String>(metadata),
             );
           },
           logRecord:
@@ -571,12 +612,25 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
                   providerId: providerId,
                   sessionId: sessionId,
                   logType: logType,
-                  metadata: metadata,
+                  metadata: ensureMap<String>(metadata),
                 );
               },
         ),
       if (appInfo != null)
-        AppInfo(appName: appInfo.appName, appImage: appInfo.appImageUrl, isRecurring: appInfo.isRecurring),
+        AppInfo(
+          appName: appInfo.appName,
+          appImage: appInfo.appImageUrl,
+          isRecurring: appInfo.isRecurring,
+          theme: appInfo.theme != null
+              ? fromStringToObject(
+                  content: appInfo.theme!,
+                  fromJson: ReclaimAppThemeInfo.fromJson,
+                  onInvalidContent: (e, s) {
+                    logger.severe('Failed to parse app theme', e, s);
+                  },
+                )
+              : null,
+        ),
     ]);
   }
 
@@ -612,8 +666,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
   }
 
   Future<AttestorAuthenticationRequest> _requestAttestorAuthenticationRequestFromHost(HttpProvider provider) async {
-    // Encode to a JSON string and decode to a Map<dynamic, dynamic> to avoid type errors. This causes all nested objects's toJson to be called.
-    final Map<dynamic, dynamic> providerMap = json.decode(json.encode(provider));
+    final providerMap = ensureMap<Object?>(provider.toJson())!;
     final result = await hostVerificationApi.fetchAttestorAuthenticationRequest(providerMap);
     try {
       final map = json.decode(result);
@@ -627,12 +680,7 @@ class ReclaimModuleAppState extends State<ReclaimModuleApp> implements ReclaimMo
     }
   }
 
-  void _sendLogsToHost(LogRecord record, SessionIdentity? identity, ReclaimHostOverridesApi overridesHandler) {
-    final entry = LogEntry.fromRecord(
-      record,
-      identity,
-      fallbackSessionIdentity: SessionIdentity.latest ?? SessionIdentity(appId: '', providerId: '', sessionId: ''),
-    );
+  void _sendLogsToHost(LogEntry entry, ReclaimHostOverridesApi overridesHandler) {
     overridesHandler.onLogs(json.encode(entry));
   }
 

@@ -187,10 +187,12 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)makeWithAppName:(NSString *)appName
     appImageUrl:(NSString *)appImageUrl
-    isRecurring:(BOOL )isRecurring;
+    isRecurring:(BOOL )isRecurring
+    theme:(nullable NSString *)theme;
 @property(nonatomic, copy) NSString * appName;
 @property(nonatomic, copy) NSString * appImageUrl;
 @property(nonatomic, assign) BOOL  isRecurring;
+@property(nonatomic, copy, nullable) NSString * theme;
 @end
 
 /// Identification information of a session.

@@ -423,11 +423,13 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
 @implementation ClientReclaimAppInfoOverride
 + (instancetype)makeWithAppName:(NSString *)appName
     appImageUrl:(NSString *)appImageUrl
-    isRecurring:(BOOL )isRecurring {
+    isRecurring:(BOOL )isRecurring
+    theme:(nullable NSString *)theme {
   ClientReclaimAppInfoOverride* pigeonResult = [[ClientReclaimAppInfoOverride alloc] init];
   pigeonResult.appName = appName;
   pigeonResult.appImageUrl = appImageUrl;
   pigeonResult.isRecurring = isRecurring;
+  pigeonResult.theme = theme;
   return pigeonResult;
 }
 + (ClientReclaimAppInfoOverride *)fromList:(NSArray<id> *)list {
@@ -435,6 +437,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.appName = GetNullableObjectAtIndex(list, 0);
   pigeonResult.appImageUrl = GetNullableObjectAtIndex(list, 1);
   pigeonResult.isRecurring = [GetNullableObjectAtIndex(list, 2) boolValue];
+  pigeonResult.theme = GetNullableObjectAtIndex(list, 3);
   return pigeonResult;
 }
 + (nullable ClientReclaimAppInfoOverride *)nullableFromList:(NSArray<id> *)list {
@@ -445,6 +448,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     self.appName ?: [NSNull null],
     self.appImageUrl ?: [NSNull null],
     @(self.isRecurring),
+    self.theme ?: [NSNull null],
   ];
 }
 @end
