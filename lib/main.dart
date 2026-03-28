@@ -5,20 +5,21 @@ import 'reclaim_verifier_module.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final api = ReclaimInAppSdk();
+  final sdk = ReclaimInAppSdk();
 
-  runApp(ReclaimModuleApp(sdk: api));
+  runApp(
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: ReclaimInAppSdkUIScope(sdk: sdk, child: ReclaimModuleApp()),
+    ),
+  );
 }
 
 class ReclaimModuleApp extends StatelessWidget {
-  const ReclaimModuleApp({super.key, required this.sdk});
-
-  final ReclaimInAppSdk sdk;
+  const ReclaimModuleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    sdk.setVerificationContext(context);
-
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     return PopScope(

@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 import 'reclaim_verifier_module.dart';
 
 export 'package:flutter/widgets.dart' show BuildContext;
@@ -8,6 +10,25 @@ export 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart' hide ReclaimVerificati
 export 'package:reclaim_inapp_sdk/ui.dart';
 export 'src/api.dart';
 export 'src/pigeon/messages.pigeon.dart';
+
+class ReclaimInAppSdkUIScope extends StatelessWidget {
+  const ReclaimInAppSdkUIScope({super.key, required this.sdk, required this.child});
+
+  final ReclaimInAppSdk sdk;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ReclaimThemeProvider(
+      applicationId: null,
+      builder: (context) {
+        sdk.setVerificationContext(context);
+
+        return child;
+      },
+    );
+  }
+}
 
 class ReclaimInAppSdk {
   /// Ensure WidgetsBinding.ensureInitialized() is called before creating an instance of ReclaimInAppSdk.
