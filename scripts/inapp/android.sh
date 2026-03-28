@@ -53,8 +53,21 @@ reclaimSdk.appSecret=${RECLAIM_CONSUMER_APP_SECRET}
 
 make build;
 
+ANDROID_DISTRIBUTION_FILES=$ANDROID_CLONE_DIR/dist/library/$VERSION/repo
+
 # test & upload to S3 bucket
-echo "test & upload everything under $ANDROID_CLONE_DIR/dist/library/$VERSION/repo to S3 bucket"
+echo "test & upload everything under $ANDROID_DISTRIBUTION_FILES to S3 bucket"
+
+set +x
+while true; do
+    read -r -p "Please upload the files in $ANDROID_DISTRIBUTION_FILES for to the android repository. Have you uploaded them? (y/n): " yn
+    case $yn in
+        [Yy]* ) echo "Confirmed. Exiting."; break;;
+        [Nn]* ) echo "Please upload the files before continuing.";;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+set -x
 
 # COMMIT, TAG, PUSH
 

@@ -135,5 +135,3 @@ sign_frameworks_in_directory "build/ios/ReclaimXCFrameworks"
 rm -rf $DIST_IOS
 mkdir -p $DIST_IOS
 mv build/ios/ReclaimXCFrameworks.tar.gz $DIST_IOS
-
-echo "Build ready in $DIST_IOS"

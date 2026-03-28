@@ -58,15 +58,43 @@ RECLAIM_PROVIDER_ID = example
 cp Examples/SwiftUIWithPodExample/BaseConfig.xcconfig Examples/SwiftUIExample/BaseConfig.xcconfig;
 
 ./Scripts/prepare.sh
+cat Devel/Package.swift.prod > Package.swift
+cat Devel/podspec.prod > ReclaimInAppSdk.podspec
 
-echo "Upload $IOS_CLONE_DIR/Build/$VERSION to S3 bucket, make sure $VERSION/ directory exists, and $VERSION/ should have the files and not $VERSION/"
+IOS_DISTRIBUTION_FILES=$IOS_CLONE_DIR/Build/$VERSION
 
+echo "Upload $IOS_DISTRIBUTION_FILES to S3 bucket, make sure $VERSION/ directory exists, and $VERSION/ should have the files and not $VERSION/"
+
+set +x
+while true; do
+    read -r -p "Please upload the files in $IOS_DISTRIBUTION_FILES to the ios repository. Have you uploaded them? (y/n): " yn
+    case $yn in
+        [Yy]* ) echo "Confirmed. Exiting."; break;;
+        [Nn]* ) echo "Please upload the files before continuing.";;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+set -x
+
+# Ensuring correct package manifest
 cat Devel/Package.swift.prod > Package.swift
 cat Devel/podspec.prod > ReclaimInAppSdk.podspec
 
 # COMMIT, TAG, PUSH
-
 echo "Test, then 'git tag -a $VERSION -m $VERSION; git push; git push --tags', and then finally run the following to deploy to Cocoapods (will be available for use in ~1 hour):"
 echo "pod trunk push ReclaimInAppSdk.podspec --allow-warnings"
+
+set +x
+while true; do
+    read -r -p "Please test $VERSION and then comeback. Have you tested? (y/n): " yn
+    case $yn in
+        [Yy]* ) echo "Confirmed. Exiting."; break;;
+        [Nn]* ) echo "Please test package before continuing.";;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+set -x
+
+echo "Now run: pod trunk push ReclaimInAppSdk.podspec --allow-warnings"
 
 cd $WORK_DIR;
