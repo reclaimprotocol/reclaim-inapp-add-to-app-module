@@ -60,10 +60,10 @@ echo "test & upload everything under $ANDROID_DISTRIBUTION_FILES to S3 bucket"
 
 set +x
 while true; do
-    read -r -p "Please upload the files in $ANDROID_DISTRIBUTION_FILES for to the android repository. Have you uploaded them? (y/n): " yn
+    read -r -p "Please first test example/ and then upload the files in $ANDROID_DISTRIBUTION_FILES for to the android repository. Have you tested and uploaded them? (y/n): " yn
     case $yn in
         [Yy]* ) echo "Confirmed. Exiting."; break;;
-        [Nn]* ) echo "Please upload the files before continuing.";;
+        [Nn]* ) echo "Please test and upload the files before continuing.";;
         * ) echo "Please answer yes or no.";;
     esac
 done

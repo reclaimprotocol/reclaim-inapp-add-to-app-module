@@ -1,5 +1,6 @@
-## 0.33.0
+## 0.34.0
 
+* Update [internal] analytics
 * Improve performance and memory usage
 * Update [internal] dependencies
 * Update [internal] tests
