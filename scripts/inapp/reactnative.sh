@@ -44,3 +44,14 @@ sed -i '' "s/Latest version on \[cocoapods.org is .*\]/Latest version on \[cocoa
 sed -i '' "s/\"version\": \".*\",/\"version\": \"$VERSION\",/" ./package.json;
 sed -i '' "s/\"@reclaimprotocol\/inapp-rn-sdk\": \"\^.*\"/\"@reclaimprotocol\/inapp-rn-sdk\": \"\^$VERSION\"/" ./samples/example_expo/package.json;
 sed -i '' "s/\"@reclaimprotocol\/inapp-rn-sdk\": \"\^.*\"/\"@reclaimprotocol\/inapp-rn-sdk\": \"\^$VERSION\"/" ./samples/example_new_arch/package.json;
+
+set +x
+while true; do
+    read -r -p "Please test $RN_CLONE_DIR package and then publish to NPM. Is this done? (y/n): " yn
+    case $yn in
+        [Yy]* ) echo "Confirmed. Exiting."; break;;
+        [Nn]* ) echo "Please test & upload package before continuing.";;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+set -x

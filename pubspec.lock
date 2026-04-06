@@ -920,16 +920,20 @@ packages:
   reclaim_inapp_sdk:
     dependency: "direct main"
     description:
-      path: "../../mobile/reclaim-inapp-sdk"
-      relative: true
-    source: path
+      path: "."
+      ref: main
+      resolved-ref: "859edb8e9d8daf4b6f3ae5e6dde4704ccdae918f"
+      url: "git@github.com:reclaimprotocol/reclaim-inapp-sdk.git"
+    source: git
     version: "0.34.0"
   reclaim_tee_operator_flutter:
     dependency: "direct main"
     description:
-      path: "../../mobile/reclaim-tee-operator-flutter"
-      relative: true
-    source: path
+      path: "."
+      ref: main
+      resolved-ref: b7f8be605933bc1069bfafe7b4fb6132ac0c5765
+      url: "git@github.com:reclaimprotocol/reclaim-tee-operator-flutter.git"
+    source: git
     version: "2.3.1"
   retry:
     dependency: transitive
