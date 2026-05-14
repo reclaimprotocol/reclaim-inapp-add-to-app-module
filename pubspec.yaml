@@ -41,6 +41,7 @@ dependencies:
   json_annotation: ^4.9.0
   logging: ^1.3.0
   http: ^1.5.0
+  objective_c: 9.1.0
 
 dev_dependencies:
   flutter_test:
