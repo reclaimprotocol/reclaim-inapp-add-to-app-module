@@ -114,8 +114,8 @@ project_dir="$(pwd)"
 for framework_path in $FRAMEWORK_PATTERN; do
     echo "Trying to make XCframework for $framework_path"
     if [ -d "$framework_path" ]; then
-        echo "Temporarily disabled .xcframework development. Try uploading app to Testflight when this is needed again"
-        exit 1;
+        # echo "Temporarily disabled .xcframework development. Try uploading app to Testflight when this is needed again"
+        # exit 1;
         framework_name=$(basename $framework_path .framework)
 
         echo "📦 Creating xcframework for $framework_name"
@@ -135,5 +135,3 @@ sign_frameworks_in_directory "build/ios/ReclaimXCFrameworks"
 rm -rf $DIST_IOS
 mkdir -p $DIST_IOS
 mv build/ios/ReclaimXCFrameworks.tar.gz $DIST_IOS
-
-echo "Build ready in $DIST_IOS"

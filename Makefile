@@ -18,6 +18,6 @@ local_repo:
 	# For local testing of remote repo for iOS and Android
 	python3 -m http.server -d ./dist/
 build:
-	(source .env.secret && ./scripts/build.sh;)
+	./scripts/build.sh;
 dev:
 	flutter run
