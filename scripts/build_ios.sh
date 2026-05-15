@@ -6,10 +6,10 @@ export VERSION=$(grep '^version:' pubspec.yaml | sed -e 's/version: //')
 
 DIST_IOS=./dist/ios/$VERSION
 
-(cd .ios && pod deintegrate && rm -rf Podfile.lock && rm -rf ./Pods/);
-sed -i '' "s/platform :ios, '.*'/platform :ios, '14.0'/" ./.ios/Podfile;
+# (cd .ios && pod deintegrate && rm -rf Podfile.lock && rm -rf ./Pods/);
+# sed -i '' "s/platform :ios, '.*'/platform :ios, '14.0'/" ./.ios/Podfile;
 
-(cd .ios && pod install)
+# (cd .ios && pod install)
 mkdir -p build/ios
 mkdir -p debug/ios/
 flutter build ios-framework --output=build/ios --release --no-profile --debug; # --split-debug-info=debug/ios/v$VERSION
