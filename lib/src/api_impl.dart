@@ -323,6 +323,8 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
 
   final _defaultReclaimVerificationOptions = ReclaimVerificationOptions(
     canAutoSubmit: true,
+    // TODO: Add this as an option in platform apis
+    canAutoCloseOnError: true,
     isCloseButtonVisible: true,
   );
 
@@ -347,6 +349,8 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
       });
       _reclaimVerificationOptions = _reclaimVerificationOptions.copyWith(
         canAutoSubmit: options.canAutoSubmit,
+        // TODO: Add this as an option in platform apis
+        canAutoCloseOnError: true,
         canClearWebStorage: options.canDeleteCookiesBeforeVerificationStarts,
         attestorAuthenticationRequest: options.canUseAttestorAuthenticationRequest
             ? _requestAttestorAuthenticationRequestFromHost
@@ -667,6 +671,7 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
         case ReclaimVerificationRequirementException():
         case ReclaimVerificationProviderLoadException():
         case ReclaimAttestorException():
+        case ReclaimVerificationProviderFailedException():
           return ReclaimApiVerificationExceptionType.verificationFailed;
       }
     }
