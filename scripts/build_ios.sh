@@ -12,6 +12,7 @@ DIST_IOS=./dist/ios/$VERSION
 # (cd .ios && pod install)
 mkdir -p build/ios
 mkdir -p debug/ios/
+# flutter build swift-package --platform ios;
 flutter build ios-framework --output=build/ios --release --no-profile --debug; # --split-debug-info=debug/ios/v$VERSION
 
 # Function to clean and sign frameworks (same as in sign_ios_frameworks.sh)

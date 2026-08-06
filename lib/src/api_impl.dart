@@ -16,6 +16,8 @@ extension ReclaimSessionStatusExtension on ReclaimSessionStatus {
       SessionStatus.PROOF_GENERATION_STARTED => ReclaimSessionStatus.PROOF_GENERATION_STARTED,
       SessionStatus.PROOF_GENERATION_RETRY => ReclaimSessionStatus.PROOF_GENERATION_RETRY,
       SessionStatus.AI_PROOF_SUBMITTED => ReclaimSessionStatus.AI_PROOF_SUBMITTED,
+      SessionStatus.USER_INTERACTED => ReclaimSessionStatus.USER_INTERACTED,
+      SessionStatus.USER_TYPED => ReclaimSessionStatus.USER_TYPED,
     };
   }
 }

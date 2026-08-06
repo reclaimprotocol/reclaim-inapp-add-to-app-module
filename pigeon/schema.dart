@@ -187,6 +187,8 @@ enum ReclaimSessionStatus {
   PROOF_SUBMISSION_FAILED,
   PROOF_MANUAL_VERIFICATION_SUBMITTED,
   AI_PROOF_SUBMITTED,
+  USER_INTERACTED,
+  USER_TYPED
 }
 
 /// Identification information of a session.
@@ -360,4 +362,6 @@ abstract class ReclaimHostOverridesApi {
 abstract class ReclaimHostVerificationApi {
   @async
   String fetchAttestorAuthenticationRequest(Map<dynamic, dynamic> reclaimHttpProvider);
+  // @async
+  // String setCurrentClientSource(String source);
 }
