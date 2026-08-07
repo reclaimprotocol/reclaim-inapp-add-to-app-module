@@ -552,7 +552,9 @@ data class ClientFeatureOverrides (
 data class ClientLogConsumerOverride (
   val enableLogHandler: Boolean,
   val canSdkCollectTelemetry: Boolean,
-  val canSdkPrintLogs: Boolean? = null
+  val canSdkPrintLogs: Boolean? = null,
+  val logLevel: String? = null,
+  val canLogMetadata: Boolean? = null
 )
  {
   companion object {
@@ -560,7 +562,9 @@ data class ClientLogConsumerOverride (
       val enableLogHandler = pigeonVar_list[0] as Boolean
       val canSdkCollectTelemetry = pigeonVar_list[1] as Boolean
       val canSdkPrintLogs = pigeonVar_list[2] as Boolean?
-      return ClientLogConsumerOverride(enableLogHandler, canSdkCollectTelemetry, canSdkPrintLogs)
+      val logLevel = pigeonVar_list[3] as String?
+      val canLogMetadata = pigeonVar_list[4] as Boolean?
+      return ClientLogConsumerOverride(enableLogHandler, canSdkCollectTelemetry, canSdkPrintLogs, logLevel, canLogMetadata)
     }
   }
   fun toList(): List<Any?> {
@@ -568,6 +572,8 @@ data class ClientLogConsumerOverride (
       enableLogHandler,
       canSdkCollectTelemetry,
       canSdkPrintLogs,
+      logLevel,
+      canLogMetadata,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -578,7 +584,7 @@ data class ClientLogConsumerOverride (
       return true
     }
     val other = other as ClientLogConsumerOverride
-    return MessagesPigeonUtils.deepEquals(this.enableLogHandler, other.enableLogHandler) && MessagesPigeonUtils.deepEquals(this.canSdkCollectTelemetry, other.canSdkCollectTelemetry) && MessagesPigeonUtils.deepEquals(this.canSdkPrintLogs, other.canSdkPrintLogs)
+    return MessagesPigeonUtils.deepEquals(this.enableLogHandler, other.enableLogHandler) && MessagesPigeonUtils.deepEquals(this.canSdkCollectTelemetry, other.canSdkCollectTelemetry) && MessagesPigeonUtils.deepEquals(this.canSdkPrintLogs, other.canSdkPrintLogs) && MessagesPigeonUtils.deepEquals(this.logLevel, other.logLevel) && MessagesPigeonUtils.deepEquals(this.canLogMetadata, other.canLogMetadata)
   }
 
   override fun hashCode(): Int {
@@ -586,6 +592,8 @@ data class ClientLogConsumerOverride (
     result = 31 * result + MessagesPigeonUtils.deepHash(this.enableLogHandler)
     result = 31 * result + MessagesPigeonUtils.deepHash(this.canSdkCollectTelemetry)
     result = 31 * result + MessagesPigeonUtils.deepHash(this.canSdkPrintLogs)
+    result = 31 * result + MessagesPigeonUtils.deepHash(this.logLevel)
+    result = 31 * result + MessagesPigeonUtils.deepHash(this.canLogMetadata)
     return result
   }
 }

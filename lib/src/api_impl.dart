@@ -167,6 +167,15 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
       await _assertCanUseCapability('overrides_v1');
     }
 
+    final logLevel = logConsumer?.logLevel;
+    if (logLevel != null) {
+      setLoggingLevel(logLevel);
+    }
+    final canLogMetadata = logConsumer?.canLogMetadata;
+    if (canLogMetadata != null) {
+      metadataLoggingEnabled = canLogMetadata;
+    }
+
     ReclaimOverride.setAll([
       if (feature != null)
         ReclaimFeatureFlagData(
@@ -300,7 +309,7 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
                   appId: appId,
                   providerId: providerId,
                   sessionId: sessionId,
-                  logType: logType,
+                  logType: logType.name,
                   metadata: ensureMap<String>(metadata),
                 );
               },

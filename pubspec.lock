@@ -955,7 +955,7 @@ packages:
       path: "../reclaim-inapp-sdk"
       relative: true
     source: path
-    version: "0.39.0"
+    version: "0.40.0"
   reclaim_tee_operator_flutter:
     dependency: "direct main"
     description:

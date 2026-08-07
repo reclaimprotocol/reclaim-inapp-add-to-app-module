@@ -10,22 +10,14 @@ import 'dart:typed_data' show Float64List, Int32List, Int64List;
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' show immutable, protected, visibleForTesting;
 
-Object? _extractReplyValueOrThrow(
-    List<Object?>? replyList,
-    String channelName, {
-    required bool isNullValid,
-}) {
+Object? _extractReplyValueOrThrow(List<Object?>? replyList, String channelName, {required bool isNullValid}) {
   if (replyList == null) {
     throw PlatformException(
       code: 'channel-error',
       message: 'Unable to establish connection on channel: "$channelName".',
     );
   } else if (replyList.length > 1) {
-    throw PlatformException(
-      code: replyList[0]! as String,
-      message: replyList[1] as String?,
-      details: replyList[2],
-    );
+    throw PlatformException(code: replyList[0]! as String, message: replyList[1] as String?, details: replyList[2]);
   } else if (!isNullValid && (replyList.isNotEmpty && replyList[0] == null)) {
     throw PlatformException(
       code: 'null-error',
@@ -34,7 +26,6 @@ Object? _extractReplyValueOrThrow(
   }
   return replyList.firstOrNull;
 }
-
 
 List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty = false}) {
   if (empty) {
@@ -45,6 +36,7 @@ List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty
   }
   return <Object?>[error.code, error.message, error.details];
 }
+
 bool _deepEquals(Object? a, Object? b) {
   if (identical(a, b)) {
     return true;
@@ -56,9 +48,7 @@ bool _deepEquals(Object? a, Object? b) {
     return a == b;
   }
   if (a is List && b is List) {
-    return a.length == b.length &&
-        a.indexed
-            .every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
+    return a.length == b.length && a.indexed.every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
   }
   if (a is Map && b is Map) {
     if (a.length != b.length) {
@@ -107,7 +97,6 @@ int _deepHash(Object? value) {
   return value.hashCode;
 }
 
-
 enum ReclaimApiVerificationExceptionType {
   unknown,
   sessionExpired,
@@ -131,10 +120,7 @@ enum ReclaimSessionStatus {
   USER_TYPED,
 }
 
-enum ClaimCreationTypeApi {
-  standalone,
-  meChain,
-}
+enum ClaimCreationTypeApi { standalone, meChain }
 
 class ReclaimApiVerificationRequest {
   ReclaimApiVerificationRequest({
@@ -168,21 +154,12 @@ class ReclaimApiVerificationRequest {
   ProviderVersionApi? providerVersion;
 
   List<Object?> _toList() {
-    return <Object?>[
-      appId,
-      providerId,
-      secret,
-      signature,
-      timestamp,
-      context,
-      sessionId,
-      parameters,
-      providerVersion,
-    ];
+    return <Object?>[appId, providerId, secret, signature, timestamp, context, sessionId, parameters, providerVersion];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ReclaimApiVerificationRequest decode(Object result) {
     result as List<Object?>;
@@ -208,7 +185,15 @@ class ReclaimApiVerificationRequest {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(appId, other.appId) && _deepEquals(providerId, other.providerId) && _deepEquals(secret, other.secret) && _deepEquals(signature, other.signature) && _deepEquals(timestamp, other.timestamp) && _deepEquals(context, other.context) && _deepEquals(sessionId, other.sessionId) && _deepEquals(parameters, other.parameters) && _deepEquals(providerVersion, other.providerVersion);
+    return _deepEquals(appId, other.appId) &&
+        _deepEquals(providerId, other.providerId) &&
+        _deepEquals(secret, other.secret) &&
+        _deepEquals(signature, other.signature) &&
+        _deepEquals(timestamp, other.timestamp) &&
+        _deepEquals(context, other.context) &&
+        _deepEquals(sessionId, other.sessionId) &&
+        _deepEquals(parameters, other.parameters) &&
+        _deepEquals(providerVersion, other.providerVersion);
   }
 
   @override
@@ -217,11 +202,7 @@ class ReclaimApiVerificationRequest {
 }
 
 class ReclaimApiVerificationException {
-  ReclaimApiVerificationException({
-    required this.message,
-    required this.stackTraceAsString,
-    required this.type,
-  });
+  ReclaimApiVerificationException({required this.message, required this.stackTraceAsString, required this.type});
 
   String message;
 
@@ -230,15 +211,12 @@ class ReclaimApiVerificationException {
   ReclaimApiVerificationExceptionType type;
 
   List<Object?> _toList() {
-    return <Object?>[
-      message,
-      stackTraceAsString,
-      type,
-    ];
+    return <Object?>[message, stackTraceAsString, type];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ReclaimApiVerificationException decode(Object result) {
     result as List<Object?>;
@@ -258,7 +236,9 @@ class ReclaimApiVerificationException {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(message, other.message) && _deepEquals(stackTraceAsString, other.stackTraceAsString) && _deepEquals(type, other.type);
+    return _deepEquals(message, other.message) &&
+        _deepEquals(stackTraceAsString, other.stackTraceAsString) &&
+        _deepEquals(type, other.type);
   }
 
   @override
@@ -283,16 +263,12 @@ class ReclaimApiVerificationResponse {
   ReclaimApiVerificationException? exception;
 
   List<Object?> _toList() {
-    return <Object?>[
-      sessionId,
-      didSubmitManualVerification,
-      proofs,
-      exception,
-    ];
+    return <Object?>[sessionId, didSubmitManualVerification, proofs, exception];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ReclaimApiVerificationResponse decode(Object result) {
     result as List<Object?>;
@@ -313,7 +289,10 @@ class ReclaimApiVerificationResponse {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(sessionId, other.sessionId) && _deepEquals(didSubmitManualVerification, other.didSubmitManualVerification) && _deepEquals(proofs, other.proofs) && _deepEquals(exception, other.exception);
+    return _deepEquals(sessionId, other.sessionId) &&
+        _deepEquals(didSubmitManualVerification, other.didSubmitManualVerification) &&
+        _deepEquals(proofs, other.proofs) &&
+        _deepEquals(exception, other.exception);
   }
 
   @override
@@ -335,15 +314,12 @@ class ClientProviderInformationOverride {
   bool canFetchProviderInformationFromHost;
 
   List<Object?> _toList() {
-    return <Object?>[
-      providerInformationUrl,
-      providerInformationJsonString,
-      canFetchProviderInformationFromHost,
-    ];
+    return <Object?>[providerInformationUrl, providerInformationJsonString, canFetchProviderInformationFromHost];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ClientProviderInformationOverride decode(Object result) {
     result as List<Object?>;
@@ -363,7 +339,9 @@ class ClientProviderInformationOverride {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(providerInformationUrl, other.providerInformationUrl) && _deepEquals(providerInformationJsonString, other.providerInformationJsonString) && _deepEquals(canFetchProviderInformationFromHost, other.canFetchProviderInformationFromHost);
+    return _deepEquals(providerInformationUrl, other.providerInformationUrl) &&
+        _deepEquals(providerInformationJsonString, other.providerInformationJsonString) &&
+        _deepEquals(canFetchProviderInformationFromHost, other.canFetchProviderInformationFromHost);
   }
 
   @override
@@ -461,7 +439,8 @@ class ClientFeatureOverrides {
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ClientFeatureOverrides decode(Object result) {
     result as List<Object?>;
@@ -498,7 +477,29 @@ class ClientFeatureOverrides {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(cookiePersist, other.cookiePersist) && _deepEquals(singleReclaimRequest, other.singleReclaimRequest) && _deepEquals(attestorBrowserRpcUrl, other.attestorBrowserRpcUrl) && _deepEquals(idleTimeThresholdForManualVerificationTrigger, other.idleTimeThresholdForManualVerificationTrigger) && _deepEquals(sessionTimeoutForManualVerificationTrigger, other.sessionTimeoutForManualVerificationTrigger) && _deepEquals(isAIFlowEnabled, other.isAIFlowEnabled) && _deepEquals(manualReviewMessage, other.manualReviewMessage) && _deepEquals(loginPromptMessage, other.loginPromptMessage) && _deepEquals(useTEE, other.useTEE) && _deepEquals(interceptorOptions, other.interceptorOptions) && _deepEquals(claimCreationTimeoutDurationInMins, other.claimCreationTimeoutDurationInMins) && _deepEquals(sessionNoActivityTimeoutDurationInMins, other.sessionNoActivityTimeoutDurationInMins) && _deepEquals(aiProviderNoActivityTimeoutDurationInSecs, other.aiProviderNoActivityTimeoutDurationInSecs) && _deepEquals(pageLoadedCompletedDebounceTimeoutMs, other.pageLoadedCompletedDebounceTimeoutMs) && _deepEquals(potentialLoginTimeoutS, other.potentialLoginTimeoutS) && _deepEquals(screenshotCaptureIntervalSeconds, other.screenshotCaptureIntervalSeconds) && _deepEquals(teeUrls, other.teeUrls) && _deepEquals(privacyPolicyUrl, other.privacyPolicyUrl) && _deepEquals(termsOfServiceUrl, other.termsOfServiceUrl) && _deepEquals(potentialFailureReasonsUrl, other.potentialFailureReasonsUrl);
+    return _deepEquals(cookiePersist, other.cookiePersist) &&
+        _deepEquals(singleReclaimRequest, other.singleReclaimRequest) &&
+        _deepEquals(attestorBrowserRpcUrl, other.attestorBrowserRpcUrl) &&
+        _deepEquals(
+          idleTimeThresholdForManualVerificationTrigger,
+          other.idleTimeThresholdForManualVerificationTrigger,
+        ) &&
+        _deepEquals(sessionTimeoutForManualVerificationTrigger, other.sessionTimeoutForManualVerificationTrigger) &&
+        _deepEquals(isAIFlowEnabled, other.isAIFlowEnabled) &&
+        _deepEquals(manualReviewMessage, other.manualReviewMessage) &&
+        _deepEquals(loginPromptMessage, other.loginPromptMessage) &&
+        _deepEquals(useTEE, other.useTEE) &&
+        _deepEquals(interceptorOptions, other.interceptorOptions) &&
+        _deepEquals(claimCreationTimeoutDurationInMins, other.claimCreationTimeoutDurationInMins) &&
+        _deepEquals(sessionNoActivityTimeoutDurationInMins, other.sessionNoActivityTimeoutDurationInMins) &&
+        _deepEquals(aiProviderNoActivityTimeoutDurationInSecs, other.aiProviderNoActivityTimeoutDurationInSecs) &&
+        _deepEquals(pageLoadedCompletedDebounceTimeoutMs, other.pageLoadedCompletedDebounceTimeoutMs) &&
+        _deepEquals(potentialLoginTimeoutS, other.potentialLoginTimeoutS) &&
+        _deepEquals(screenshotCaptureIntervalSeconds, other.screenshotCaptureIntervalSeconds) &&
+        _deepEquals(teeUrls, other.teeUrls) &&
+        _deepEquals(privacyPolicyUrl, other.privacyPolicyUrl) &&
+        _deepEquals(termsOfServiceUrl, other.termsOfServiceUrl) &&
+        _deepEquals(potentialFailureReasonsUrl, other.potentialFailureReasonsUrl);
   }
 
   @override
@@ -511,6 +512,8 @@ class ClientLogConsumerOverride {
     this.enableLogHandler = true,
     this.canSdkCollectTelemetry = true,
     this.canSdkPrintLogs = false,
+    this.logLevel,
+    this.canLogMetadata = false,
   });
 
   bool enableLogHandler;
@@ -519,16 +522,17 @@ class ClientLogConsumerOverride {
 
   bool? canSdkPrintLogs;
 
+  String? logLevel;
+
+  bool? canLogMetadata;
+
   List<Object?> _toList() {
-    return <Object?>[
-      enableLogHandler,
-      canSdkCollectTelemetry,
-      canSdkPrintLogs,
-    ];
+    return <Object?>[enableLogHandler, canSdkCollectTelemetry, canSdkPrintLogs, logLevel, canLogMetadata];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ClientLogConsumerOverride decode(Object result) {
     result as List<Object?>;
@@ -536,6 +540,8 @@ class ClientLogConsumerOverride {
       enableLogHandler: result[0]! as bool,
       canSdkCollectTelemetry: result[1]! as bool,
       canSdkPrintLogs: result[2] as bool?,
+      logLevel: result[3] as String?,
+      canLogMetadata: result[4] as bool?,
     );
   }
 
@@ -548,7 +554,11 @@ class ClientLogConsumerOverride {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(enableLogHandler, other.enableLogHandler) && _deepEquals(canSdkCollectTelemetry, other.canSdkCollectTelemetry) && _deepEquals(canSdkPrintLogs, other.canSdkPrintLogs);
+    return _deepEquals(enableLogHandler, other.enableLogHandler) &&
+        _deepEquals(canSdkCollectTelemetry, other.canSdkCollectTelemetry) &&
+        _deepEquals(canSdkPrintLogs, other.canSdkPrintLogs) &&
+        _deepEquals(logLevel, other.logLevel) &&
+        _deepEquals(canLogMetadata, other.canLogMetadata);
   }
 
   @override
@@ -557,26 +567,21 @@ class ClientLogConsumerOverride {
 }
 
 class ClientReclaimSessionManagementOverride {
-  ClientReclaimSessionManagementOverride({
-    this.enableSdkSessionManagement = true,
-  });
+  ClientReclaimSessionManagementOverride({this.enableSdkSessionManagement = true});
 
   bool enableSdkSessionManagement;
 
   List<Object?> _toList() {
-    return <Object?>[
-      enableSdkSessionManagement,
-    ];
+    return <Object?>[enableSdkSessionManagement];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ClientReclaimSessionManagementOverride decode(Object result) {
     result as List<Object?>;
-    return ClientReclaimSessionManagementOverride(
-      enableSdkSessionManagement: result[0]! as bool,
-    );
+    return ClientReclaimSessionManagementOverride(enableSdkSessionManagement: result[0]! as bool);
   }
 
   @override
@@ -613,16 +618,12 @@ class ClientReclaimAppInfoOverride {
   String? theme;
 
   List<Object?> _toList() {
-    return <Object?>[
-      appName,
-      appImageUrl,
-      isRecurring,
-      theme,
-    ];
+    return <Object?>[appName, appImageUrl, isRecurring, theme];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ClientReclaimAppInfoOverride decode(Object result) {
     result as List<Object?>;
@@ -643,7 +644,10 @@ class ClientReclaimAppInfoOverride {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(appName, other.appName) && _deepEquals(appImageUrl, other.appImageUrl) && _deepEquals(isRecurring, other.isRecurring) && _deepEquals(theme, other.theme);
+    return _deepEquals(appName, other.appName) &&
+        _deepEquals(appImageUrl, other.appImageUrl) &&
+        _deepEquals(isRecurring, other.isRecurring) &&
+        _deepEquals(theme, other.theme);
   }
 
   @override
@@ -653,11 +657,7 @@ class ClientReclaimAppInfoOverride {
 
 /// Identification information of a session.
 class ReclaimSessionIdentityUpdate {
-  ReclaimSessionIdentityUpdate({
-    required this.appId,
-    required this.providerId,
-    required this.sessionId,
-  });
+  ReclaimSessionIdentityUpdate({required this.appId, required this.providerId, required this.sessionId});
 
   /// The application id.
   String appId;
@@ -669,15 +669,12 @@ class ReclaimSessionIdentityUpdate {
   String sessionId;
 
   List<Object?> _toList() {
-    return <Object?>[
-      appId,
-      providerId,
-      sessionId,
-    ];
+    return <Object?>[appId, providerId, sessionId];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ReclaimSessionIdentityUpdate decode(Object result) {
     result as List<Object?>;
@@ -697,7 +694,9 @@ class ReclaimSessionIdentityUpdate {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(appId, other.appId) && _deepEquals(providerId, other.providerId) && _deepEquals(sessionId, other.sessionId);
+    return _deepEquals(appId, other.appId) &&
+        _deepEquals(providerId, other.providerId) &&
+        _deepEquals(sessionId, other.sessionId);
   }
 
   @override
@@ -763,7 +762,8 @@ class ReclaimApiVerificationOptions {
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ReclaimApiVerificationOptions decode(Object result) {
     result as List<Object?>;
@@ -787,7 +787,13 @@ class ReclaimApiVerificationOptions {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(canDeleteCookiesBeforeVerificationStarts, other.canDeleteCookiesBeforeVerificationStarts) && _deepEquals(canUseAttestorAuthenticationRequest, other.canUseAttestorAuthenticationRequest) && _deepEquals(claimCreationType, other.claimCreationType) && _deepEquals(canAutoSubmit, other.canAutoSubmit) && _deepEquals(isCloseButtonVisible, other.isCloseButtonVisible) && _deepEquals(locale, other.locale) && _deepEquals(useTeeOperator, other.useTeeOperator);
+    return _deepEquals(canDeleteCookiesBeforeVerificationStarts, other.canDeleteCookiesBeforeVerificationStarts) &&
+        _deepEquals(canUseAttestorAuthenticationRequest, other.canUseAttestorAuthenticationRequest) &&
+        _deepEquals(claimCreationType, other.claimCreationType) &&
+        _deepEquals(canAutoSubmit, other.canAutoSubmit) &&
+        _deepEquals(isCloseButtonVisible, other.isCloseButtonVisible) &&
+        _deepEquals(locale, other.locale) &&
+        _deepEquals(useTeeOperator, other.useTeeOperator);
   }
 
   @override
@@ -796,31 +802,23 @@ class ReclaimApiVerificationOptions {
 }
 
 class ProviderVersionApi {
-  ProviderVersionApi({
-    this.versionExpression,
-    this.resolvedVersion,
-  });
+  ProviderVersionApi({this.versionExpression, this.resolvedVersion});
 
   String? versionExpression;
 
   String? resolvedVersion;
 
   List<Object?> _toList() {
-    return <Object?>[
-      versionExpression,
-      resolvedVersion,
-    ];
+    return <Object?>[versionExpression, resolvedVersion];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static ProviderVersionApi decode(Object result) {
     result as List<Object?>;
-    return ProviderVersionApi(
-      versionExpression: result[0] as String?,
-      resolvedVersion: result[1] as String?,
-    );
+    return ProviderVersionApi(versionExpression: result[0] as String?, resolvedVersion: result[1] as String?);
   }
 
   @override
@@ -832,7 +830,8 @@ class ProviderVersionApi {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(versionExpression, other.versionExpression) && _deepEquals(resolvedVersion, other.resolvedVersion);
+    return _deepEquals(versionExpression, other.versionExpression) &&
+        _deepEquals(resolvedVersion, other.resolvedVersion);
   }
 
   @override
@@ -841,31 +840,23 @@ class ProviderVersionApi {
 }
 
 class SessionInitResponseApi {
-  SessionInitResponseApi({
-    required this.sessionId,
-    this.resolvedProviderVersion,
-  });
+  SessionInitResponseApi({required this.sessionId, this.resolvedProviderVersion});
 
   String sessionId;
 
   String? resolvedProviderVersion;
 
   List<Object?> _toList() {
-    return <Object?>[
-      sessionId,
-      resolvedProviderVersion,
-    ];
+    return <Object?>[sessionId, resolvedProviderVersion];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static SessionInitResponseApi decode(Object result) {
     result as List<Object?>;
-    return SessionInitResponseApi(
-      sessionId: result[0]! as String,
-      resolvedProviderVersion: result[1] as String?,
-    );
+    return SessionInitResponseApi(sessionId: result[0]! as String, resolvedProviderVersion: result[1] as String?);
   }
 
   @override
@@ -877,7 +868,8 @@ class SessionInitResponseApi {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(sessionId, other.sessionId) && _deepEquals(resolvedProviderVersion, other.resolvedProviderVersion);
+    return _deepEquals(sessionId, other.sessionId) &&
+        _deepEquals(resolvedProviderVersion, other.resolvedProviderVersion);
   }
 
   @override
@@ -911,19 +903,12 @@ class LogEntryApi {
   String? stackTraceAsString;
 
   List<Object?> _toList() {
-    return <Object?>[
-      sessionId,
-      message,
-      level,
-      dateTimeIso,
-      source,
-      error,
-      stackTraceAsString,
-    ];
+    return <Object?>[sessionId, message, level, dateTimeIso, source, error, stackTraceAsString];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static LogEntryApi decode(Object result) {
     result as List<Object?>;
@@ -947,14 +932,19 @@ class LogEntryApi {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(sessionId, other.sessionId) && _deepEquals(message, other.message) && _deepEquals(level, other.level) && _deepEquals(dateTimeIso, other.dateTimeIso) && _deepEquals(source, other.source) && _deepEquals(error, other.error) && _deepEquals(stackTraceAsString, other.stackTraceAsString);
+    return _deepEquals(sessionId, other.sessionId) &&
+        _deepEquals(message, other.message) &&
+        _deepEquals(level, other.level) &&
+        _deepEquals(dateTimeIso, other.dateTimeIso) &&
+        _deepEquals(source, other.source) &&
+        _deepEquals(error, other.error) &&
+        _deepEquals(stackTraceAsString, other.stackTraceAsString);
   }
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
 }
-
 
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
@@ -963,52 +953,52 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    }    else if (value is ReclaimApiVerificationExceptionType) {
+    } else if (value is ReclaimApiVerificationExceptionType) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    }    else if (value is ReclaimSessionStatus) {
+    } else if (value is ReclaimSessionStatus) {
       buffer.putUint8(130);
       writeValue(buffer, value.index);
-    }    else if (value is ClaimCreationTypeApi) {
+    } else if (value is ClaimCreationTypeApi) {
       buffer.putUint8(131);
       writeValue(buffer, value.index);
-    }    else if (value is ReclaimApiVerificationRequest) {
+    } else if (value is ReclaimApiVerificationRequest) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    }    else if (value is ReclaimApiVerificationException) {
+    } else if (value is ReclaimApiVerificationException) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    }    else if (value is ReclaimApiVerificationResponse) {
+    } else if (value is ReclaimApiVerificationResponse) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
-    }    else if (value is ClientProviderInformationOverride) {
+    } else if (value is ClientProviderInformationOverride) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    }    else if (value is ClientFeatureOverrides) {
+    } else if (value is ClientFeatureOverrides) {
       buffer.putUint8(136);
       writeValue(buffer, value.encode());
-    }    else if (value is ClientLogConsumerOverride) {
+    } else if (value is ClientLogConsumerOverride) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    }    else if (value is ClientReclaimSessionManagementOverride) {
+    } else if (value is ClientReclaimSessionManagementOverride) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
-    }    else if (value is ClientReclaimAppInfoOverride) {
+    } else if (value is ClientReclaimAppInfoOverride) {
       buffer.putUint8(139);
       writeValue(buffer, value.encode());
-    }    else if (value is ReclaimSessionIdentityUpdate) {
+    } else if (value is ReclaimSessionIdentityUpdate) {
       buffer.putUint8(140);
       writeValue(buffer, value.encode());
-    }    else if (value is ReclaimApiVerificationOptions) {
+    } else if (value is ReclaimApiVerificationOptions) {
       buffer.putUint8(141);
       writeValue(buffer, value.encode());
-    }    else if (value is ProviderVersionApi) {
+    } else if (value is ProviderVersionApi) {
       buffer.putUint8(142);
       writeValue(buffer, value.encode());
-    }    else if (value is SessionInitResponseApi) {
+    } else if (value is SessionInitResponseApi) {
       buffer.putUint8(143);
       writeValue(buffer, value.encode());
-    }    else if (value is LogEntryApi) {
+    } else if (value is LogEntryApi) {
       buffer.putUint8(144);
       writeValue(buffer, value.encode());
     } else {
@@ -1070,7 +1060,14 @@ abstract class ReclaimModuleApi {
 
   Future<ReclaimApiVerificationResponse> startVerificationFromJson(Map<dynamic, dynamic> template);
 
-  Future<void> setOverrides(ClientProviderInformationOverride? provider, ClientFeatureOverrides? feature, ClientLogConsumerOverride? logConsumer, ClientReclaimSessionManagementOverride? sessionManagement, ClientReclaimAppInfoOverride? appInfo, String? capabilityAccessToken);
+  Future<void> setOverrides(
+    ClientProviderInformationOverride? provider,
+    ClientFeatureOverrides? feature,
+    ClientLogConsumerOverride? logConsumer,
+    ClientReclaimSessionManagementOverride? sessionManagement,
+    ClientReclaimAppInfoOverride? appInfo,
+    String? capabilityAccessToken,
+  );
 
   Future<void> clearAllOverrides();
 
@@ -1082,12 +1079,14 @@ abstract class ReclaimModuleApi {
 
   Future<bool> ping();
 
-  static void setUp(ReclaimModuleApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
+  static void setUp(ReclaimModuleApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerification$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerification$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1099,16 +1098,20 @@ abstract class ReclaimModuleApi {
             return wrapResponse(result: output);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromUrl$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromUrl$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1120,16 +1123,20 @@ abstract class ReclaimModuleApi {
             return wrapResponse(result: output);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromJson$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.startVerificationFromJson$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1141,16 +1148,20 @@ abstract class ReclaimModuleApi {
             return wrapResponse(result: output);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setOverrides$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setOverrides$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1159,24 +1170,36 @@ abstract class ReclaimModuleApi {
           final ClientProviderInformationOverride? arg_provider = args[0] as ClientProviderInformationOverride?;
           final ClientFeatureOverrides? arg_feature = args[1] as ClientFeatureOverrides?;
           final ClientLogConsumerOverride? arg_logConsumer = args[2] as ClientLogConsumerOverride?;
-          final ClientReclaimSessionManagementOverride? arg_sessionManagement = args[3] as ClientReclaimSessionManagementOverride?;
+          final ClientReclaimSessionManagementOverride? arg_sessionManagement =
+              args[3] as ClientReclaimSessionManagementOverride?;
           final ClientReclaimAppInfoOverride? arg_appInfo = args[4] as ClientReclaimAppInfoOverride?;
           final String? arg_capabilityAccessToken = args[5] as String?;
           try {
-            await api.setOverrides(arg_provider, arg_feature, arg_logConsumer, arg_sessionManagement, arg_appInfo, arg_capabilityAccessToken);
+            await api.setOverrides(
+              arg_provider,
+              arg_feature,
+              arg_logConsumer,
+              arg_sessionManagement,
+              arg_appInfo,
+              arg_capabilityAccessToken,
+            );
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.clearAllOverrides$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.clearAllOverrides$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1186,16 +1209,20 @@ abstract class ReclaimModuleApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setVerificationOptions$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setVerificationOptions$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1207,16 +1234,20 @@ abstract class ReclaimModuleApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.sendLog$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.sendLog$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1228,16 +1259,20 @@ abstract class ReclaimModuleApi {
             return wrapResponse(result: output);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setConsoleLogging$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setConsoleLogging$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1249,16 +1284,20 @@ abstract class ReclaimModuleApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.ping$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.ping$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1268,8 +1307,10 @@ abstract class ReclaimModuleApi {
             return wrapResponse(result: output);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
           }
         });
       }
@@ -1283,8 +1324,8 @@ class ReclaimHostOverridesApi {
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
   ReclaimHostOverridesApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
-      : pigeonVar_binaryMessenger = binaryMessenger,
-        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+    : pigeonVar_binaryMessenger = binaryMessenger,
+      pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -1292,7 +1333,8 @@ class ReclaimHostOverridesApi {
   final String pigeonVar_messageChannelSuffix;
 
   Future<void> onLogs(String logJsonString) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.onLogs$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.onLogs$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -1301,35 +1343,47 @@ class ReclaimHostOverridesApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[logJsonString]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
-    _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
   }
 
-  Future<SessionInitResponseApi> createSession({required String appId, required String providerId, required String timestamp, required String signature, required String providerVersion, }) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.createSession$pigeonVar_messageChannelSuffix';
+  Future<SessionInitResponseApi> createSession({
+    required String appId,
+    required String providerId,
+    required String timestamp,
+    required String signature,
+    required String providerVersion,
+  }) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.createSession$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[appId, providerId, timestamp, signature, providerVersion]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[
+      appId,
+      providerId,
+      timestamp,
+      signature,
+      providerVersion,
+    ]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as SessionInitResponseApi;
   }
 
-  Future<bool> updateSession({required String sessionId, required ReclaimSessionStatus status, required Map<String, Object?>? metadata, }) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.updateSession$pigeonVar_messageChannelSuffix';
+  Future<bool> updateSession({
+    required String sessionId,
+    required ReclaimSessionStatus status,
+    required Map<String, Object?>? metadata,
+  }) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.updateSession$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -1339,34 +1393,42 @@ class ReclaimHostOverridesApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as bool;
   }
 
-  Future<void> logSession({required String appId, required String providerId, required String sessionId, required String logType, Map<String, dynamic>? metadata, }) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.logSession$pigeonVar_messageChannelSuffix';
+  Future<void> logSession({
+    required String appId,
+    required String providerId,
+    required String sessionId,
+    required String logType,
+    Map<String, dynamic>? metadata,
+  }) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.logSession$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[appId, providerId, sessionId, logType, metadata]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[
+      appId,
+      providerId,
+      sessionId,
+      logType,
+      metadata,
+    ]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
-    _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
   }
 
   Future<void> onSessionIdentityUpdate(ReclaimSessionIdentityUpdate? update) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.onSessionIdentityUpdate$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.onSessionIdentityUpdate$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -1375,30 +1437,39 @@ class ReclaimHostOverridesApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[update]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
-    _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
   }
 
-  Future<String> fetchProviderInformation({required String appId, required String providerId, required String sessionId, required String signature, required String timestamp, required String resolvedVersion, }) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.fetchProviderInformation$pigeonVar_messageChannelSuffix';
+  Future<String> fetchProviderInformation({
+    required String appId,
+    required String providerId,
+    required String sessionId,
+    required String signature,
+    required String timestamp,
+    required String resolvedVersion,
+  }) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.fetchProviderInformation$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[appId, providerId, sessionId, signature, timestamp, resolvedVersion]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[
+      appId,
+      providerId,
+      sessionId,
+      signature,
+      timestamp,
+      resolvedVersion,
+    ]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as String;
   }
 }
@@ -1408,8 +1479,8 @@ class ReclaimHostVerificationApi {
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
   ReclaimHostVerificationApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
-      : pigeonVar_binaryMessenger = binaryMessenger,
-        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+    : pigeonVar_binaryMessenger = binaryMessenger,
+      pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -1417,7 +1488,8 @@ class ReclaimHostVerificationApi {
   final String pigeonVar_messageChannelSuffix;
 
   Future<String> fetchAttestorAuthenticationRequest(Map<dynamic, dynamic> reclaimHttpProvider) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostVerificationApi.fetchAttestorAuthenticationRequest$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostVerificationApi.fetchAttestorAuthenticationRequest$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -1427,11 +1499,10 @@ class ReclaimHostVerificationApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as String;
   }
 }

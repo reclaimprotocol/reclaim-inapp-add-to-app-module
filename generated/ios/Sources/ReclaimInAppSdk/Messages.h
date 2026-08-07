@@ -177,10 +177,14 @@ typedef NS_ENUM(NSUInteger, ClaimCreationTypeApi) {
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)makeWithEnableLogHandler:(BOOL )enableLogHandler
     canSdkCollectTelemetry:(BOOL )canSdkCollectTelemetry
-    canSdkPrintLogs:(nullable NSNumber *)canSdkPrintLogs;
+    canSdkPrintLogs:(nullable NSNumber *)canSdkPrintLogs
+    logLevel:(nullable NSString *)logLevel
+    canLogMetadata:(nullable NSNumber *)canLogMetadata;
 @property(nonatomic, assign) BOOL  enableLogHandler;
 @property(nonatomic, assign) BOOL  canSdkCollectTelemetry;
 @property(nonatomic, strong, nullable) NSNumber * canSdkPrintLogs;
+@property(nonatomic, copy, nullable) NSString * logLevel;
+@property(nonatomic, strong, nullable) NSNumber * canLogMetadata;
 @end
 
 @interface ClientReclaimSessionManagementOverride : NSObject
