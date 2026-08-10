@@ -18,6 +18,9 @@ else
     git clone https://$PACKAGE_CLONE_USER:$PACKAGE_CLONE_PASSWD@github.com/reclaimprotocol/reclaim-inapp-android-sdk.git $ANDROID_CLONE_DIR;
 fi
 
+# Incase you wish to switch to a branch, uncomment and change this line.
+# (cd $ANDROID_CLONE_DIR; git checkout main;);
+
 rm $ANDROID_CLONE_DIR/library/src/main/java/org/reclaimprotocol/inapp_sdk/Messages.kt
 cp ../generated/android/src/main/java/org/reclaimprotocol/inapp_sdk/Messages.kt $ANDROID_CLONE_DIR/library/src/main/java/org/reclaimprotocol/inapp_sdk/Messages.kt
 
@@ -50,6 +53,20 @@ echo "
 reclaimSdk.appId=${RECLAIM_CONSUMER_APP_ID}
 reclaimSdk.appSecret=${RECLAIM_CONSUMER_APP_SECRET}
 " >> example/local.properties;
+
+# test & upload to S3 bucket
+echo "Ensure build works with make build"
+
+set +x
+while true; do
+    read -r -p "Please first test example/ locally. Have you tested? (y/n): " yn
+    case $yn in
+        [Yy]* ) echo "Confirmed. Exiting."; break;;
+        [Nn]* ) echo "Please test and upload the files before continuing.";;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+set -x
 
 make build;
 

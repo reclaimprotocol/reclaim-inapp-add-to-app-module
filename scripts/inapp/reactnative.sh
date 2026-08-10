@@ -20,6 +20,9 @@ fi
 
 cd $RN_CLONE_DIR;
 
+# Incase you wish to switch to a branch, uncomment and change this line.
+# git checkout main;
+
 DEFAULT_CHANGELOG="## $VERSION
 
 * Updates inapp module dependency to $VERSION

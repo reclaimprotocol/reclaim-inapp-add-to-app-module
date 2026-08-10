@@ -16,6 +16,8 @@ extension ReclaimSessionStatusExtension on ReclaimSessionStatus {
       SessionStatus.PROOF_GENERATION_STARTED => ReclaimSessionStatus.PROOF_GENERATION_STARTED,
       SessionStatus.PROOF_GENERATION_RETRY => ReclaimSessionStatus.PROOF_GENERATION_RETRY,
       SessionStatus.AI_PROOF_SUBMITTED => ReclaimSessionStatus.AI_PROOF_SUBMITTED,
+      SessionStatus.USER_INTERACTED => ReclaimSessionStatus.USER_INTERACTED,
+      SessionStatus.USER_TYPED => ReclaimSessionStatus.USER_TYPED,
     };
   }
 }
@@ -165,6 +167,15 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
       await _assertCanUseCapability('overrides_v1');
     }
 
+    final logLevel = logConsumer?.logLevel;
+    if (logLevel != null) {
+      setLoggingLevel(logLevel);
+    }
+    final canLogMetadata = logConsumer?.canLogMetadata;
+    if (canLogMetadata != null) {
+      metadataLoggingEnabled = canLogMetadata;
+    }
+
     ReclaimOverride.setAll([
       if (feature != null)
         ReclaimFeatureFlagData(
@@ -298,7 +309,7 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
                   appId: appId,
                   providerId: providerId,
                   sessionId: sessionId,
-                  logType: logType,
+                  logType: logType.name,
                   metadata: ensureMap<String>(metadata),
                 );
               },
