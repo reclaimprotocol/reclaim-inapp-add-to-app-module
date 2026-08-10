@@ -17,7 +17,9 @@ if [[ -z "$PACKAGE_CLONE_USER" ]]; then
 else
     git clone https://$PACKAGE_CLONE_USER:$PACKAGE_CLONE_PASSWD@github.com/reclaimprotocol/reclaim-inapp-ios-sdk.git $IOS_CLONE_DIR;
 fi
-git checkout pre-0.39.0;
+
+# Incase you wish to switch to a branch, uncomment and change this line.
+# (cd $IOS_CLONE_DIR; git checkout main;);
 
 rm $IOS_CLONE_DIR/Sources/ReclaimInAppSdk/Messages.swift;
 cp ../generated/ios/Sources/ReclaimInAppSdk/Messages.swift $IOS_CLONE_DIR/Sources/ReclaimInAppSdk/Messages.swift;

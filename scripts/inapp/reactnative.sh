@@ -17,9 +17,11 @@ if [[ -z "$PACKAGE_CLONE_USER" ]]; then
 else
     git clone https://$PACKAGE_CLONE_USER:$PACKAGE_CLONE_PASSWD@github.com/reclaimprotocol/reclaim-inapp-reactnative-sdk.git $RN_CLONE_DIR;
 fi
-git checkout pre-0.39.0;
 
 cd $RN_CLONE_DIR;
+
+# Incase you wish to switch to a branch, uncomment and change this line.
+# git checkout main;
 
 DEFAULT_CHANGELOG="## $VERSION
 
