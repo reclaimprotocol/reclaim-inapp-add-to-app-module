@@ -1,4 +1,4 @@
-.PHONY: android, ios
+.PHONY: android, ios, build
 
 android:
 	./scripts/build_android.sh;
