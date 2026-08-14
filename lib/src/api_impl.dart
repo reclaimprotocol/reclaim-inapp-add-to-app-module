@@ -2,26 +2,6 @@ part of 'api.dart';
 
 final _logger = Logger('reclaim_flutter_sdk.reclaim_verifier_module.api');
 
-extension ReclaimSessionStatusExtension on ReclaimSessionStatus {
-  static ReclaimSessionStatus fromSessionStatus(SessionStatus status) {
-    return switch (status) {
-      SessionStatus.PROOF_GENERATION_FAILED => ReclaimSessionStatus.PROOF_GENERATION_FAILED,
-      SessionStatus.PROOF_GENERATION_SUCCESS => ReclaimSessionStatus.PROOF_GENERATION_SUCCESS,
-      SessionStatus.PROOF_SUBMITTED => ReclaimSessionStatus.PROOF_SUBMITTED,
-      SessionStatus.PROOF_SUBMISSION_FAILED => ReclaimSessionStatus.PROOF_SUBMISSION_FAILED,
-      // This spelling mistake is intentional to match the backend.
-      SessionStatus.PROOF_MANUAL_VERIFICATION_SUBMITED => ReclaimSessionStatus.PROOF_MANUAL_VERIFICATION_SUBMITTED,
-      SessionStatus.USER_INIT_VERIFICATION => ReclaimSessionStatus.USER_INIT_VERIFICATION,
-      SessionStatus.USER_STARTED_VERIFICATION => ReclaimSessionStatus.USER_STARTED_VERIFICATION,
-      SessionStatus.PROOF_GENERATION_STARTED => ReclaimSessionStatus.PROOF_GENERATION_STARTED,
-      SessionStatus.PROOF_GENERATION_RETRY => ReclaimSessionStatus.PROOF_GENERATION_RETRY,
-      SessionStatus.AI_PROOF_SUBMITTED => ReclaimSessionStatus.AI_PROOF_SUBMITTED,
-      SessionStatus.USER_INTERACTED => ReclaimSessionStatus.USER_INTERACTED,
-      SessionStatus.USER_TYPED => ReclaimSessionStatus.USER_TYPED,
-    };
-  }
-}
-
 extension ClaimCreationTypeExtension on ClaimCreationTypeApi {
   ClaimCreationType get toClaimCreationType {
     return switch (this) {
@@ -480,7 +460,7 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
       } else {
         _logger.info(debugMessage);
       }
-      return _startVerification(ReclaimVerificationRequest.fromSdkRequest(request), request.sessionId ?? '');
+      return await _startVerification(ReclaimVerificationRequest.fromSdkRequest(request), request.sessionId ?? '');
     } catch (e, s) {
       _logger.severe('Failed to start verification from url', e, s);
       return Future.value(

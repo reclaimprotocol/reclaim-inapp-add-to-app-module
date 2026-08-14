@@ -10,8 +10,18 @@ mkdir -p debug/android/
 
 KOTLIN_VERSION="2.0.21"
 
+COMPILE_SDK="37"
+
 ## Downgrade the Kotlin version in your settings.gradle to the lowest Kotlin version we intend to support.
 sed -i '' "s/id \"org\.jetbrains\.kotlin\.android\" version \".*\"/id \"org\.jetbrains\.kotlin\.android\" version \"$KOTLIN_VERSION\"/" ./.android/settings.gradle;
+
+## Raise compileSdk above the Flutter SDK's hardcoded default (FlutterExtension.compileSdkVersion).
+## flutter_secure_storage and permission_handler_android require 37, and :flutter is the project that
+## fails checkDebugAarMetadata, so Flutter/build.gradle must be patched too - not just app/build.gradle.
+sed -i '' "s/^\( *\)compileSdk = .*/\1compileSdk = $COMPILE_SDK/" \
+    ./.android/build.gradle \
+    ./.android/app/build.gradle \
+    ./.android/Flutter/build.gradle;
 
 # Force kotlin compiler version
 # Use python for robust multi-line string replacement

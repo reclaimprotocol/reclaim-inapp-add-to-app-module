@@ -10,8 +10,6 @@ import 'package:pigeon/pigeon.dart';
     kotlinOptions: KotlinOptions(package: 'org.reclaimprotocol.inapp_sdk'),
     kotlinOut: 'generated/android/src/main/java/org/reclaimprotocol/inapp_sdk/Messages.kt',
     swiftOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.swift',
-    objcHeaderOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.h',
-    objcSourceOut: 'generated/ios/Sources/ReclaimInAppSdk/Messages.m',
     copyrightHeader: 'pigeon/copyright.txt',
   ),
 )
@@ -369,6 +367,4 @@ abstract class ReclaimHostOverridesApi {
 abstract class ReclaimHostVerificationApi {
   @async
   String fetchAttestorAuthenticationRequest(Map<dynamic, dynamic> reclaimHttpProvider);
-  // @async
-  // String setCurrentClientSource(String source);
 }
