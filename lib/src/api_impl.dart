@@ -2,6 +2,20 @@ part of 'api.dart';
 
 final _logger = Logger('reclaim_flutter_sdk.reclaim_verifier_module.api');
 
+ReclaimApiVerificationResponse _builderModeFailure(Object error, StackTrace stackTrace, String sessionId) {
+  return ReclaimApiVerificationResponse(
+    sessionId: sessionId,
+    didSubmitManualVerification: false,
+    proofs: const [],
+    exception: ReclaimApiVerificationException(
+      message:
+          'Builder verification failed. Configure the registered Verification Client bridge and x-reclaim-vc-id. Caused by: $error',
+      stackTraceAsString: stackTrace.toString(),
+      type: ReclaimApiVerificationExceptionType.verificationCancelled,
+    ),
+  );
+}
+
 extension ClaimCreationTypeExtension on ClaimCreationTypeApi {
   ClaimCreationType get toClaimCreationType {
     return switch (this) {
@@ -42,7 +56,9 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
 
   bool _isDisposed = false;
   void assertNotDisposed() {
-    if (_isDisposed) throw StateError('ReclaimModuleExternalApiImpl is disposed');
+    if (_isDisposed) {
+      throw StateError('ReclaimModuleExternalApiImpl is disposed');
+    }
   }
 
   late final _hostOverridesApi = ReclaimHostOverridesApi();
@@ -55,6 +71,29 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
   ReclaimHostVerificationApi get hostVerificationApi {
     assertNotDisposed();
     return _hostVerificationApi;
+  }
+
+  BuilderVerificationClient? _builderClient;
+
+  @override
+  Future<void> configureBuilderVerification({required String baseUrl, required String verificationClientId}) async {
+    return setBuilderModeOverrides(
+      ClientBuilderModeOverrides(baseUrl: baseUrl, verificationClientId: verificationClientId),
+    );
+  }
+
+  @override
+  Future<void> setBuilderModeOverrides(ClientBuilderModeOverrides overrides) async {
+    assertNotDisposed();
+    final override = ReclaimBuilderVerificationOverride(
+      baseUrl: overrides.baseUrl,
+      verificationClientId: overrides.verificationClientId,
+    );
+    // Constructing the generated bridge wrapper validates the URL now instead
+    // of failing only after the claimant opens an `api=2` link.
+    final client = BuilderVerificationClient.fromOverride(override);
+    ReclaimOverride.set(override);
+    _builderClient = client;
   }
 
   StreamSubscription<SessionIdentity?>? _sessionIdentityUpdateListener;
@@ -74,6 +113,7 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
 
   @override
   Future<void> clearAllOverrides() async {
+    _builderClient = null;
     return ReclaimOverride.clearAll();
   }
 
@@ -403,6 +443,23 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
   @override
   Future<ReclaimApiVerificationResponse> startVerificationFromJson(Map<dynamic, dynamic> template) {
     try {
+      final api = template['api']?.toString();
+      if (api == '2') {
+        final sessionId = template['sessionId']?.toString() ?? '';
+        return _startBuilderVerification(
+          ReclaimVerificationLink.fromUri(
+            Uri(
+              scheme: 'https',
+              host: 'builder.invalid',
+              queryParameters: {
+                'api': '2',
+                'sessionId': sessionId,
+                if (template['diag']?.toString() == '1') 'diag': '1',
+              },
+            ),
+          ),
+        );
+      }
       final debugMessage = 'Starting verification with json: ${json.encode(template)}';
       if (kDebugMode) {
         debugPrint(debugMessage);
@@ -453,6 +510,10 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
   @override
   Future<ReclaimApiVerificationResponse> startVerificationFromUrl(String url) async {
     try {
+      final link = ReclaimVerificationLink.fromUri(Uri.parse(url));
+      if (link.isBuilder) {
+        return await _startBuilderVerification(link);
+      }
       final request = await ClientSdkVerificationRequest.fromUrl(url);
       final debugMessage = 'Starting verification with url: $url';
       if (kDebugMode) {
@@ -476,6 +537,238 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
         ),
       );
     }
+  }
+
+  Future<ReclaimApiVerificationResponse> _startBuilderVerification(ReclaimVerificationLink link) async {
+    final sessionId = link.sessionId;
+    if (sessionId == null || sessionId.isEmpty) {
+      return _builderModeFailure(
+        const FormatException('Builder verification URL must include sessionId'),
+        StackTrace.current,
+        'unknown',
+      );
+    }
+    final client = _builderClient;
+    if (client == null) {
+      return _builderModeFailure(
+        const FormatException('Builder transport is not configured'),
+        StackTrace.current,
+        sessionId,
+      );
+    }
+    BuilderVerificationSession? session;
+    var terminalResultStored = false;
+    var executionStarted = false;
+    try {
+      final claimantClientId = await DiagnosticLogging.getDeviceLoggingId();
+      final context = _requireVerificationContext();
+      if (!context.mounted) {
+        throw const ReclaimVerificationCancelledException('Verification context was disposed');
+      }
+      final claimantDetails = await collectBuilderClaimantDetails(
+        claimantId: claimantClientId,
+        clientKind: 'reclaim_inapp_add_to_app_module',
+        context: context,
+      );
+      session = await BuilderVerificationSession.load(
+        client: client,
+        sessionId: sessionId,
+        claimantClientId: claimantClientId,
+        claimantDetails: claimantDetails,
+        diagnosticMode: link.diagnosticMode,
+      );
+      session.beginExecution();
+      executionStarted = true;
+      final recipes = [
+        for (var index = 0; index < session.recipes.length; index++)
+          BuilderRecipeAdapter.toHttpProvider(
+            session.recipes[index],
+            index: index,
+            templateParameters: session.templateParameters(recipe: session.recipes[index]),
+          ),
+      ];
+      if (!context.mounted) {
+        throw const ReclaimVerificationCancelledException('Verification context was disposed');
+      }
+      final reclaim = ReclaimVerification.of(context);
+      await reclaim.requestBuilderConsent(session);
+      final results = <Map<String, dynamic>>[];
+      final proofs = <CreateClaimOutput>[];
+
+      for (var index = 0; index < recipes.length; index++) {
+        final provider = recipes[index];
+        final recipe = session.recipes[index];
+        final parameters = session.templateParameters(recipe: recipe);
+        final providerId = provider.name;
+        if (providerId == null || providerId.isEmpty) {
+          throw const FormatException('Builder recipe providerId is missing');
+        }
+        final resolvedVersion = recipe['resolvedVersion']?.toString() ?? '';
+        final eventData = <String, dynamic>{
+          'providerId': providerId,
+          'resolvedVersion': resolvedVersion,
+          'ordinal': index,
+        };
+        await session.reportCanonicalEventBestEffort(
+          BuilderVerificationEvent.verificationProviderStarted,
+          eventData: eventData,
+        );
+        for (var requestOrdinal = 0; requestOrdinal < provider.requestData.length; requestOrdinal++) {
+          await session.reportCanonicalEventBestEffort(
+            BuilderVerificationEvent.requestClaimCreated,
+            eventData: <String, dynamic>{...eventData, 'requestOrdinal': requestOrdinal, 'attempt': 1},
+          );
+        }
+        final request = ReclaimVerificationRequest(
+          applicationId: session.applicationId,
+          // Preserve the exact Builder context, including attestationNonceData,
+          // in the legacy claimData.context field.
+          contextString: session.contextString,
+          providerId: providerId,
+          parameters: parameters,
+          sessionProvider: () => ReclaimSessionInformation(
+            sessionId: session!.sessionId,
+            // The bridge authorizes the attestor request. These sentinel values
+            // only satisfy legacy engine invariants; they are never sent to the
+            // legacy session backend in Builder mode.
+            signature: 'builder',
+            timestamp: 'builder',
+            version: ProviderVersionExact(resolvedVersion),
+          ),
+          builderExecution: BuilderVerificationExecution(
+            provider: provider,
+            appInfo: session.appInfo,
+            diagnosticMode: link.diagnosticMode,
+            reportEvent: (event, eventData) async {
+              final parsed = BuilderVerificationEvent.fromJson(event);
+              if (parsed == null || parsed == BuilderVerificationEvent.unknownDefaultOpenApi) return;
+              await session!.reportCanonicalEventBestEffort(
+                parsed,
+                eventData: <String, dynamic>{
+                  ...eventData ?? const <String, dynamic>{},
+                  'providerId': providerId,
+                  'resolvedVersion': resolvedVersion,
+                  'ordinal': index,
+                },
+              );
+            },
+            attestorAuthenticationRequest: () async {
+              return client.getAttestorAuthentication(session!.sessionId);
+            },
+          ),
+        );
+        late final ReclaimVerificationResult response;
+        try {
+          response = await reclaim.startVerification(
+            request: request,
+            options: _reclaimVerificationOptions.copyWith(canAutoSubmit: true),
+          );
+        } catch (error) {
+          await session.reportCanonicalEventBestEffort(
+            BuilderVerificationEvent.requestClaimFailed,
+            eventData: <String, dynamic>{...eventData, 'attempt': 1, ...builderFailureEventData(error)},
+          );
+          rethrow;
+        }
+        proofs.addAll(response.proofs);
+        for (var claimIndex = 0; claimIndex < response.proofs.length; claimIndex++) {
+          final providerRequest = response.proofs[claimIndex].providerRequest;
+          final claimEventData = <String, dynamic>{
+            ...eventData,
+            'requestOrdinal': claimIndex,
+            'attempt': 1,
+            if (providerRequest?.requestHash != null) 'requestId': providerRequest!.requestHash,
+          };
+          await session.reportCanonicalEventBestEffort(
+            BuilderVerificationEvent.requestClaimCompleted,
+            eventData: claimEventData,
+          );
+        }
+        await session.reportCanonicalEventBestEffort(
+          BuilderVerificationEvent.verificationProviderCompleted,
+          eventData: <String, dynamic>{
+            ...eventData,
+            'requestCount': provider.requestData.length,
+            'proofCount': response.proofs.length,
+          },
+        );
+        results.add(
+          BuilderProofResultAdapter.providerResult(
+            providerId: providerId,
+            resolvedVersion: resolvedVersion,
+            proofs: response.proofs,
+          ),
+        );
+      }
+      await session.reportCanonicalEventBestEffort(
+        BuilderVerificationEvent.verificationProofsCompleted,
+        eventData: {
+          'expectedProviderCount': recipes.length,
+          'completedProviderCount': results.length,
+          'expectedRequestCount': recipes.fold<int>(0, (count, provider) => count + provider.requestData.length),
+          'completedRequestCount': proofs.length,
+          'completedProofCount': proofs.length,
+        },
+      );
+      final resultCounts = <String, dynamic>{
+        'expectedProviderCount': recipes.length,
+        'completedProviderCount': results.length,
+        'expectedRequestCount': recipes.fold<int>(0, (count, provider) => count + provider.requestData.length),
+        'completedRequestCount': proofs.length,
+        'completedProofCount': proofs.length,
+        'attempt': 1,
+      };
+      await session.reportCanonicalEventBestEffort(
+        BuilderVerificationEvent.verificationResultSubmitting,
+        eventData: resultCounts,
+      );
+      try {
+        await session.submitResultWithRetry(status: 'success', results: results);
+        terminalResultStored = true;
+      } catch (error, stackTrace) {
+        await session.reportCanonicalEventBestEffort(
+          BuilderVerificationEvent.verificationResultSubmissionFailed,
+          eventData: {'attempt': 1, 'retryable': true, ...builderFailureEventData(error)},
+        );
+        return _builderModeFailure(error, stackTrace, session.sessionId);
+      }
+      return ReclaimApiVerificationResponse(
+        sessionId: session.sessionId,
+        didSubmitManualVerification: false,
+        proofs: _encodeProofs(proofs),
+        exception: null,
+      );
+    } catch (error, stackTrace) {
+      _logger.severe('Failed to load Builder verification session', error, stackTrace);
+      if (terminalResultStored) return _builderModeFailure(error, stackTrace, sessionId);
+      try {
+        if (session != null && isBuilderSession(session.sessionId)) {
+          await session.reportCanonicalEventBestEffort(
+            builderFailureEvent(error),
+            eventData: builderFailureEventData(error),
+          );
+        }
+        if (session != null && isBuilderSession(session.sessionId) && builderFailureHasResult(error)) {
+          await session.submitResultWithRetry(
+            status: builderFailureStatus(error),
+            results: const [],
+            problem: <String, dynamic>{'detail': error.toString()},
+          );
+        }
+      } catch (bridgeError, bridgeStackTrace) {
+        _logger.severe('Failed to report Builder verification error', bridgeError, bridgeStackTrace);
+      }
+      return _builderModeFailure(error, stackTrace, sessionId);
+    } finally {
+      if (executionStarted) session?.endExecution();
+      if (session != null && !isBuilderSession(session.sessionId)) {
+        session.dispose();
+      }
+    }
+  }
+
+  List<Map<String, dynamic>> _encodeProofs(Iterable<CreateClaimOutput> proofs) {
+    return (json.decode(json.encode(proofs.toList())) as List).map((proof) => proof as Map<String, dynamic>).toList();
   }
 
   void _onSessionIdentityUpdate(SessionIdentity? identity) {

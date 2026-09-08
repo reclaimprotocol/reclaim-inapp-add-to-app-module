@@ -60,7 +60,7 @@ class ReclaimApiVerificationResponse {
   });
   final String sessionId;
   final bool didSubmitManualVerification;
-  final List<Map<String, dynamic>> proofs;
+  final List<Map<String, Object?>> proofs;
   final ReclaimApiVerificationException? exception;
 }
 
@@ -293,6 +293,21 @@ class LogEntryApi {
   final String? stackTraceAsString;
 }
 
+/// Builder transport configuration for `api=2` verification links.
+///
+/// Keep this after existing custom codec values so releases that predate
+/// Builder mode retain their Pigeon type tags.
+class ClientBuilderModeOverrides {
+  /// Creates Builder transport configuration.
+  const ClientBuilderModeOverrides({required this.baseUrl, required this.verificationClientId});
+
+  /// HTTPS origin of Builder.
+  final String baseUrl;
+
+  /// UUID of the registered Verification Client.
+  final String verificationClientId;
+}
+
 /// Apis implemented by the Reclaim module for use by the host.
 @FlutterApi()
 abstract class ReclaimModuleApi {
@@ -301,7 +316,7 @@ abstract class ReclaimModuleApi {
   @async
   ReclaimApiVerificationResponse startVerificationFromUrl(String url);
   @async
-  ReclaimApiVerificationResponse startVerificationFromJson(Map<dynamic, dynamic> template);
+  ReclaimApiVerificationResponse startVerificationFromJson(Map<Object?, Object?> template);
   @async
   void setOverrides(
     ClientProviderInformationOverride? provider,
@@ -311,6 +326,8 @@ abstract class ReclaimModuleApi {
     ClientReclaimAppInfoOverride? appInfo,
     String? capabilityAccessToken,
   );
+  @async
+  void setBuilderModeOverrides(ClientBuilderModeOverrides overrides);
   @async
   void clearAllOverrides();
   @async
@@ -348,7 +365,7 @@ abstract class ReclaimHostOverridesApi {
     required String providerId,
     required String sessionId,
     required String logType,
-    Map<String, dynamic>? metadata,
+    Map<String, Object?>? metadata,
   });
   @async
   void onSessionIdentityUpdate(ReclaimSessionIdentityUpdate? update);
@@ -366,5 +383,5 @@ abstract class ReclaimHostOverridesApi {
 @HostApi()
 abstract class ReclaimHostVerificationApi {
   @async
-  String fetchAttestorAuthenticationRequest(Map<dynamic, dynamic> reclaimHttpProvider);
+  String fetchAttestorAuthenticationRequest(Map<Object?, Object?> reclaimHttpProvider);
 }
