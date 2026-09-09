@@ -32,7 +32,7 @@ dependencies:
   reclaim_inapp_sdk:
     git:
       url: git@github.com:reclaimprotocol/reclaim-inapp-sdk.git
-      ref: main
+      ref: builder-support
   # Reclaim TEE operator for native protocol execution
   reclaim_tee_operator_flutter:
     git:
