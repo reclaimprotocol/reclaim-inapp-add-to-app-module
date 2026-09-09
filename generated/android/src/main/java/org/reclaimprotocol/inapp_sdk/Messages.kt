@@ -987,6 +987,56 @@ data class LogEntryApi (
     return "LogEntryApi(sessionId=$sessionId, message=$message, level=$level, dateTimeIso=$dateTimeIso, source=$source, error=$error, stackTraceAsString=$stackTraceAsString)"
   }
 }
+
+/**
+ * Builder transport configuration for `api=2` verification links.
+ *
+ * Keep this after existing custom codec values so releases that predate
+ * Builder mode retain their Pigeon type tags.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class ClientBuilderModeOverrides (
+  /** HTTPS origin of Builder. */
+  val baseUrl: String,
+  /** UUID of the registered Verification Client. */
+  val verificationClientId: String
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): ClientBuilderModeOverrides {
+      val baseUrl = pigeonVar_list[0] as String
+      val verificationClientId = pigeonVar_list[1] as String
+      return ClientBuilderModeOverrides(baseUrl, verificationClientId)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      baseUrl,
+      verificationClientId,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as ClientBuilderModeOverrides
+    return MessagesPigeonUtils.deepEquals(this.baseUrl, other.baseUrl) && MessagesPigeonUtils.deepEquals(this.verificationClientId, other.verificationClientId)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + MessagesPigeonUtils.deepHash(this.baseUrl)
+    result = 31 * result + MessagesPigeonUtils.deepHash(this.verificationClientId)
+    return result
+  }
+  override fun toString(): String {
+    return "ClientBuilderModeOverrides(baseUrl=$baseUrl, verificationClientId=$verificationClientId)"
+  }
+}
 private open class MessagesPigeonCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
@@ -1070,6 +1120,11 @@ private open class MessagesPigeonCodec : StandardMessageCodec() {
           LogEntryApi.fromList(it)
         }
       }
+      145.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          ClientBuilderModeOverrides.fromList(it)
+        }
+      }
       else -> super.readValueOfType(type, buffer)
     }
   }
@@ -1139,6 +1194,10 @@ private open class MessagesPigeonCodec : StandardMessageCodec() {
         stream.write(144)
         writeValue(stream, value.toList())
       }
+      is ClientBuilderModeOverrides -> {
+        stream.write(145)
+        writeValue(stream, value.toList())
+      }
       else -> super.writeValue(stream, value)
     }
   }
@@ -1174,7 +1233,7 @@ class ReclaimModuleApi(private val binaryMessenger: BinaryMessenger, private val
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      } 
+      }
     }
   }
   fun startVerificationFromUrl(urlArg: String, callback: (Result<ReclaimApiVerificationResponse>) -> Unit)
@@ -1194,7 +1253,7 @@ class ReclaimModuleApi(private val binaryMessenger: BinaryMessenger, private val
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      } 
+      }
     }
   }
   fun startVerificationFromJson(templateArg: Map<Any?, Any?>, callback: (Result<ReclaimApiVerificationResponse>) -> Unit)
@@ -1214,7 +1273,7 @@ class ReclaimModuleApi(private val binaryMessenger: BinaryMessenger, private val
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      } 
+      }
     }
   }
   fun setOverrides(providerArg: ClientProviderInformationOverride?, featureArg: ClientFeatureOverrides?, logConsumerArg: ClientLogConsumerOverride?, sessionManagementArg: ClientReclaimSessionManagementOverride?, appInfoArg: ClientReclaimAppInfoOverride?, capabilityAccessTokenArg: String?, callback: (Result<Unit>) -> Unit)
@@ -1231,7 +1290,24 @@ class ReclaimModuleApi(private val binaryMessenger: BinaryMessenger, private val
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      } 
+      }
+    }
+  }
+  fun setBuilderModeOverrides(overridesArg: ClientBuilderModeOverrides, callback: (Result<Unit>) -> Unit)
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    val channelName = "dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setBuilderModeOverrides$separatedMessageChannelSuffix"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(overridesArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
+      }
     }
   }
   fun clearAllOverrides(callback: (Result<Unit>) -> Unit)
@@ -1248,7 +1324,7 @@ class ReclaimModuleApi(private val binaryMessenger: BinaryMessenger, private val
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      } 
+      }
     }
   }
   fun setVerificationOptions(optionsArg: ReclaimApiVerificationOptions?, callback: (Result<Unit>) -> Unit)
@@ -1265,7 +1341,7 @@ class ReclaimModuleApi(private val binaryMessenger: BinaryMessenger, private val
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      } 
+      }
     }
   }
   fun sendLog(entryArg: LogEntryApi, callback: (Result<Boolean>) -> Unit)
@@ -1285,7 +1361,7 @@ class ReclaimModuleApi(private val binaryMessenger: BinaryMessenger, private val
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      } 
+      }
     }
   }
   fun setConsoleLogging(enabledArg: Boolean, callback: (Result<Unit>) -> Unit)
@@ -1302,7 +1378,7 @@ class ReclaimModuleApi(private val binaryMessenger: BinaryMessenger, private val
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      } 
+      }
     }
   }
   fun ping(callback: (Result<Boolean>) -> Unit)
@@ -1322,7 +1398,7 @@ class ReclaimModuleApi(private val binaryMessenger: BinaryMessenger, private val
         }
       } else {
         callback(Result.failure(MessagesPigeonUtils.createConnectionError(channelName)))
-      } 
+      }
     }
   }
 }
