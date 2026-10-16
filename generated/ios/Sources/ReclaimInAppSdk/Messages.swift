@@ -12,8 +12,6 @@ import Foundation
   #error("Unsupported platform.")
 #endif
 
-typealias MessagesBinaryMessenger = any FlutterBinaryMessenger
-
 /// Error class for passing custom error details to Dart side.
 final class PigeonError: Error {
   let code: String
@@ -984,6 +982,53 @@ struct LogEntryApi: Hashable, CustomStringConvertible {
   }
 }
 
+/// Builder transport configuration for `api=2` verification links.
+///
+/// Keep this after existing custom codec values so releases that predate
+/// Builder mode retain their Pigeon type tags.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+struct ClientBuilderModeOverrides: Hashable, CustomStringConvertible {
+  /// HTTPS origin of Builder.
+  var baseUrl: String
+  /// UUID of the registered Verification Client.
+  var verificationClientId: String
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> ClientBuilderModeOverrides? {
+    let baseUrl = pigeonVar_list[0] as! String
+    let verificationClientId = pigeonVar_list[1] as! String
+
+    return ClientBuilderModeOverrides(
+      baseUrl: baseUrl,
+      verificationClientId: verificationClientId
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      baseUrl,
+      verificationClientId,
+    ]
+  }
+  static func == (lhs: ClientBuilderModeOverrides, rhs: ClientBuilderModeOverrides) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return MessagesPigeonInternal.deepEquals(lhs.baseUrl, rhs.baseUrl) && MessagesPigeonInternal.deepEquals(lhs.verificationClientId, rhs.verificationClientId)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("ClientBuilderModeOverrides")
+    MessagesPigeonInternal.deepHash(value: baseUrl, hasher: &hasher)
+    MessagesPigeonInternal.deepHash(value: verificationClientId, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "ClientBuilderModeOverrides(baseUrl: \(String(describing: baseUrl)), verificationClientId: \(String(describing: verificationClientId)))"
+  }
+}
+
 private class MessagesPigeonCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
@@ -1031,6 +1076,8 @@ private class MessagesPigeonCodecReader: FlutterStandardReader {
       return SessionInitResponseApi.fromList(self.readValue() as! [Any?])
     case 144:
       return LogEntryApi.fromList(self.readValue() as! [Any?])
+    case 145:
+      return ClientBuilderModeOverrides.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
     }
@@ -1087,6 +1134,9 @@ private class MessagesPigeonCodecWriter: FlutterStandardWriter {
     } else if let value = value as? LogEntryApi {
       super.writeByte(144)
       super.writeValue(value.toList())
+    } else if let value = value as? ClientBuilderModeOverrides {
+      super.writeByte(145)
+      super.writeValue(value.toList())
     } else {
       super.writeValue(value)
     }
@@ -1117,6 +1167,7 @@ protocol ReclaimModuleApiProtocol {
   func startVerificationFromUrl(url urlArg: String, completion: @escaping (Result<ReclaimApiVerificationResponse, PigeonError>) -> Void)
   func startVerificationFromJson(template templateArg: [AnyHashable?: Sendable?], completion: @escaping (Result<ReclaimApiVerificationResponse, PigeonError>) -> Void)
   func setOverrides(provider providerArg: ClientProviderInformationOverride?, feature featureArg: ClientFeatureOverrides?, logConsumer logConsumerArg: ClientLogConsumerOverride?, sessionManagement sessionManagementArg: ClientReclaimSessionManagementOverride?, appInfo appInfoArg: ClientReclaimAppInfoOverride?, capabilityAccessToken capabilityAccessTokenArg: String?, completion: @escaping (Result<Void, PigeonError>) -> Void)
+  func setBuilderModeOverrides(overrides overridesArg: ClientBuilderModeOverrides, completion: @escaping (Result<Void, PigeonError>) -> Void)
   func clearAllOverrides(completion: @escaping (Result<Void, PigeonError>) -> Void)
   func setVerificationOptions(options optionsArg: ReclaimApiVerificationOptions?, completion: @escaping (Result<Void, PigeonError>) -> Void)
   func sendLog(entry entryArg: LogEntryApi, completion: @escaping (Result<Bool, PigeonError>) -> Void)
@@ -1200,6 +1251,24 @@ class ReclaimModuleApi: ReclaimModuleApiProtocol {
     let channelName: String = "dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setOverrides\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([providerArg, featureArg, logConsumerArg, sessionManagementArg, appInfoArg, capabilityAccessTokenArg] as [Any?]) { response in
+      guard let listResponse = response as? [Any?] else {
+        completion(.failure(createConnectionError(withChannelName: channelName)))
+        return
+      }
+      if listResponse.count > 1 {
+        let code: String = listResponse[0] as! String
+        let message: String? = nilOrValue(listResponse[1])
+        let details: String? = nilOrValue(listResponse[2])
+        completion(.failure(PigeonError(code: code, message: message, details: details)))
+      } else {
+        completion(.success(()))
+      }
+    }
+  }
+  func setBuilderModeOverrides(overrides overridesArg: ClientBuilderModeOverrides, completion: @escaping (Result<Void, PigeonError>) -> Void) {
+    let channelName: String = "dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setBuilderModeOverrides\(messageChannelSuffix)"
+    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([overridesArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
         completion(.failure(createConnectionError(withChannelName: channelName)))
         return
@@ -1373,7 +1442,7 @@ class ReclaimHostOverridesApiSetup {
         let args = message as! [Any?]
         let sessionIdArg = args[0] as! String
         let statusArg = args[1] as! ReclaimSessionStatus
-        let metadataArg: [String: Any?]? = nilOrValue(args[2])
+        let metadataArg: [String: Sendable?]? = nilOrValue(args[2])
         api.updateSession(sessionId: sessionIdArg, status: statusArg, metadata: metadataArg) { result in
           switch result {
           case .success(let res):

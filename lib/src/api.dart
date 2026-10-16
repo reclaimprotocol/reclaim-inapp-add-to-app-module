@@ -26,6 +26,16 @@ abstract interface class ReclaimModuleExternalApi extends ReclaimModuleApi {
 
   void setVerificationContext(BuildContext context);
 
+  /// Configures direct Builder transport used by `api=2` links.
+  ///
+  /// [baseUrl] must be HTTPS. [verificationClientId] is the registered
+  /// Verification Client UUID sent as `x-reclaim-vc-id`, not a signing secret.
+  Future<void> configureBuilderVerification({required String baseUrl, required String verificationClientId});
+
+  /// Sets the Builder transport override used by `api=2` links.
+  @override
+  Future<void> setBuilderModeOverrides(ClientBuilderModeOverrides overrides);
+
   @override
   Future<void> setOverrides(
     ClientProviderInformationOverride? provider,
