@@ -268,7 +268,7 @@ class ReclaimApiVerificationResponse {
 
   bool didSubmitManualVerification;
 
-  List<Map<String, dynamic>> proofs;
+  List<Map<String, Object?>> proofs;
 
   ReclaimApiVerificationException? exception;
 
@@ -285,7 +285,7 @@ class ReclaimApiVerificationResponse {
     return ReclaimApiVerificationResponse(
       sessionId: result[0]! as String,
       didSubmitManualVerification: result[1]! as bool,
-      proofs: (result[2]! as List<Object?>).cast<Map<String, dynamic>>(),
+      proofs: (result[2]! as List<Object?>).cast<Map<String, Object?>>(),
       exception: result[3] as ReclaimApiVerificationException?,
     );
   }
@@ -1011,6 +1011,54 @@ class LogEntryApi {
   }
 }
 
+/// Builder transport configuration for `api=2` verification links.
+///
+/// Keep this after existing custom codec values so releases that predate
+/// Builder mode retain their Pigeon type tags.
+class ClientBuilderModeOverrides {
+  ClientBuilderModeOverrides({required this.baseUrl, required this.verificationClientId});
+
+  /// HTTPS origin of Builder.
+  String baseUrl;
+
+  /// UUID of the registered Verification Client.
+  String verificationClientId;
+
+  List<Object?> _toList() {
+    return <Object?>[baseUrl, verificationClientId];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static ClientBuilderModeOverrides decode(Object result) {
+    result as List<Object?>;
+    return ClientBuilderModeOverrides(baseUrl: result[0]! as String, verificationClientId: result[1]! as String);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! ClientBuilderModeOverrides || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(baseUrl, other.baseUrl) && _deepEquals(verificationClientId, other.verificationClientId);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'ClientBuilderModeOverrides(baseUrl: $baseUrl, verificationClientId: $verificationClientId)';
+  }
+}
+
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -1066,6 +1114,9 @@ class _PigeonCodec extends StandardMessageCodec {
     } else if (value is LogEntryApi) {
       buffer.putUint8(144);
       writeValue(buffer, value.encode());
+    } else if (value is ClientBuilderModeOverrides) {
+      buffer.putUint8(145);
+      writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
     }
@@ -1109,6 +1160,8 @@ class _PigeonCodec extends StandardMessageCodec {
         return SessionInitResponseApi.decode(readValue(buffer)!);
       case 144:
         return LogEntryApi.decode(readValue(buffer)!);
+      case 145:
+        return ClientBuilderModeOverrides.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -1123,7 +1176,7 @@ abstract class ReclaimModuleApi {
 
   Future<ReclaimApiVerificationResponse> startVerificationFromUrl(String url);
 
-  Future<ReclaimApiVerificationResponse> startVerificationFromJson(Map<dynamic, dynamic> template);
+  Future<ReclaimApiVerificationResponse> startVerificationFromJson(Map<Object?, Object?> template);
 
   Future<void> setOverrides(
     ClientProviderInformationOverride? provider,
@@ -1133,6 +1186,8 @@ abstract class ReclaimModuleApi {
     ClientReclaimAppInfoOverride? appInfo,
     String? capabilityAccessToken,
   );
+
+  Future<void> setBuilderModeOverrides(ClientBuilderModeOverrides overrides);
 
   Future<void> clearAllOverrides();
 
@@ -1207,7 +1262,7 @@ abstract class ReclaimModuleApi {
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           final List<Object?> args = message! as List<Object?>;
-          final Map<dynamic, dynamic> arg_template = (args[0]! as Map<Object?, Object?>).cast<dynamic, dynamic>();
+          final Map<Object?, Object?> arg_template = args[0]! as Map<Object?, Object?>;
           try {
             final ReclaimApiVerificationResponse output = await api.startVerificationFromJson(arg_template);
             return wrapResponse(result: output);
@@ -1248,6 +1303,31 @@ abstract class ReclaimModuleApi {
               arg_appInfo,
               arg_capabilityAccessToken,
             );
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          } catch (e) {
+            return wrapResponse(
+              error: PlatformException(code: 'error', message: e.toString()),
+            );
+          }
+        });
+      }
+    }
+    {
+      final pigeonVar_channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.reclaim_verifier_module.ReclaimModuleApi.setBuilderModeOverrides$messageChannelSuffix',
+        pigeonChannelCodec,
+        binaryMessenger: binaryMessenger,
+      );
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          final List<Object?> args = message! as List<Object?>;
+          final ClientBuilderModeOverrides arg_overrides = args[0]! as ClientBuilderModeOverrides;
+          try {
+            await api.setBuilderModeOverrides(arg_overrides);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
@@ -1470,7 +1550,7 @@ class ReclaimHostOverridesApi {
     required String providerId,
     required String sessionId,
     required String logType,
-    Map<String, dynamic>? metadata,
+    Map<String, Object?>? metadata,
   }) async {
     final pigeonVar_channelName =
         'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostOverridesApi.logSession$pigeonVar_messageChannelSuffix';
@@ -1552,7 +1632,7 @@ class ReclaimHostVerificationApi {
 
   final String pigeonVar_messageChannelSuffix;
 
-  Future<String> fetchAttestorAuthenticationRequest(Map<dynamic, dynamic> reclaimHttpProvider) async {
+  Future<String> fetchAttestorAuthenticationRequest(Map<Object?, Object?> reclaimHttpProvider) async {
     final pigeonVar_channelName =
         'dev.flutter.pigeon.reclaim_verifier_module.ReclaimHostVerificationApi.fetchAttestorAuthenticationRequest$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
