@@ -12,6 +12,8 @@ import Foundation
   #error("Unsupported platform.")
 #endif
 
+typealias MessagesBinaryMessenger = any FlutterBinaryMessenger
+
 /// Error class for passing custom error details to Dart side.
 final class PigeonError: Error {
   let code: String

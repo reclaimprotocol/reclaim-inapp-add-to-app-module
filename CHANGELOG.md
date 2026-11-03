@@ -11,11 +11,13 @@
 * Bump `reclaim_inapp_sdk` to 0.45.0 (legacy attestation type, encoded session paths,
   transport retries, runtime config after the claimant patch).
 * Submit a bounded `builderProblem` on Builder failure results instead of raw exception text.
-* Type the Pigeon schema's JSON maps as `Object?` instead of `dynamic` (`proofs`,
-  `startVerificationFromJson`, `updateSession`/`logSession` metadata,
-  `fetchAttestorAuthenticationRequest`). Pigeon emits `Any?` for these in Swift, so
-  `scripts/normalize_generated_bindings.dart` keeps the `Sendable?` signatures from 0.43.0.
-  Native host signatures are unchanged.
+* Generate the native bindings without hand edits. Pigeon copies a schema `dynamic` verbatim
+  into Kotlin and Swift, so the schema's JSON maps (`proofs`, `startVerificationFromJson`,
+  `updateSession`/`logSession` metadata, `fetchAttestorAuthenticationRequest`) are now
+  `Object?`, which Pigeon maps to `Any?`. `scripts/normalize_generated_bindings.dart`
+  (run by `make gen_schema`) then restores the Swift `Sendable?` signatures and the
+  `MessagesBinaryMessenger` typealias, and fails if `dynamic` reappears. Kotlin and Swift
+  host signatures are unchanged from 0.43.0.
 
 ## 0.43.0
 
