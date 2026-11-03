@@ -8,10 +8,11 @@
 * Update `reclaim_inapp_sdk` lock to the current `builder-support` (legacy attestation type,
   encoded session paths, transport retries, runtime config after the claimant patch).
 * Submit a bounded `builderProblem` on Builder failure results instead of raw exception text.
-* Type `updateSession` `metadata` as `Map<String, Object?>?` in the Pigeon schema (was
-  `Map<String, dynamic>?`). The public `ReclaimHostOverridesApi` Swift and Kotlin signatures
-  are unchanged; only the generated Swift decoder's local now uses `[String: Sendable?]?`,
-  matching the protocol it calls.
+* Type the Pigeon schema's JSON maps as `Object?` instead of `dynamic` (`proofs`,
+  `startVerificationFromJson`, `updateSession`/`logSession` metadata,
+  `fetchAttestorAuthenticationRequest`). Pigeon already generated these as `Sendable`
+  (Swift) and `Any?` (Kotlin), so the native host signatures are unchanged from 0.43.0; only
+  the Swift `updateSession` decoder's local type now matches its protocol.
 
 ## 0.43.0
 
