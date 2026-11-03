@@ -10,21 +10,18 @@ mkdir -p debug/android/
 
 KOTLIN_VERSION="2.0.21"
 
-COMPILE_SDK="36"
+COMPILE_SDK="37"
 
 ## Downgrade the Kotlin version in your settings.gradle to the lowest Kotlin version we intend to support.
 sed -i '' "s/id \"org\.jetbrains\.kotlin\.android\" version \".*\"/id \"org\.jetbrains\.kotlin\.android\" version \"$KOTLIN_VERSION\"/" ./.android/settings.gradle;
 
 ## Pin compileSdk for every project that produces a published AAR.
 ##
-## This MUST stay at 36. compileSdk is baked into each AAR as minCompileSdk, and consumers fail
-## checkReleaseAarMetadata unless they compile against at least that level. Compiling against 37
-## requires AGP 9.1.1+, which no stable React Native release ships - so a 37 here makes the whole
-## distribution uninstallable for RN hosts.
-##
-## Keeping 36 requires the Dart-side plugin pins in reclaim_inapp_sdk's pubspec.yaml
-## (flutter_secure_storage <11, permission_handler <13); their newer majors build at 37 and the
-## Flutter Gradle plugin refuses a plugin whose compileSdk exceeds the project's.
+## compileSdk is baked into each AAR as minCompileSdk, and consumers fail
+## checkReleaseAarMetadata unless they compile against at least that level. Since 0.45.0 this is
+## 37, so hosts (including React Native) must compile against 37, which needs AGP 9.1.1+.
+## Lowering it again requires every plugin to build at that level: the Flutter Gradle plugin
+## refuses a plugin whose compileSdk exceeds the project's.
 ##
 ## :flutter is the project that fails checkDebugAarMetadata, so Flutter/build.gradle must be
 ## patched too - not just app/build.gradle.

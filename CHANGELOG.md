@@ -8,6 +8,9 @@
 * Remove the Dart-only `configureBuilderVerification` in favour of `setBuilderModeOverrides`,
   the single API for Dart, Android, and iOS hosts.
 * Require Dart >=3.13 and Flutter >=3.47.
+* [Breaking] Build Android AARs against compileSdk 37, so published artifacts declare
+  `minCompileSdk=37`. Android hosts, including React Native apps, must compile against API 37
+  (AGP 9.1.1+).
 * Bump `reclaim_inapp_sdk` to 0.45.0 (legacy attestation type, encoded session paths,
   transport retries, runtime config after the claimant patch).
 * Submit a bounded `builderProblem` on Builder failure results instead of raw exception text.
