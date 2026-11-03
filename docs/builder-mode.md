@@ -9,6 +9,30 @@ Links without `api=2`, or with another value, use the legacy signed-template
 flow. A link with `api=2` but no `sessionId` is invalid; the module returns a
 verification failure and does not try the legacy parser.
 
+## Create the session for the in-app SDK
+
+Create the Builder session from your backend with `verificationClientUrl` set
+to the in-app SDK's URL, `https://build.reclaimprotocol.org/share/inapp-sdk`
+(`VerificationClient.inAppSdk` in `@reclaimprotocol/client`):
+
+```bash
+curl -X POST https://build.reclaimprotocol.org/verifications/sessions \
+  -H "authorization: Bearer $RECLAIM_ORG_SECRET" \
+  -H "content-type: application/json" \
+  -d '{
+    "providers": [{ "providerId": "<your-provider-id>" }],
+    "context": { "userId": "abc" },
+    "verificationClientUrl": "https://build.reclaimprotocol.org/share/inapp-sdk"
+  }'
+```
+
+Pass the returned `verificationUrl` to `startVerificationFromUrl`. Builder fixes
+a session's Verification Client when it creates the session, and the module
+identifies itself as the in-app SDK. If you omit `verificationClientUrl`,
+Builder selects the Portal instead. A Portal (or any other client's) link then
+fails here with `403 x-reclaim-vc-id does not match this session`, whether or
+not it was opened elsewhere first.
+
 ## Configure the module
 
 Configuration is optional. Without it, the module uses
