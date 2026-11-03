@@ -970,7 +970,7 @@ packages:
     description:
       path: "."
       ref: builder-support
-      resolved-ref: "015e21aba717596a95fb67dc8b85ae7e1f9ccbb1"
+      resolved-ref: "1df4ebb2f9a0ac62b99563075e2e4f3b9f25b667"
       url: "git@github.com:reclaimprotocol/reclaim-inapp-sdk.git"
     source: git
     version: "0.43.0"
