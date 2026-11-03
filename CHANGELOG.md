@@ -1,18 +1,21 @@
-## Unreleased
+## 0.45.0
 
 * Builder mode no longer requires configuration. When the host does not call
-  `configureBuilderVerification` or `setBuilderModeOverrides`, `api=2` links use
+  `setBuilderModeOverrides`, `api=2` links use
   `https://build.reclaimprotocol.org` and the SDK's in-app Verification Client ID.
   Explicit configuration still overrides the default, and `clearAllOverrides`
   restores it.
-* Update `reclaim_inapp_sdk` lock to the current `builder-support` (legacy attestation type,
-  encoded session paths, transport retries, runtime config after the claimant patch).
+* Remove the Dart-only `configureBuilderVerification` in favour of `setBuilderModeOverrides`,
+  the single API for Dart, Android, and iOS hosts.
+* Require Dart >=3.13 and Flutter >=3.47.
+* Bump `reclaim_inapp_sdk` to 0.45.0 (legacy attestation type, encoded session paths,
+  transport retries, runtime config after the claimant patch).
 * Submit a bounded `builderProblem` on Builder failure results instead of raw exception text.
 * Type the Pigeon schema's JSON maps as `Object?` instead of `dynamic` (`proofs`,
   `startVerificationFromJson`, `updateSession`/`logSession` metadata,
-  `fetchAttestorAuthenticationRequest`). Pigeon already generated these as `Sendable`
-  (Swift) and `Any?` (Kotlin), so the native host signatures are unchanged from 0.43.0; only
-  the Swift `updateSession` decoder's local type now matches its protocol.
+  `fetchAttestorAuthenticationRequest`). Pigeon emits `Any?` for these in Swift, so
+  `scripts/normalize_generated_bindings.dart` keeps the `Sendable?` signatures from 0.43.0.
+  Native host signatures are unchanged.
 
 ## 0.43.0
 

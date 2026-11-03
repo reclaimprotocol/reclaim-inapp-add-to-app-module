@@ -5,8 +5,7 @@ final _logger = Logger('reclaim_flutter_sdk.reclaim_verifier_module.api');
 /// Builder URL used when the host never configures Builder transport.
 ///
 /// The SDK's production Builder origin, also used by the portal and verifier app. Explicit
-/// configuration through `configureBuilderVerification` or
-/// `setBuilderModeOverrides` replaces it; `clearAllOverrides` restores it.
+/// configuration through `setBuilderModeOverrides` replaces it; `clearAllOverrides` restores it.
 const defaultBuilderBaseUrl = ReclaimBuilderVerificationOverride.defaultBaseUrl;
 
 ReclaimApiVerificationResponse _builderModeFailure(Object error, StackTrace stackTrace, String sessionId) {
@@ -47,8 +46,7 @@ void _precacheFonts() async {
 }
 
 void _setReclaimEnv() {
-  ReclaimEnv.CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY =
-      'eyJraWQiOiI4NjgyNGJkMS04ZDU4LTQ5YWQtODVlMC03YzYxYWUyYTNjM2IiLCJrZXlfb3BzIjpbInZlcmlmeSJdLCJleHQiOnRydWUsImt0eSI6IkVDIiwieCI6Il80ekg2MFNJNEkyYXBuVlYzeUFTLWxQYWpwbzRHeTRmYV9NOFJYMGVaR0UiLCJ5IjoiSk5lWExnZ0JDdm9QZ1lYYTZxRGhCWHN6OGc1MkpHSDZPSHUyUmtpLXp5USIsImNydiI6IlAtMjU2In0';
+  ReclaimEnv.CAPABILITY_ACCESS_TOKEN_VERIFICATION_KEY = 'eyJraWQiOiI4NjgyNGJkMS04ZDU4LTQ5YWQtODVlMC03YzYxYWUyYTNjM2IiLCJrZXlfb3BzIjpbInZlcmlmeSJdLCJleHQiOnRydWUsImt0eSI6IkVDIiwieCI6Il80ekg2MFNJNEkyYXBuVlYzeUFTLWxQYWpwbzRHeTRmYV9NOFJYMGVaR0UiLCJ5IjoiSk5lWExnZ0JDdm9QZ1lYYTZxRGhCWHN6OGc1MkpHSDZPSHUyUmtpLXp5USIsImNydiI6IlAtMjU2In0';
   ReclaimEnv.IS_VERIFIER_INAPP_MODULE = true;
 }
 
@@ -63,9 +61,7 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
 
   bool _isDisposed = false;
   void assertNotDisposed() {
-    if (_isDisposed) {
-      throw StateError('ReclaimModuleExternalApiImpl is disposed');
-    }
+    if (_isDisposed) throw StateError('ReclaimModuleExternalApiImpl is disposed');
   }
 
   late final _hostOverridesApi = ReclaimHostOverridesApi();
@@ -89,13 +85,6 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
 
   @override
   BuilderVerificationClient get builderClient => _builderClient ?? _defaultBuilderClient;
-
-  @override
-  Future<void> configureBuilderVerification({required String baseUrl, required String verificationClientId}) async {
-    return setBuilderModeOverrides(
-      ClientBuilderModeOverrides(baseUrl: baseUrl, verificationClientId: verificationClientId),
-    );
-  }
 
   @override
   Future<void> setBuilderModeOverrides(ClientBuilderModeOverrides overrides) async {

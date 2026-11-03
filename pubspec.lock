@@ -970,10 +970,10 @@ packages:
     description:
       path: "."
       ref: builder-support
-      resolved-ref: "1df4ebb2f9a0ac62b99563075e2e4f3b9f25b667"
+      resolved-ref: "60dd2c44db9c3438b0eca1c401843c6477c18166"
       url: "git@github.com:reclaimprotocol/reclaim-inapp-sdk.git"
     source: git
-    version: "0.43.0"
+    version: "0.45.0"
   reclaim_tee_operator_flutter:
     dependency: "direct main"
     description:

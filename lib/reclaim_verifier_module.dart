@@ -8,6 +8,7 @@ export 'package:reclaim_inapp_sdk/logging.dart';
 export 'package:reclaim_inapp_sdk/overrides.dart';
 export 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart' hide ReclaimVerification;
 export 'package:reclaim_inapp_sdk/ui.dart';
+
 export 'src/api.dart';
 export 'src/pigeon/messages.pigeon.dart';
 
@@ -49,21 +50,15 @@ class ReclaimInAppSdk {
   /// Overrides the default Builder configuration used by `api=2` links.
   ///
   /// Optional. Without it, the module uses `https://build.reclaimprotocol.org`
-  /// and the SDK's in-app Verification Client ID.
+  /// and the SDK's in-app Verification Client ID. [clearAllOverrides] returns to
+  /// that default.
   ///
-  /// [baseUrl] must be an HTTPS Builder URL. [verificationClientId] must
-  /// be the UUID of the registered Verification Client for this app build. The
-  /// module sends it as `x-reclaim-vc-id`; it is not a signing secret.
-  Future<void> configureBuilderVerification({required String baseUrl, required String verificationClientId}) {
-    return api.configureBuilderVerification(baseUrl: baseUrl, verificationClientId: verificationClientId);
-  }
-
-  /// Sets the Builder transport override used by `api=2` links.
+  /// `baseUrl` must be an HTTPS Builder URL. `verificationClientId` must be the
+  /// UUID of the registered Verification Client for this app build. The module
+  /// sends it as `x-reclaim-vc-id`; it is not a signing secret.
   ///
-  /// [clearAllOverrides] returns to the default Builder configuration.
-  ///
-  /// This is equivalent to [configureBuilderVerification]. It is also exposed
-  /// in the generated Android and iOS APIs for native add-to-app hosts.
+  /// This is also exposed in the generated Android and iOS APIs for native
+  /// add-to-app hosts.
   Future<void> setBuilderModeOverrides(ClientBuilderModeOverrides overrides) {
     return api.setBuilderModeOverrides(overrides);
   }
@@ -104,7 +99,7 @@ class ReclaimInAppSdk {
 
   /// Starts Builder mode for an `api=2` URL and legacy mode for other URLs.
   ///
-  /// Builder configuration is optional; see [configureBuilderVerification]. An invalid or failed Builder request returns
+  /// Builder configuration is optional; see [setBuilderModeOverrides]. An invalid or failed Builder request returns
   /// a verification failure and does not fall back to legacy parsing.
   Future<ReclaimApiVerificationResponse> startVerificationFromUrl(BuildContext context, String url) async {
     api.setVerificationContext(context);
@@ -115,7 +110,7 @@ class ReclaimInAppSdk {
   /// other requests.
   ///
   /// Builder JSON must include a non-empty `sessionId`. Builder configuration
-  /// is optional; see [configureBuilderVerification].
+  /// is optional; see [setBuilderModeOverrides].
   Future<ReclaimApiVerificationResponse> startVerificationFromJson(
     BuildContext context,
     Map<dynamic, dynamic> template,

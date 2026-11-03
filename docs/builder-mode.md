@@ -25,9 +25,11 @@ each Builder session.
 ```dart
 final sdk = ReclaimInAppSdk();
 
-await sdk.configureBuilderVerification(
-  baseUrl: 'https://build.reclaimprotocol.org',
-  verificationClientId: '01234567-89ab-4def-8123-456789abcdef',
+await sdk.setBuilderModeOverrides(
+  ClientBuilderModeOverrides(
+    baseUrl: 'https://build.reclaimprotocol.org',
+    verificationClientId: '01234567-89ab-4def-8123-456789abcdef',
+  ),
 );
 
 final response = await sdk.startVerificationFromUrl(context, builderLink);
@@ -37,18 +39,8 @@ if (response.exception != null) {
 }
 ```
 
-`configureBuilderVerification` is the Dart convenience API. The equivalent
-Builder override is available to Dart, Android, and iOS hosts through the
-generated add-to-app API:
-
-```dart
-await sdk.setBuilderModeOverrides(
-  ClientBuilderModeOverrides(
-    baseUrl: 'https://build.reclaimprotocol.org',
-    verificationClientId: '01234567-89ab-4def-8123-456789abcdef',
-  ),
-);
-```
+The same override is available to Android and iOS hosts through the generated
+add-to-app API:
 
 ```kotlin
 val builderOverrides = ClientBuilderModeOverrides(
