@@ -2,6 +2,13 @@ part of 'api.dart';
 
 final _logger = Logger('reclaim_flutter_sdk.reclaim_verifier_module.api');
 
+/// Builder URL used when the host never configures Builder transport.
+///
+/// The SDK's production Builder origin, also used by the portal and verifier app. Explicit
+/// configuration through `configureBuilderVerification` or
+/// `setBuilderModeOverrides` replaces it; `clearAllOverrides` restores it.
+const defaultBuilderBaseUrl = ReclaimBuilderVerificationOverride.defaultBaseUrl;
+
 ReclaimApiVerificationResponse _builderModeFailure(Object error, StackTrace stackTrace, String sessionId) {
   return ReclaimApiVerificationResponse(
     sessionId: sessionId,
@@ -73,7 +80,15 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
     return _hostVerificationApi;
   }
 
+  /// Explicitly configured Builder client, or null to use [_defaultBuilderClient].
   BuilderVerificationClient? _builderClient;
+
+  // Uses the SDK's default Verification Client ID
+  // (`ReclaimBuilderVerificationOverride.inAppSdkVerificationClientId`).
+  late final _defaultBuilderClient = BuilderVerificationClient.fromOverride(const ReclaimBuilderVerificationOverride());
+
+  @override
+  BuilderVerificationClient get builderClient => _builderClient ?? _defaultBuilderClient;
 
   @override
   Future<void> configureBuilderVerification({required String baseUrl, required String verificationClientId}) async {
@@ -548,14 +563,7 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
         'unknown',
       );
     }
-    final client = _builderClient;
-    if (client == null) {
-      return _builderModeFailure(
-        const FormatException('Builder transport is not configured'),
-        StackTrace.current,
-        sessionId,
-      );
-    }
+    final client = builderClient;
     // A new session id replaces everything earlier: the open verification is
     // cancelled and every previous session's state is dropped. The same
     // session already running is refused instead of restarted.
@@ -760,7 +768,7 @@ class _ReclaimModuleExternalApiImpl implements ReclaimModuleExternalApi {
           await session.submitResultWithRetry(
             status: builderFailureStatus(error),
             results: const [],
-            problem: <String, dynamic>{'detail': error.toString()},
+            problem: builderProblem(error),
           );
         }
       } catch (bridgeError, bridgeStackTrace) {

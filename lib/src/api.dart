@@ -26,7 +26,14 @@ abstract interface class ReclaimModuleExternalApi extends ReclaimModuleApi {
 
   void setVerificationContext(BuildContext context);
 
+  /// The Builder client in effect: the configured one, else the default
+  /// (`defaultBuilderBaseUrl` with the SDK's in-app Verification Client ID).
+  @visibleForTesting
+  BuilderVerificationClient get builderClient;
+
   /// Configures direct Builder transport used by `api=2` links.
+  ///
+  /// Optional; without it the module uses the default Builder configuration.
   ///
   /// [baseUrl] must be HTTPS. [verificationClientId] is the registered
   /// Verification Client UUID sent as `x-reclaim-vc-id`, not a signing secret.

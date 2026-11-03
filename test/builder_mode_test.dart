@@ -70,4 +70,28 @@ void main() {
       throwsArgumentError,
     );
   });
+
+  test('falls back to the default Builder client until configured', () async {
+    final api = ReclaimModuleExternalApi();
+    addTearDown(api.dispose);
+
+    // No override is set; the default is module-internal.
+    expect(ReclaimOverrides.builderVerification, isNull);
+    expect(defaultBuilderBaseUrl, 'https://build.reclaimprotocol.org');
+    expect(api.builderClient.baseUrl, Uri.parse(defaultBuilderBaseUrl));
+    expect(api.builderClient.vcId, ReclaimBuilderVerificationOverride.inAppSdkVerificationClientId);
+
+    await api.setBuilderModeOverrides(
+      ClientBuilderModeOverrides(
+        baseUrl: 'https://builder.example.test',
+        verificationClientId: '550e8400-e29b-41d4-a716-446655440000',
+      ),
+    );
+    expect(api.builderClient.baseUrl, Uri.parse('https://builder.example.test'));
+    expect(api.builderClient.vcId, '550e8400-e29b-41d4-a716-446655440000');
+
+    await api.clearAllOverrides();
+    expect(api.builderClient.baseUrl, Uri.parse(defaultBuilderBaseUrl));
+    expect(api.builderClient.vcId, ReclaimBuilderVerificationOverride.inAppSdkVerificationClientId);
+  });
 }

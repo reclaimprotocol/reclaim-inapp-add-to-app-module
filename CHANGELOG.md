@@ -1,3 +1,14 @@
+## Unreleased
+
+* Builder mode no longer requires configuration. When the host does not call
+  `configureBuilderVerification` or `setBuilderModeOverrides`, `api=2` links use
+  `https://build.reclaimprotocol.org` and the SDK's in-app Verification Client ID.
+  Explicit configuration still overrides the default, and `clearAllOverrides`
+  restores it.
+* Update `reclaim_inapp_sdk` lock to the current `builder-support` (legacy attestation type,
+  encoded session paths, transport retries, runtime config after the claimant patch).
+* Submit a bounded `builderProblem` on Builder failure results instead of raw exception text.
+
 ## 0.43.0
 
 * Downgrade secure storage and permission handler to support older versions of android compile sdk requirement

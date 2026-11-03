@@ -7,8 +7,10 @@ Use Builder mode for links with `api=2`. Builder links also require a non-empty
 flow. Links without `api=2`, or with another value, use the legacy
 signed-template flow. See [`docs/builder-mode.md`](docs/builder-mode.md).
 
-Native and Dart hosts configure Builder transport through the generated
-`setBuilderModeOverrides` API. This keeps Builder configuration separate from
+Builder configuration is optional. By default, the module uses
+`https://build.reclaimprotocol.org` and the SDK's in-app Verification Client ID
+(`00000000-0000-4000-8000-000000000003`). Native and Dart hosts can override
+both through the generated `setBuilderModeOverrides` API. This keeps Builder configuration separate from
 legacy provider and session overrides. See the Builder-mode guide for Android,
 iOS, and Dart examples.
 

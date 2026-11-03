@@ -11,8 +11,11 @@ verification failure and does not try the legacy parser.
 
 ## Configure the module
 
-Before starting a Builder link, configure the module once with an HTTPS Builder
-base URL and the UUID of the registered Verification Client. The module sends
+Configuration is optional. Without it, the module uses
+`https://build.reclaimprotocol.org` and the SDK's in-app Verification Client ID,
+`00000000-0000-4000-8000-000000000003`. To use a different Builder service or
+a registered Verification Client of your own, configure the module once with an
+HTTPS Builder base URL and the UUID of that Verification Client. The module sends
 that UUID as `x-reclaim-vc-id` on direct Builder requests. This UUID is a public
 routing identifier, not an authentication credential. It is distinct from the
 per-installation `claimantClientId`. The module reuses the SDK's persistent
@@ -69,9 +72,9 @@ reclaimModuleApi.setBuilderModeOverrides(overrides: builderOverrides) { result i
 }
 ```
 
-Configure this once before opening an `api=2` link. Calling
-`clearAllOverrides` also removes this Builder configuration. A later Builder
-link then fails as unconfigured; it does not fall back to legacy mode.
+Configure this once before opening an `api=2` link. Explicit configuration
+replaces the defaults. Calling `clearAllOverrides` removes it, and later
+Builder links use the defaults again; they never fall back to legacy mode.
 
 The Builder override configures transport only. Builder bootstrap data remains
 authoritative for the session ID, provider recipes, organization and
@@ -88,7 +91,7 @@ doesn't call the legacy feature-flag API in Builder mode. Explicit
 
 | Override | Builder mode | Legacy mode |
 | --- | --- | --- |
-| `ClientBuilderModeOverrides` | Configures the Builder URL and Verification Client ID | Ignored |
+| `ClientBuilderModeOverrides` | Overrides the default Builder URL and Verification Client ID | Ignored |
 | `ClientFeatureOverrides` | Applies to supported shared proof-engine behavior | Applies |
 | `ClientLogConsumerOverride` | Applies | Applies |
 | `ClientProviderInformationOverride` | Ignored; the resolved Builder recipe is authoritative | Applies |

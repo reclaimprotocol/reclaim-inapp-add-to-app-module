@@ -46,7 +46,10 @@ class ReclaimInAppSdk {
     api.setVerificationContext(context);
   }
 
-  /// Configures Builder mode before starting an `api=2` link.
+  /// Overrides the default Builder configuration used by `api=2` links.
+  ///
+  /// Optional. Without it, the module uses `https://build.reclaimprotocol.org`
+  /// and the SDK's in-app Verification Client ID.
   ///
   /// [baseUrl] must be an HTTPS Builder URL. [verificationClientId] must
   /// be the UUID of the registered Verification Client for this app build. The
@@ -56,6 +59,8 @@ class ReclaimInAppSdk {
   }
 
   /// Sets the Builder transport override used by `api=2` links.
+  ///
+  /// [clearAllOverrides] returns to the default Builder configuration.
   ///
   /// This is equivalent to [configureBuilderVerification]. It is also exposed
   /// in the generated Android and iOS APIs for native add-to-app hosts.
@@ -99,7 +104,7 @@ class ReclaimInAppSdk {
 
   /// Starts Builder mode for an `api=2` URL and legacy mode for other URLs.
   ///
-  /// Configure Builder mode first. An invalid or failed Builder request returns
+  /// Builder configuration is optional; see [configureBuilderVerification]. An invalid or failed Builder request returns
   /// a verification failure and does not fall back to legacy parsing.
   Future<ReclaimApiVerificationResponse> startVerificationFromUrl(BuildContext context, String url) async {
     api.setVerificationContext(context);
@@ -109,8 +114,8 @@ class ReclaimInAppSdk {
   /// Starts Builder mode for JSON with `api` set to `2` and legacy mode for
   /// other requests.
   ///
-  /// Builder JSON must include a non-empty `sessionId` and requires prior
-  /// Builder configuration.
+  /// Builder JSON must include a non-empty `sessionId`. Builder configuration
+  /// is optional; see [configureBuilderVerification].
   Future<ReclaimApiVerificationResponse> startVerificationFromJson(
     BuildContext context,
     Map<dynamic, dynamic> template,
