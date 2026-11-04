@@ -8,6 +8,10 @@
 * Remove the Dart-only `configureBuilderVerification` in favour of `setBuilderModeOverrides`,
   the single API for Dart, Android, and iOS hosts.
 * Require Dart >=3.13 and Flutter >=3.47.
+* Fix iOS "Multiple commands produce '…/cupertino_http.framework.dSYM'" build errors (also
+  present in 0.43.0). `flutter build ios-framework --release` packs every Dart native-asset
+  dSYM into each native-asset xcframework (`cupertino_http`, `objective_c`, `reclaim`);
+  `build_ios.sh` now keeps only each xcframework's own dSYM before signing.
 * [Breaking] Build Android AARs against compileSdk 37, so published artifacts declare
   `minCompileSdk=37`. Android hosts, including React Native apps, must compile against API 37
   (AGP 9.1.1+).
