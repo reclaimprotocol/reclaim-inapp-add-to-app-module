@@ -1,3 +1,49 @@
+## 0.45.0
+
+* Builder mode no longer requires configuration. When the host does not call
+  `setBuilderModeOverrides`, `api=2` links use
+  `https://build.reclaimprotocol.org` and the SDK's in-app Verification Client ID.
+  Explicit configuration still overrides the default, and `clearAllOverrides`
+  restores it.
+* Remove the Dart-only `configureBuilderVerification` in favour of `setBuilderModeOverrides`,
+  the single API for Dart, Android, and iOS hosts.
+* Require Dart >=3.13 and Flutter >=3.47.
+* Fix iOS "Multiple commands produce '…/cupertino_http.framework.dSYM'" build errors (also
+  present in 0.43.0). `flutter build ios-framework --release` packs every Dart native-asset
+  dSYM into each native-asset xcframework (`cupertino_http`, `objective_c`, `reclaim`);
+  `build_ios.sh` now keeps only each xcframework's own dSYM before signing.
+* [Breaking] Build Android AARs against compileSdk 37, so published artifacts declare
+  `minCompileSdk=37`. Android hosts, including React Native apps, must compile against API 37
+  (AGP 9.1.1+).
+* Compile the AARs with Kotlin 2.2.10 and pin `kotlin-stdlib` to it (was 2.0.21), matching the
+  Kotlin Gradle Plugin floor of AGP 9's built-in Kotlin. Hosts need Kotlin 2.2.10+.
+* Bump `reclaim_inapp_sdk` to 0.45.0 (legacy attestation type, encoded session paths,
+  transport retries, runtime config after the claimant patch).
+* Submit a bounded `builderProblem` on Builder failure results instead of raw exception text.
+* Generate the native bindings without hand edits. Pigeon copies a schema `dynamic` verbatim
+  into Kotlin and Swift, so the schema's JSON maps (`proofs`, `startVerificationFromJson`,
+  `updateSession`/`logSession` metadata, `fetchAttestorAuthenticationRequest`) are now
+  `Object?`, which Pigeon maps to `Any?`. `scripts/normalize_generated_bindings.dart`
+  (run by `make gen_schema`) then restores the Swift `Sendable?` signatures and the
+  `MessagesBinaryMessenger` typealias, and fails if `dynamic` reappears. Kotlin and Swift
+  host signatures are unchanged from 0.43.0.
+
+## 0.43.0
+
+* Downgrade secure storage and permission handler to support older versions of android compile sdk requirement
+* Build Android AARs against compileSdk 36 instead of 37, so published artifacts declare
+  `minCompileSdk=36`. Compiling against API 37 requires AGP 9.1.1+, which no stable React
+  Native release supports, making 0.42.0/0.42.1 unusable in React Native host apps.
+* Pin `flutter_secure_storage` to <11 and `permission_handler` to <13; their latest majors
+  build at compileSdk 37 and were forcing the AAR metadata above 36.
+* Fail the Android build if any published AAR declares a `minCompileSdk` above the configured
+  `COMPILE_SDK`.
+* Constrain `org.chromium.net:cronet-api` and `cronet-shared` to 143.7445.0. Cronet 141 split
+  `cronet-shared` out of `cronet-api` but shipped both AARs with the same `org.chromium.net`
+  manifest namespace, so AGP 9 hosts failed `:app:processDebugMainManifest` with "Namespace
+  'org.chromium.net' is used in multiple modules and/or libraries". 143 gives each artifact its
+  own namespace, so consumers do not need `android.uniquePackageNames=false`.
+
 ## 0.42.1
 
 * Upgrade flutter dependencies

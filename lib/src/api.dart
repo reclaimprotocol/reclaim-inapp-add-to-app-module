@@ -26,6 +26,15 @@ abstract interface class ReclaimModuleExternalApi extends ReclaimModuleApi {
 
   void setVerificationContext(BuildContext context);
 
+  /// The Builder client in effect: the configured one, else the default
+  /// (`defaultBuilderBaseUrl` with the SDK's in-app Verification Client ID).
+  @visibleForTesting
+  BuilderVerificationClient get builderClient;
+
+  /// Sets the Builder transport override used by `api=2` links.
+  @override
+  Future<void> setBuilderModeOverrides(ClientBuilderModeOverrides overrides);
+
   @override
   Future<void> setOverrides(
     ClientProviderInformationOverride? provider,

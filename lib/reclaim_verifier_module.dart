@@ -8,6 +8,7 @@ export 'package:reclaim_inapp_sdk/logging.dart';
 export 'package:reclaim_inapp_sdk/overrides.dart';
 export 'package:reclaim_inapp_sdk/reclaim_inapp_sdk.dart' hide ReclaimVerification;
 export 'package:reclaim_inapp_sdk/ui.dart';
+
 export 'src/api.dart';
 export 'src/pigeon/messages.pigeon.dart';
 
@@ -46,6 +47,22 @@ class ReclaimInAppSdk {
     api.setVerificationContext(context);
   }
 
+  /// Overrides the default Builder configuration used by `api=2` links.
+  ///
+  /// Optional. Without it, the module uses `https://build.reclaimprotocol.org`
+  /// and the SDK's in-app Verification Client ID. [clearAllOverrides] returns to
+  /// that default.
+  ///
+  /// `baseUrl` must be an HTTPS Builder URL. `verificationClientId` must be the
+  /// UUID of the registered Verification Client for this app build. The module
+  /// sends it as `x-reclaim-vc-id`; it is not a signing secret.
+  ///
+  /// This is also exposed in the generated Android and iOS APIs for native
+  /// add-to-app hosts.
+  Future<void> setBuilderModeOverrides(ClientBuilderModeOverrides overrides) {
+    return api.setBuilderModeOverrides(overrides);
+  }
+
   void dispose() {
     api.dispose();
   }
@@ -80,11 +97,20 @@ class ReclaimInAppSdk {
     );
   }
 
+  /// Starts Builder mode for an `api=2` URL and legacy mode for other URLs.
+  ///
+  /// Builder configuration is optional; see [setBuilderModeOverrides]. An invalid or failed Builder request returns
+  /// a verification failure and does not fall back to legacy parsing.
   Future<ReclaimApiVerificationResponse> startVerificationFromUrl(BuildContext context, String url) async {
     api.setVerificationContext(context);
     return api.startVerificationFromUrl(url);
   }
 
+  /// Starts Builder mode for JSON with `api` set to `2` and legacy mode for
+  /// other requests.
+  ///
+  /// Builder JSON must include a non-empty `sessionId`. Builder configuration
+  /// is optional; see [setBuilderModeOverrides].
   Future<ReclaimApiVerificationResponse> startVerificationFromJson(
     BuildContext context,
     Map<dynamic, dynamic> template,

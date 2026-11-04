@@ -50,7 +50,19 @@ sign_frameworks_in_directory() {
     for framework_path in $FRAMEWORK_PATTERN; do
         echo "📦 Processing: $framework_path";
         local framework_name="$(basename "$framework_path")"
-        codesign --timestamp -v -f --sign "$APPLE_DEVELOPMENT_SIGNING_IDENTITY" "$framework_path";
+        # `--timestamp` asks Apple's timestamp server for every framework; a
+        # dropped request fails codesign ("A timestamp was expected but was not
+        # found"), so retry a few times before giving up.
+        local attempt=1
+        until codesign --timestamp -v -f --sign "$APPLE_DEVELOPMENT_SIGNING_IDENTITY" "$framework_path"; do
+            if [ "$attempt" -ge 3 ]; then
+                echo "Error: codesign failed for $framework_path after $attempt attempts" >&2
+                return 1
+            fi
+            echo "  ⚠️  codesign failed (attempt $attempt), retrying in $((attempt * 5))s..."
+            sleep $((attempt * 5))
+            attempt=$((attempt + 1))
+        done
         echo $(codesign -dv "$framework_path");
         echo $(codesign -vv "$framework_path");
         echo "  ✓ Signed: $framework_name";
@@ -129,6 +141,35 @@ for framework_path in $FRAMEWORK_PATTERN; do
     fi
 done
 
+# Work around a Flutter bug: `flutter build ios-framework --release` passes
+# every `*.dSYM` in its shared `native_assets/` directory as `-debug-symbols`
+# to each Dart native-asset framework (flutter_tools
+# lib/src/commands/build_ios_framework.dart, `produceXCFramework`). So
+# cupertino_http, objective_c, and reclaim each ship all three dSYMs, and apps
+# linking them fail with "Multiple commands produce
+# '…/cupertino_http.framework.dSYM'". Keep only each xcframework's own
+# `<name>.framework.dSYM`. This must run before signing. Remove it once Flutter
+# packs only the framework's own dSYM.
+remove_foreign_dsyms() {
+    local frameworks_dir="$1"
+    local xcframework_path name dsyms_dir dsym_path
+    for xcframework_path in "$frameworks_dir"/*.xcframework; do
+        [ -d "$xcframework_path" ] || continue
+        name="$(basename "$xcframework_path" .xcframework)"
+        for dsyms_dir in "$xcframework_path"/*/dSYMs; do
+            [ -d "$dsyms_dir" ] || continue
+            for dsym_path in "$dsyms_dir"/*.dSYM; do
+                [ -e "$dsym_path" ] || continue
+                if [ "$(basename "$dsym_path")" != "$name.framework.dSYM" ]; then
+                    echo "  🧹 Removing $(basename "$dsym_path") from $name.xcframework"
+                    rm -rf "$dsym_path"
+                fi
+            done
+        done
+    done
+}
+
+remove_foreign_dsyms "build/ios/ReclaimXCFrameworks"
 
 sign_frameworks_in_directory "build/ios/ReclaimXCFrameworks"
 

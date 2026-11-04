@@ -6,6 +6,7 @@ ios:
 	./scripts/build_ios.sh;
 gen_schema:
 	dart run pigeon --input pigeon/schema.dart
+	dart run scripts/normalize_generated_bindings.dart
 gen_dart:
 	dart run build_runner build --delete-conflicting-outputs
 fmt:
