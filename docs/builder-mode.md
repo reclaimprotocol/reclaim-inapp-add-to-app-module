@@ -33,6 +33,41 @@ Builder selects the Portal instead. A Portal (or any other client's) link then
 fails here with `403 x-reclaim-vc-id does not match this session`, whether or
 not it was opened elsewhere first.
 
+## Start from JSON
+
+If your backend returns fields instead of a link, call
+`startVerificationFromJson` with:
+
+```json
+{ "api": "2", "sessionId": "<id from the session-creation response>" }
+```
+
+- `sessionId` is the `id` Builder returns when the session is created (the same
+  value as the `sessionId` query parameter of `verificationUrl`). The session
+  must be created for the in-app SDK, as described above.
+- Add `"diag": "1"` only if the session's `verificationUrl` contains `diag=1`.
+- `api` may be the string `"2"` or the number `2`. The module reads only
+  `api`, `sessionId`, and `diag`, and ignores every other key. The Builder URL
+  always comes from the module's configuration, never from the JSON.
+- A missing or empty `sessionId` returns a verification failure; it never falls
+  back to legacy mode.
+
+```kotlin
+reclaimModuleApi.startVerificationFromJson(
+  mapOf("api" to "2", "sessionId" to sessionId),
+) { result ->
+  val response = result.getOrThrow()
+}
+```
+
+```swift
+reclaimModuleApi.startVerificationFromJson(
+  template: ["api": "2", "sessionId": sessionId]
+) { result in
+  let response = try? result.get()
+}
+```
+
 ## Configure the module
 
 Configuration is optional. Without it, the module uses
