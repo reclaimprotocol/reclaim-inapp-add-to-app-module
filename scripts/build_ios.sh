@@ -50,7 +50,19 @@ sign_frameworks_in_directory() {
     for framework_path in $FRAMEWORK_PATTERN; do
         echo "📦 Processing: $framework_path";
         local framework_name="$(basename "$framework_path")"
-        codesign --timestamp -v -f --sign "$APPLE_DEVELOPMENT_SIGNING_IDENTITY" "$framework_path";
+        # `--timestamp` asks Apple's timestamp server for every framework; a
+        # dropped request fails codesign ("A timestamp was expected but was not
+        # found"), so retry a few times before giving up.
+        local attempt=1
+        until codesign --timestamp -v -f --sign "$APPLE_DEVELOPMENT_SIGNING_IDENTITY" "$framework_path"; do
+            if [ "$attempt" -ge 3 ]; then
+                echo "Error: codesign failed for $framework_path after $attempt attempts" >&2
+                return 1
+            fi
+            echo "  ⚠️  codesign failed (attempt $attempt), retrying in $((attempt * 5))s..."
+            sleep $((attempt * 5))
+            attempt=$((attempt + 1))
+        done
         echo $(codesign -dv "$framework_path");
         echo $(codesign -vv "$framework_path");
         echo "  ✓ Signed: $framework_name";

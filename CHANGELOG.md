@@ -11,6 +11,8 @@
 * [Breaking] Build Android AARs against compileSdk 37, so published artifacts declare
   `minCompileSdk=37`. Android hosts, including React Native apps, must compile against API 37
   (AGP 9.1.1+).
+* Compile the AARs with Kotlin 2.2.10 and pin `kotlin-stdlib` to it (was 2.0.21), matching the
+  Kotlin Gradle Plugin floor of AGP 9's built-in Kotlin. Hosts need Kotlin 2.2.10+.
 * Bump `reclaim_inapp_sdk` to 0.45.0 (legacy attestation type, encoded session paths,
   transport retries, runtime config after the claimant patch).
 * Submit a bounded `builderProblem` on Builder failure results instead of raw exception text.

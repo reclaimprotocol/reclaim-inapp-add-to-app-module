@@ -8,11 +8,12 @@ DIST_ANDROID=./dist/android/$VERSION
 
 mkdir -p debug/android/
 
-KOTLIN_VERSION="2.0.21"
+KOTLIN_VERSION="2.2.10"
 
 COMPILE_SDK="37"
 
 ## Downgrade the Kotlin version in your settings.gradle to the lowest Kotlin version we intend to support.
+## 2.2.10 is the KGP floor of AGP 9's built-in Kotlin, which compileSdk 37 hosts (AGP 9.1.1+) already use.
 sed -i '' "s/id \"org\.jetbrains\.kotlin\.android\" version \".*\"/id \"org\.jetbrains\.kotlin\.android\" version \"$KOTLIN_VERSION\"/" ./.android/settings.gradle;
 
 ## Pin compileSdk for every project that produces a published AAR.
